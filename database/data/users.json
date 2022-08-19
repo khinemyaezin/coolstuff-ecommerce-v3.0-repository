@@ -1,0 +1,9 @@
+[
+    {
+        "first_name":"Khine",
+        "last_name":"Myae",
+        "fk_usertype_id":"2",
+        "email":"kmz@coolstuff.com",
+        "password":"123"
+    }
+]

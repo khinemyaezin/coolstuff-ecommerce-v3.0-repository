@@ -1,0 +1,18 @@
+[
+    {
+        "title":"Nike",
+        "public_id":"NIKMM00001",
+        "fk_region_id":"146",
+        "users":[
+            {
+                "first_name" : "Nike",
+                "last_name" : "Nike",
+                "email" : "admin@nike.com",
+                "phone" : "09795957915",
+                "address" : "Yangon",
+                "password" : "123"
+            }
+        ]
+        
+    }
+]

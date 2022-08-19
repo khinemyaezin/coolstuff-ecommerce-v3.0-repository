@@ -1,0 +1,12 @@
+[
+    {
+        "code":"USER_MANAG",
+        "title":"User Manager",
+        "description":""
+    },
+    {
+        "code":"ORD_MANAG",
+        "title":"Order Manager",
+        "description":""
+    }
+]

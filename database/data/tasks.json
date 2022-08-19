@@ -1,0 +1,10 @@
+[
+    { "title": "user:read" },
+    { "title": "user:create" },
+    { "title": "user:update" },
+    { "title": "user:delete" },
+    { "title": "product:read" },
+    { "title": "product:create" },
+    { "title": "product:update" },
+    { "title": "product:delete" }
+]
