@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Models\Criteria;
 use App\Models\ViewResult;
 use Illuminate\Support\Facades\File;
-
+use Illuminate\Support\Facades\Log;
 
 class Utility
 {
@@ -130,6 +130,12 @@ class Utility
     }
     static function getURL($filePath){
         return $filePath ? str_replace('\\', '/', asset('storage/' . $filePath)) : null;
+    }
+    static function log($content) {
+        Log::build([
+            'driver' => 'single',
+            'path' => storage_path('logs/debug.log'),
+          ])->info($content);
     }
     
 }

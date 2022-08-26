@@ -14,6 +14,7 @@ use App\Services\RoleService;
 use App\Services\TaskService;
 use App\Services\UserService;
 use App\Services\VariantService;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\ServiceProvider;
 
@@ -71,5 +72,6 @@ class AppServiceProvider extends ServiceProvider
         config([
             'settings' => SystemSettings::first()
         ]);
+        Paginator::useBootstrap();
     }
 }

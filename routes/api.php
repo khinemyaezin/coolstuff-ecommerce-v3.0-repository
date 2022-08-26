@@ -5,6 +5,7 @@ use App\Http\Controllers\BrandsApiController;
 use App\Http\Controllers\CategoriesApiController;
 use App\Http\Controllers\CategoryAttributesApiController;
 use App\Http\Controllers\ConditionsApiController;
+use App\Http\Controllers\FileController;
 use App\Http\Controllers\PackTypeApiController;
 use App\Http\Controllers\ProductsApiController;
 use App\Http\Controllers\ProdVariantsApiController;
@@ -82,11 +83,11 @@ Route::get('variant-options/headers/{id}/details', [VariantsApiController::class
 /** Products */
 Route::middleware('auth:sanctum')->post('products', [ProductsApiController::class, 'store']);
 Route::middleware('auth:sanctum')->get('products', [ProductsApiController::class, 'index']);
-Route::middleware('auth:sanctum')->get('products/{id}', [ProductsApiController::class, 'show'])->where('id', '[0-9]+|exists:products,id');
-Route::middleware('auth:sanctum')->put('products/{id}', [ProductsApiController::class, 'update'])->where('id', '[0-9]+|exists:products,id');
+Route::middleware('auth:sanctum')->get('products/{id}', [ProductsApiController::class, 'show']);
+Route::middleware('auth:sanctum')->put('products/{id}', [ProductsApiController::class, 'update']);
+Route::middleware('auth:sanctum')->get('products/{id}/{vid}', [ProdVariantsApiController::class, 'getById']);
 Route::middleware('auth:sanctum')->put('prod-variants', [ProdVariantsApiController::class, 'update']);
 
 Route::middleware('auth:sanctum')->get('brands/{brandId}/inventory/products', [ProdVariantsApiController::class, 'index'])
 ->where('brandId', '[0-9]+|exists:brands,id');
-
-
+Route::post('upload',[FileController::class,'upload']);

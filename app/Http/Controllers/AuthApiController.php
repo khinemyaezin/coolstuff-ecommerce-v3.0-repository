@@ -31,7 +31,7 @@ class AuthApiController extends Controller
                 $resp->error(throw new AuthenticationException());
                 return response(new ViewResult(), Response::HTTP_UNAUTHORIZED);
             }
-            $user = Users::with('brand')->find(Auth::id());
+            $user = Users::with('brand')->with('userType')->find(Auth::id());
         
             $privileges = [];
             foreach ($user->roles as $role) {
@@ -109,7 +109,7 @@ class AuthApiController extends Controller
     public function getCurrentUserFromCookie()
     {
         $result = new ViewResult();
-        $user = Users::with('brand')->find(Auth::id());
+        $user = Users::with('brand')->with('userType')->find(Auth::id());
         $privileges = [];
         foreach ($user->roles as $role) {
             foreach ( $role->tasks as $task) {

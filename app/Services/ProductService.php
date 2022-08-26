@@ -16,6 +16,7 @@ use App\Models\ViewResult;
 use Exception;
 use Illuminate\Database\Eloquent\RelationNotFoundException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ProductService
 {
@@ -25,9 +26,11 @@ class ProductService
         $result = new ViewResult();
         try {
             /** Products */
+            
             if (!$product->save()) {
                 throw new FailToSave("Products [" . $product->title . ']');
             }
+            Utility::log("[create] product_id[" . $product->id . "]");
             /** Variants */
             foreach ($variants as $variant) {
                 $this->createVariant($variant, $product);
@@ -143,13 +146,14 @@ class ProductService
             if (!$product->save()) {
                 throw new FailToSave("product");
             }
+            Utility::log("[update] product_id[" . $product->id . "]");
 
             /** Has Variants */
             foreach ($paramVariants as $variant) {
                 if (Utility::isID($variant->id) && $variant->biz_status == Utility::$BIZ_STATUS['deleted']) {
                     ProdVariants::find($variant->id)->delete();
                 } else if (Utility::isID($variant->id)) {
-                    $this->updateVariant($variant, !Utility::isID($product->fk_varopt_1_hdr_id));
+                    $this->updateVariant($variant, $product, !Utility::isID($product->fk_varopt_1_hdr_id));
                 } else {
                     $this->createVariant($variant, $product);
                 }
@@ -163,11 +167,12 @@ class ProductService
         return $result;
     }
 
-    public function updateVariant(ProdVariants $variant, bool $massUpdate)
+    public function updateVariant(ProdVariants $variant, Products $product, bool $massUpdate)
     {
         $dbVariant = ProdVariants::find($variant->id);
 
         if ($massUpdate) {
+            Utility::log("--variant[" . $variant->id . "] mess update");
             $media_1_image = new Images($variant->media_1_image, Utility::$IMAGE_PRODUCTS);
             $media_2_image = new Images($variant->media_2_image, Utility::$IMAGE_PRODUCTS);
             $media_3_image = new Images($variant->media_3_image, Utility::$IMAGE_PRODUCTS);
@@ -177,7 +182,16 @@ class ProductService
             $media_7_image = new Images($variant->media_7_image, Utility::$IMAGE_PRODUCTS);
             $media_8_video = new Images($variant->media_8_video, Utility::$IMAGE_PRODUCTS);
             $media_9_video = new Images($variant->media_9_video, Utility::$IMAGE_PRODUCTS);
-            // dd($media_1_image);
+
+            $media_1_image->logImageStatus(1);
+            $media_2_image->logImageStatus(2);
+            $media_3_image->logImageStatus(3);
+            $media_4_image->logImageStatus(4);
+            $media_5_image->logImageStatus(5);
+            $media_6_image->logImageStatus(6);
+            $media_7_image->logImageStatus(7);
+
+            //dd($media_6_image);
 
             $updated = [
                 'biz_status' => $variant->biz_status,
@@ -210,8 +224,22 @@ class ProductService
                 'media_8_video' => $media_8_video->getPath($dbVariant->getRawOriginal('media_8_video')),
                 'media_9_video' => $media_9_video->getPath($dbVariant->getRawOriginal('media_9_video'))
             ];
-            //dd($updated);
+
             if (ProdVariants::where('id', $variant->id)->update($updated)) {
+
+                /** Attributes */
+                $attributes = [];
+                foreach ($variant->prod_attributes as $attri) {
+
+                    $attributes[$attri->fk_varopt_hdr_id] = [
+                        'fk_prod_id' => $product->id,
+                        'fk_varopt_dtl_id' => $attri->fk_varopt_dtl_id,
+                        'fk_varopt_unit_id' =>  $attri->fk_varopt_unit_id,
+                        'value' => $attri->value
+                    ];
+                }
+                //dd($attributes);
+                $dbVariant->attributes()->sync($attributes);
 
                 $media_1_image->save();
                 $media_2_image->save();
@@ -270,6 +298,7 @@ class ProductService
 
     public function createVariant(ProdVariants $variant, Products $product)
     {
+        Utility::log("--variant[" . $variant->id . "] create");
         $media_1_image = new Images($variant['media_1_image'], Utility::$IMAGE_PRODUCTS);
         $media_2_image = new Images($variant['media_2_image'], Utility::$IMAGE_PRODUCTS);
         $media_3_image = new Images($variant['media_3_image'], Utility::$IMAGE_PRODUCTS);
@@ -279,6 +308,14 @@ class ProductService
         $media_7_image = new Images($variant['media_7_image'], Utility::$IMAGE_PRODUCTS);
         $media_8_video = new Images($variant['media_8_video'], Utility::$IMAGE_PRODUCTS);
         $media_9_video = new Images($variant['media_9_video'], Utility::$IMAGE_PRODUCTS);
+
+        $media_1_image->logImageStatus(1);
+        $media_2_image->logImageStatus(2);
+        $media_3_image->logImageStatus(3);
+        $media_4_image->logImageStatus(4);
+        $media_5_image->logImageStatus(5);
+        $media_6_image->logImageStatus(6);
+        $media_7_image->logImageStatus(7);
 
         $variant->fk_prod_id = $product->id;
         $variant->media_1_image = $media_1_image->getPath();
@@ -333,7 +370,6 @@ class ProductService
                 ->leftJoin('variant_option_hdrs as option2', 'products.fk_varopt_2_hdr_id', '=', 'option2.id')
                 ->leftJoin('variant_option_hdrs as option3', 'products.fk_varopt_3_hdr_id', '=', 'option3.id')
                 ->where('products.fk_brand_id', '=', $brandId);
-            //$records = $records->orderBy("prod_variants.id");
 
             if (isset($criteria->details['product_title'])) {
                 $records = $records->where('products.title', 'ilike', "%{$criteria->details['product_title']}%");
@@ -428,7 +464,42 @@ class ProductService
             $result->details = $records;
 
             $result->success();
-            $result->queryLog = DB::getQueryLog();
+            //$result->queryLog = DB::getQueryLog();
+        } catch (Exception $e) {
+            $result->error($e);
+        }
+        return $result;
+    }
+
+    public function getVariantsById(Criteria $criteria)
+    {
+        $result = new ViewResult();
+        DB::enableQueryLog();
+        try {
+            // Variants By Id
+            $prodVariant = Utility::prepareRelationships($criteria, new ProdVariants())->find($criteria->details['id']);
+
+            // Additional Variants
+            $brothers = collect([]);
+
+            if (isset($criteria->details['brothers']) && $criteria->details['brothers']) {
+                $brothers = ProdVariants::where('fk_prod_id', '=', $prodVariant->fk_prod_id)
+                    ->whereNot('id', '=', $prodVariant->id)
+                    ->select(['id', 'fk_prod_id', 'var_1_title'])->get();
+            }
+
+            // Merge into one collection;
+            $records = $brothers->push($prodVariant);
+
+            // Transform id into key;
+            $ids = $records->map(function ($variant) {
+                return $variant->id;
+            });
+
+            // Convert key value array;
+            $result->details = array_combine($ids->toArray(), $records->toArray());
+
+            $result->success();
         } catch (Exception $e) {
             $result->error($e);
         }

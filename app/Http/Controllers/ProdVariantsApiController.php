@@ -26,7 +26,6 @@ class ProdVariantsApiController extends Controller
         ]);
 
         if ($validator->fails()) {
-
             $result = new ViewResult();
             $result->error(new InvalidRequest(), $validator->errors());
         } else {
@@ -42,6 +41,32 @@ class ProdVariantsApiController extends Controller
             ];
 
             $result = $this->service->getVariants($request['brandId'], $criteria);
+        }
+        return response()->json($result);
+    }
+
+    public function getById()
+    {
+        $request = request();
+        $validator = validator($request->all(), [
+            'relationships' => 'string|nullable',
+        ]);
+
+        if ($validator->fails()) {
+            $result = new ViewResult();
+            $result->error(new InvalidRequest(), $validator->errors());
+        } else {
+
+            $criteria = new Criteria();
+            $criteria->pagination = $request['pagination'];
+            $criteria->relationships = Utility::splitToArray($request['relationships']);
+            $criteria->details = [
+                'brothers' => $request['brothers'],
+                'id' => $request['vid'],
+                'pid' => $request['id']
+            ];
+
+            $result = $this->service->getVariantsById( $criteria);
         }
         return response()->json($result);
     }
