@@ -7,6 +7,7 @@ use App\Models\Criteria;
 use App\Models\Products;
 use App\Models\ViewResult;
 use App\Services\CategoryAttributeService;
+use App\Services\Utility;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -28,7 +29,7 @@ class CategoryAttributesApiController extends Controller
         } else {
             $criteria = new Criteria();
             $criteria->pagination = $request['pagination'];
-            $criteria->relationships = preg_split('@,@', $request['relationships'], -1, PREG_SPLIT_NO_EMPTY); 
+            $criteria->relationships = Utility::splitToArray($request['relationships']); 
             $criteria->details = [
                 "title"=> $request['title']
             ];
@@ -63,8 +64,6 @@ class CategoryAttributesApiController extends Controller
 
     public function test()
     {
-       
-
        return response()->json(preg_match('/^$|^-1$/', request()->text));
     }
 }

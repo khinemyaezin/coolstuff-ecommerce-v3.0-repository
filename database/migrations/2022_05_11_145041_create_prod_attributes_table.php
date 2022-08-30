@@ -23,7 +23,7 @@ return new class extends Migration
             $table->bigInteger('fk_varopt_unit_id')->nullable();
             $table->foreign('fk_prod_id')->references('id')->on('products');
             $table->foreign('fk_varopt_hdr_id')->references('id')->on('variant_option_hdrs');
-            $table->foreign('fk_variant_id')->references('id')->on('prod_variants');
+            $table->foreign('fk_variant_id')->references('id')->on('prod_variants')->onDelete('cascade');
             $table->foreign('fk_varopt_dtl_id')->references('id')->on('variant_option_dtls');
             $table->foreign('fk_varopt_unit_id')->references('id')->on('variant_option_units');
             $table->timestamps();

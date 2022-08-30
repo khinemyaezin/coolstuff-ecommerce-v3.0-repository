@@ -17,11 +17,7 @@ class BrandsApiController extends Controller
     function __construct(protected BrandService $brandService)
     {
     }
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function index(Request $request)
     {
         $result = null;
@@ -44,12 +40,6 @@ class BrandsApiController extends Controller
         return response()->json($result);
     }
 
-    /**
-     * Brand Register.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         DB::beginTransaction();
@@ -61,7 +51,7 @@ class BrandsApiController extends Controller
             'user.first_name' => 'string|required',
             'user.last_name' => 'string|required',
             'user.email' => 'string|required|email|unique:users,email',
-            'user.phone' => array('string', 'regex:/(^[0-9]+$)/u','nullable'),
+            'user.phone' => array('string', 'regex:/(^[0-9]+$)/u', 'nullable'),
             'user.address' => 'string|nullable',
             'user.password' => 'string|required',
 
@@ -83,31 +73,17 @@ class BrandsApiController extends Controller
             $user->phone = $request['user.phone'];
             $user->address = $request['user.address'];
             $user->password = $request['user.password'];
-            
+
             $result = $this->brandService->register($brand, $user);
         }
         $result->completeTransaction();
         return response()->json($result);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Brands  $brands
-     * @return \Illuminate\Http\Response
-     */
     public function show($id)
     {
-        
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Brands  $brands
-     * @return \Illuminate\Http\Response
-     */
     public function update($id)
     {
         DB::beginTransaction();
@@ -122,23 +98,18 @@ class BrandsApiController extends Controller
         } else {
             $param = [
                 'title' => $request['title'],
-                'image_profile_url'=> $request['image_profile_url'],
-                'image_cover_url'=> $request['image_cover_url'],
+                'image_profile_url' => $request['image_profile_url'],
+                'image_cover_url' => $request['image_cover_url'],
             ];
-            $result = $this->brandService->updateBrand($param,$id);
+            $result = $this->brandService->updateBrand($param, $id);
         }
         $result->completeTransaction();
         return response()->json($result);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Brands  $brands
-     * @return \Illuminate\Http\Response
-     */
     public function destroy(Brands $brands)
     {
         //
     }
+    
 }

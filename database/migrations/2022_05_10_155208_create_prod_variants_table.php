@@ -39,15 +39,15 @@ return new class extends Migration
             $table->text('prod_desc')->nullable();
             $table->timestamp('start_at', 0)->nullable();
             $table->timestamp('expired_at', 0)->nullable();
-            $table->text('media_1_image')->nullable();
-            $table->text('media_2_image')->nullable();
-            $table->text('media_3_image')->nullable();
-            $table->text('media_4_image')->nullable();
-            $table->text('media_5_image')->nullable();
-            $table->text('media_6_image')->nullable();
-            $table->text('media_7_image')->nullable();
-            $table->text('media_8_video')->nullable();
-            $table->text('media_9_video')->nullable();
+            $table->bigInteger('media_1_image')->nullable();
+            $table->bigInteger('media_2_image')->nullable();
+            $table->bigInteger('media_3_image')->nullable();
+            $table->bigInteger('media_4_image')->nullable();
+            $table->bigInteger('media_5_image')->nullable();
+            $table->bigInteger('media_6_image')->nullable();
+            $table->bigInteger('media_7_image')->nullable();
+            $table->bigInteger('media_8_video')->nullable();
+            $table->bigInteger('media_9_video')->nullable();
             $table->foreign('fk_varopt_1_hdr_id')->references('id')->on('variant_option_hdrs');
             $table->foreign('fk_varopt_1_dtl_id')->references('id')->on('variant_option_dtls');
             $table->foreign('fk_varopt_2_hdr_id')->references('id')->on('variant_option_hdrs');
@@ -55,6 +55,15 @@ return new class extends Migration
             $table->foreign('fk_varopt_3_hdr_id')->references('id')->on('variant_option_hdrs');
             $table->foreign('fk_varopt_3_dtl_id')->references('id')->on('variant_option_dtls');
             $table->foreign('fk_condition_id')->references('id')->on('conditions');
+            $table->foreign('fk_prod_id')->references('id')->on('products')->onDelete('cascade');
+
+            foreach ( range(1,7) as $value) {
+                //$table->foreignId('id')->nullable()->constrained("table_name")->cascadeOnUpdate()->nullOnDelete();
+                $table->foreign('media_'.$value.'_image')->references('id')->on('files')->cascadeOnUpdate()->nullOnDelete();
+            }
+            $table->foreign('media_8_video')->references('id')->on('files')->cascadeOnUpdate()->nullOnDelete();
+            $table->foreign('media_9_video')->references('id')->on('files')->cascadeOnUpdate()->nullOnDelete();
+            
             $table->unique(['fk_prod_id', 'seller_sku']);
 
             $table->timestamps();

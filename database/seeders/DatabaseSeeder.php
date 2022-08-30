@@ -2,9 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Brands;
 use App\Models\Categories;
-use App\Models\Condition;
 use App\Models\Conditions;
 use App\Models\PackTypes;
 use App\Models\Regions;
@@ -12,8 +10,6 @@ use App\Models\Roles;
 use App\Models\RolesPrivileges;
 use App\Models\SystemSettings;
 use App\Models\Tasks;
-use App\Models\UserPrivileges;
-use App\Models\Users;
 use App\Models\UserTypes;
 use App\Models\VariantOptionDtls;
 use App\Models\VariantOptionHdrs;
@@ -22,7 +18,6 @@ use App\Services\Utility;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {

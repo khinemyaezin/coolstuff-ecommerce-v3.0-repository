@@ -6,6 +6,7 @@ use App\Http\Controllers\CategoriesApiController;
 use App\Http\Controllers\CategoryAttributesApiController;
 use App\Http\Controllers\ConditionsApiController;
 use App\Http\Controllers\FileController;
+use App\Http\Controllers\FileUploadController;
 use App\Http\Controllers\PackTypeApiController;
 use App\Http\Controllers\ProductsApiController;
 use App\Http\Controllers\ProdVariantsApiController;
@@ -26,9 +27,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return response()->json('welcome');
-});
 
 Route::post('login', [AuthApiController::class, 'login']);
 Route::middleware('auth:sanctum')->get('logout', [AuthApiController::class, 'logout']);
@@ -85,9 +83,12 @@ Route::middleware('auth:sanctum')->post('products', [ProductsApiController::clas
 Route::middleware('auth:sanctum')->get('products', [ProductsApiController::class, 'index']);
 Route::middleware('auth:sanctum')->get('products/{id}', [ProductsApiController::class, 'show']);
 Route::middleware('auth:sanctum')->put('products/{id}', [ProductsApiController::class, 'update']);
+Route::middleware('auth:sanctum')->delete('products/{id}', [ProductsApiController::class, 'destroy']);
 Route::middleware('auth:sanctum')->get('products/{id}/{vid}', [ProdVariantsApiController::class, 'getById']);
 Route::middleware('auth:sanctum')->put('prod-variants', [ProdVariantsApiController::class, 'update']);
 
 Route::middleware('auth:sanctum')->get('brands/{brandId}/inventory/products', [ProdVariantsApiController::class, 'index'])
 ->where('brandId', '[0-9]+|exists:brands,id');
-Route::post('upload',[FileController::class,'upload']);
+
+Route::middleware('auth:sanctum')->post('files',[FileUploadController::class,'store']);
+Route::middleware('auth:sanctum')->get('files',[FileUploadController::class,'getMedias']);

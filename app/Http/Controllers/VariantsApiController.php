@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Exceptions\InvalidRequest;
 use App\Models\Criteria;
 use App\Models\ViewResult;
+use App\Services\Utility;
 use App\Services\VariantService;
 use Illuminate\Http\Request;
 
@@ -28,9 +29,9 @@ class VariantsApiController extends Controller
             $result->error(new InvalidRequest(), $validator->errors());
         } else {
             $criteria = new Criteria();
-            $criteria->relationships = preg_split('@,@', $request['relationships'], -1, PREG_SPLIT_NO_EMPTY); 
+            $criteria->relationships = Utility::splitToArray($request['relationships']);
             $criteria->details = [
-                "title"=> $request['title']
+                "title" => $request['title']
             ];
             $result = $this->service->getHeaders($criteria);
         }
@@ -49,11 +50,11 @@ class VariantsApiController extends Controller
             $result->error(new InvalidRequest(), $validator->errors());
         } else {
             $criteria = new Criteria();
-            $criteria->relationships = preg_split('@,@', $request['relationships'], -1, PREG_SPLIT_NO_EMPTY); 
+            $criteria->relationships = Utility::splitToArray($request['relationships']);
             $criteria->details = [
-                "title"=> $request['title']
+                "title" => $request['title']
             ];
-            $result = $this->service->getDetails($criteria,$id);
+            $result = $this->service->getDetails($criteria, $id);
         }
         return response()->json($result);
     }

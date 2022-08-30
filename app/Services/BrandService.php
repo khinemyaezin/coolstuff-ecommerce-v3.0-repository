@@ -5,12 +5,14 @@ namespace App\Services;
 use App\Exceptions\FailToSave;
 use App\Models\Brands;
 use App\Models\Criteria;
+use App\Models\CsFile;
 use App\Models\Images;
 use App\Models\Regions;
 use App\Models\Users;
 use App\Models\ViewResult;
 use Exception;
 use Illuminate\Database\Eloquent\RelationNotFoundException;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
@@ -61,7 +63,7 @@ class BrandService
         try {
             $brands = new Brands();
             $brands = Utility::prepareRelationships($criteria, $brands);
-            
+
             if (isset($criteria->details['title'])) {
                 $brands = $brands->where('title', 'LIKE', "%{$criteria->details['title']}%");
             }
@@ -102,6 +104,39 @@ class BrandService
                 $coverImage->save();
                 $result->details = Brands::find($id);
             }
+        } catch (Exception $e) {
+            $result->error($e);
+        }
+        return $result;
+    }
+    public function getMedias(Criteria $criteria)
+    {
+        $result = new ViewResult();
+        try {
+            $records = CsFile::where(
+                'fk_brand_id',
+                '=',
+                Auth::user()->fk_brand_id
+            );
+
+            if(isset($criteria->optional['ratio'])) {
+                $records = $records->where('ratio','=',$criteria->optional['ratio']);
+            }
+
+            $records = $records->orderBy('id','DESC')->paginate(
+                Utility::getPaginate($criteria->pagination)
+            );
+
+            if($criteria->pagination) {
+                $records->appends(['pagination' => $criteria->pagination]);
+
+                if(isset($criteria->optional['ratio'])) {
+                     $records->appends(['ratio' => $criteria->optional['ratio']]);
+                }
+               
+            }
+            $result->details = $records;
+            $result->success();
         } catch (Exception $e) {
             $result->error($e);
         }

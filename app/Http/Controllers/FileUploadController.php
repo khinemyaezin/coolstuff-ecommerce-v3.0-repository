@@ -1,0 +1,104 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Exceptions\FailToSave;
+use App\Http\Requests\FileRequest;
+use App\Http\Requests\FileUploadRequest;
+use App\Models\Criteria;
+use App\Models\Images;
+use App\Models\ViewResult;
+use App\Services\BrandService;
+use App\Services\Utility;
+use Exception;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+
+class FileUploadController extends Controller
+{
+    function __construct(protected BrandService $brandService)
+    {
+    }
+    
+    public function store(FileUploadRequest $request)
+    {
+        DB::beginTransaction();
+        $result = new ViewResult();
+        try {
+            $result->details = [];
+            if ($request->hasFile('images')) {
+                $allowedfileExtension = ['pdf', 'jpg', 'png', 'docx'];
+                $files = $request->file('images');
+
+                foreach ($files as $file) {
+                    $csFile = Images::prepareFile($file);
+                    $csFile->ratio = $request->ratio;
+                    $check = in_array($csFile->extension, $allowedfileExtension);
+                    if (!$check) {
+                        throw new Exception('Invalid format', 1001);
+                    }
+
+                    $image = new Images($csFile, Utility::$IMAGE_PRODUCTS);
+
+                    $csFile->fk_brand_id = Auth::user()->fk_brand_id;
+                    $csFile->path = $image->getPath();
+
+                    //dd($csFile);
+                    if (!$csFile->save()) {
+                        throw new FailToSave($csFile->id);
+                    }
+                    if (!$image->save()) {
+                        throw new FailToSave($csFile->path);
+                    }
+                    array_push($result->details, $csFile);
+                    $result->success();
+                }
+            }
+        } catch (Exception $e) {
+            Utility::log("error uploading images");
+            $result->error($e);
+        }
+        $result->completeTransaction();
+        return response()->json($result);
+    }
+
+    public function getMedias(FileRequest $request)
+    {
+        $criteria = new Criteria();
+        $criteria->pagination = $request['pagination'];
+        $criteria->optional = $request->all();
+        $result = $this->brandService->getMedias($criteria);
+        return response()->json($result);
+    }
+}
+
+
+
+
+
+
+
+//dd($check);
+
+// if($check)
+
+// {
+
+// $items= Item::create($request->all());
+
+// foreach ($request->photos as $photo) {
+
+// $filename = $photo->store('photos');
+
+// ItemDetail::create([
+
+// 'item_id' => $items->id,
+
+// 'filename' => $filename
+
+// ]);
+
+// }
+//     }
+// }

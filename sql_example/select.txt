@@ -1,3 +1,0 @@
-select * from stock;
-select * from stock_variant;
-select * from brand;

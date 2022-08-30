@@ -28,7 +28,7 @@ class Utility
         'normal' => 2,
         'delete' => 4,
     ];
-    public static $THEME_IMAGE_TYPE = [
+    public static $FILE_TYPE = [
         1 => 'src',
         2 => 'background-image',
     ];
@@ -38,12 +38,13 @@ class Utility
         'pending' => 6,
     ];
 
-    static function getPaginate($count){
-        if($count && $count == -1) {
+    static function getPaginate($count)
+    {
+        if ($count && $count == -1) {
             return Utility::$PAGINATION_MAX_COUNT;
-        }else if($count && $count>0) {
+        } else if ($count && $count > 0) {
             return $count;
-        }else{
+        } else {
             return Utility::$PAGINATION_COUNT;
         }
     }
@@ -75,6 +76,9 @@ class Utility
             case 1001:
                 return "Invalid Request";
                 break;
+            case 1002:
+                return "Request resource doesn't exist";
+                break;
 
                 //sql error 
             case 23503:
@@ -96,7 +100,7 @@ class Utility
     }
     static function splitToArray($req)
     {
-        return preg_split('@,@', $req , -1, PREG_SPLIT_NO_EMPTY);
+        return $req ? preg_split('@,@', $req, -1, PREG_SPLIT_NO_EMPTY) : [];
     }
 
     static function prepareRelationships(Criteria $criteria, $data)
@@ -108,7 +112,7 @@ class Utility
                 if (isset($criteria->optional[$relationship])) { //null check
                     $optional = $criteria->optional[$relationship]; //check if exists
                     if ($optional) {
-                        $relation[$relationship] = function ($query) use($optional) {
+                        $relation[$relationship] = function ($query) use ($optional) {
                             $optionalArray =  Utility::splitToArray($optional);
                             foreach ($optionalArray as $value) {
                                 $query->with($value);
@@ -116,26 +120,27 @@ class Utility
                         };
                         $data = $data->with($relation);
                     }
-                }else {
+                } else {
                     $data = $data->with($relationship);
                 }
             }
-            
         }
-    
+
         return $data;
     }
-    static function isID($str) {
+    static function isID($str)
+    {
         return preg_match('/^$|^-1$/', $str) == 0;
     }
-    static function getURL($filePath){
+    static function getURL($filePath)
+    {
         return $filePath ? str_replace('\\', '/', asset('storage/' . $filePath)) : null;
     }
-    static function log($content) {
+    static function log($content)
+    {
         Log::build([
             'driver' => 'single',
             'path' => storage_path('logs/debug.log'),
-          ])->info($content);
+        ])->info($content);
     }
-    
 }

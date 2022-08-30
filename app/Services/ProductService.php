@@ -6,6 +6,7 @@ use App\Exceptions\FailToSave;
 use App\Models\Categories;
 use App\Models\Conditions;
 use App\Models\Criteria;
+use App\Models\CsFile;
 use App\Models\Images;
 use App\Models\PackTypes;
 use App\Models\Products;
@@ -16,7 +17,6 @@ use App\Models\ViewResult;
 use Exception;
 use Illuminate\Database\Eloquent\RelationNotFoundException;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class ProductService
 {
@@ -26,11 +26,12 @@ class ProductService
         $result = new ViewResult();
         try {
             /** Products */
-            
             if (!$product->save()) {
                 throw new FailToSave("Products [" . $product->title . ']');
             }
+
             Utility::log("[create] product_id[" . $product->id . "]");
+
             /** Variants */
             foreach ($variants as $variant) {
                 $this->createVariant($variant, $product);
@@ -173,23 +174,6 @@ class ProductService
 
         if ($massUpdate) {
             Utility::log("--variant[" . $variant->id . "] mess update");
-            $media_1_image = new Images($variant->media_1_image, Utility::$IMAGE_PRODUCTS);
-            $media_2_image = new Images($variant->media_2_image, Utility::$IMAGE_PRODUCTS);
-            $media_3_image = new Images($variant->media_3_image, Utility::$IMAGE_PRODUCTS);
-            $media_4_image = new Images($variant->media_4_image, Utility::$IMAGE_PRODUCTS);
-            $media_5_image = new Images($variant->media_5_image, Utility::$IMAGE_PRODUCTS);
-            $media_6_image = new Images($variant->media_6_image, Utility::$IMAGE_PRODUCTS);
-            $media_7_image = new Images($variant->media_7_image, Utility::$IMAGE_PRODUCTS);
-            $media_8_video = new Images($variant->media_8_video, Utility::$IMAGE_PRODUCTS);
-            $media_9_video = new Images($variant->media_9_video, Utility::$IMAGE_PRODUCTS);
-
-            $media_1_image->logImageStatus(1);
-            $media_2_image->logImageStatus(2);
-            $media_3_image->logImageStatus(3);
-            $media_4_image->logImageStatus(4);
-            $media_5_image->logImageStatus(5);
-            $media_6_image->logImageStatus(6);
-            $media_7_image->logImageStatus(7);
 
             //dd($media_6_image);
 
@@ -214,15 +198,15 @@ class ProductService
                 'prod_desc' => $variant->prod_desc,
                 "start_at" => $variant->start_at,
                 "expired_at" => $variant->expired_at,
-                'media_1_image' => $media_1_image->getPath($dbVariant->getRawOriginal('media_1_image')),
-                'media_2_image' => $media_2_image->getPath($dbVariant->getRawOriginal('media_2_image')),
-                'media_3_image' => $media_3_image->getPath($dbVariant->getRawOriginal('media_3_image')),
-                'media_4_image' => $media_4_image->getPath($dbVariant->getRawOriginal('media_4_image')),
-                'media_5_image' => $media_5_image->getPath($dbVariant->getRawOriginal('media_5_image')),
-                'media_6_image' => $media_6_image->getPath($dbVariant->getRawOriginal('media_6_image')),
-                'media_7_image' => $media_7_image->getPath($dbVariant->getRawOriginal('media_7_image')),
-                'media_8_video' => $media_8_video->getPath($dbVariant->getRawOriginal('media_8_video')),
-                'media_9_video' => $media_9_video->getPath($dbVariant->getRawOriginal('media_9_video'))
+                'media_1_image' => $variant->media_1_image,
+                'media_2_image' => $variant->media_2_image,
+                'media_3_image' => $variant->media_3_image,
+                'media_4_image' => $variant->media_4_image,
+                'media_5_image' => $variant->media_5_image,
+                'media_6_image' => $variant->media_6_image,
+                'media_7_image' => $variant->media_7_image,
+                'media_8_video' => $variant->media_8_video,
+                'media_9_video' => $variant->media_9_video
             ];
 
             if (ProdVariants::where('id', $variant->id)->update($updated)) {
@@ -240,16 +224,6 @@ class ProductService
                 }
                 //dd($attributes);
                 $dbVariant->attributes()->sync($attributes);
-
-                $media_1_image->save();
-                $media_2_image->save();
-                $media_3_image->save();
-                $media_4_image->save();
-                $media_5_image->save();
-                $media_6_image->save();
-                $media_7_image->save();
-                $media_8_video->save();
-                $media_9_video->save();
             } else {
                 throw new FailToSave('variant id[' . $variant->id . ']');
             }
@@ -299,35 +273,8 @@ class ProductService
     public function createVariant(ProdVariants $variant, Products $product)
     {
         Utility::log("--variant[" . $variant->id . "] create");
-        $media_1_image = new Images($variant['media_1_image'], Utility::$IMAGE_PRODUCTS);
-        $media_2_image = new Images($variant['media_2_image'], Utility::$IMAGE_PRODUCTS);
-        $media_3_image = new Images($variant['media_3_image'], Utility::$IMAGE_PRODUCTS);
-        $media_4_image = new Images($variant['media_4_image'], Utility::$IMAGE_PRODUCTS);
-        $media_5_image = new Images($variant['media_5_image'], Utility::$IMAGE_PRODUCTS);
-        $media_6_image = new Images($variant['media_6_image'], Utility::$IMAGE_PRODUCTS);
-        $media_7_image = new Images($variant['media_7_image'], Utility::$IMAGE_PRODUCTS);
-        $media_8_video = new Images($variant['media_8_video'], Utility::$IMAGE_PRODUCTS);
-        $media_9_video = new Images($variant['media_9_video'], Utility::$IMAGE_PRODUCTS);
-
-        $media_1_image->logImageStatus(1);
-        $media_2_image->logImageStatus(2);
-        $media_3_image->logImageStatus(3);
-        $media_4_image->logImageStatus(4);
-        $media_5_image->logImageStatus(5);
-        $media_6_image->logImageStatus(6);
-        $media_7_image->logImageStatus(7);
 
         $variant->fk_prod_id = $product->id;
-        $variant->media_1_image = $media_1_image->getPath();
-        $variant->media_2_image = $media_2_image->getPath();
-        $variant->media_3_image = $media_3_image->getPath();
-        $variant->media_4_image = $media_4_image->getPath();
-        $variant->media_5_image = $media_5_image->getPath();
-        $variant->media_6_image = $media_6_image->getPath();
-        $variant->media_7_image = $media_7_image->getPath();
-        $variant->media_8_video = $media_8_video->getPath();
-        $variant->media_9_video = $media_9_video->getPath();
-        //dd($variant);
         $variant->save();
 
         /** Attributes */
@@ -341,17 +288,6 @@ class ProductService
             ];
         }
         $variant->attributes()->sync($attributes);
-
-        /** Images */
-        $media_1_image->save();
-        $media_2_image->save();
-        $media_3_image->save();
-        $media_4_image->save();
-        $media_5_image->save();
-        $media_6_image->save();
-        $media_7_image->save();
-        $media_8_video->save();
-        $media_9_video->save();
     }
 
     public function getVariants($brandId, Criteria $criteria)
@@ -369,6 +305,15 @@ class ProductService
                 ->leftJoin('variant_option_hdrs as option1', 'products.fk_varopt_1_hdr_id', '=', 'option1.id')
                 ->leftJoin('variant_option_hdrs as option2', 'products.fk_varopt_2_hdr_id', '=', 'option2.id')
                 ->leftJoin('variant_option_hdrs as option3', 'products.fk_varopt_3_hdr_id', '=', 'option3.id')
+                ->leftJoin('files as file_1', 'prod_variants.media_1_image', '=', 'file_1.id')
+                ->leftJoin('files as file_2', 'prod_variants.media_2_image', '=', 'file_2.id')
+                ->leftJoin('files as file_3', 'prod_variants.media_3_image', '=', 'file_3.id')
+                ->leftJoin('files as file_4', 'prod_variants.media_4_image', '=', 'file_4.id')
+                ->leftJoin('files as file_5', 'prod_variants.media_5_image', '=', 'file_5.id')
+                ->leftJoin('files as file_6', 'prod_variants.media_6_image', '=', 'file_6.id')
+                ->leftJoin('files as file_7', 'prod_variants.media_7_image', '=', 'file_7.id')
+                ->leftJoin('files as file_8', 'prod_variants.media_8_video', '=', 'file_8.id')
+                ->leftJoin('files as file_9', 'prod_variants.media_9_video', '=', 'file_9.id')
                 ->where('products.fk_brand_id', '=', $brandId);
 
             if (isset($criteria->details['product_title'])) {
@@ -424,15 +369,25 @@ class ProductService
                 "conditions.title as condition.title",
                 'prod_variants.start_at as variant.start_at',
                 'prod_variants.expired_at as variant.expired_at',
-                'prod_variants.media_1_image as variant.media_1_image',
-                'prod_variants.media_2_image as variant.media_2_image',
-                'prod_variants.media_3_image as variant.media_3_image',
-                'prod_variants.media_4_image as variant.media_4_image',
-                'prod_variants.media_5_image as variant.media_5_image',
-                'prod_variants.media_6_image as variant.media_6_image',
-                'prod_variants.media_7_image as variant.media_7_image',
-                'prod_variants.media_8_video as variant.media_8_video',
-                'prod_variants.media_9_video as variant.media_9_video',
+
+                'file_1.id as   variant.media_1_image.id',
+                'file_1.path as variant.media_1_image.path',
+                'file_2.id as   variant.media_2_image.id',
+                'file_2.path as variant.media_2_image.path',
+                'file_3.id as   variant.media_3_image.id',
+                'file_3.path as variant.media_3_image.path',
+                'file_4.id as   variant.media_4_image.id',
+                'file_4.path as variant.media_4_image.path',
+                'file_5.id as   variant.media_5_image.id',
+                'file_5.path as variant.media_5_image.path',
+                'file_6.id as   variant.media_6_image.id',
+                'file_6.path as variant.media_6_image.path',
+                'file_7.id as   variant.media_7_image.id',
+                'file_7.path as variant.media_7_image.path',
+                'file_8.id as   variant.media_8_video.id',
+                'file_8.path as variant.media_8_video.path',
+                'file_9.id as   variant.media_9_video.id',
+                'file_9.path as variant.media_9_video.path',
             );
 
             if ($paginate) {
@@ -445,6 +400,43 @@ class ProductService
                     $raws = collect($variant)->undot()->toArray();
                     $variant = new ProdVariants($raws['variant']);
                     $variant->condition = new Conditions($raws['condition']);
+                    $variant->media_1_image = $raws['variant']['media_1_image']['id'] ? new CsFile([
+                        'id' => $raws['variant']['media_1_image']['id'],
+                        'path' => $raws['variant']['media_1_image']['path']
+                    ]) : null;
+                    $variant->media_2_image = $raws['variant']['media_2_image']['id'] ? new CsFile([
+                        'id' => $raws['variant']['media_2_image']['id'],
+                        'path' => $raws['variant']['media_2_image']['path']
+                    ]) : null;
+                    $variant->media_3_image = $raws['variant']['media_3_image']['id'] ? new CsFile([
+                        'id' => $raws['variant']['media_3_image']['id'],
+                        'path' => $raws['variant']['media_3_image']['path']
+                    ]) : null;
+                    $variant->media_4_image = $raws['variant']['media_4_image']['id'] ? new CsFile([
+                        'id' => $raws['variant']['media_4_image']['id'],
+                        'path' => $raws['variant']['media_4_image']['path']
+                    ]) : null;
+                    $variant->media_5_image = $raws['variant']['media_5_image']['id'] ? new CsFile([
+                        'id' => $raws['variant']['media_5_image']['id'],
+                        'path' => $raws['variant']['media_5_image']['path']
+                    ]) : null;
+                    $variant->media_6_image = $raws['variant']['media_6_image']['id'] ? new CsFile([
+                        'id' => $raws['variant']['media_6_image']['id'],
+                        'path' => $raws['variant']['media_6_image']['path']
+                    ]) : null;
+                    $variant->media_7_image = $raws['variant']['media_7_image']['id'] ? new CsFile([
+                        'id' => $raws['variant']['media_7_image']['id'],
+                        'path' => $raws['variant']['media_7_image']['path']
+                    ]) : null;
+                    $variant->media_8_video = $raws['variant']['media_8_video']['id'] ? new CsFile([
+                        'id' => $raws['variant']['media_8_video']['id'],
+                        'path' => $raws['variant']['media_8_video']['path']
+                    ]) : null;
+                    $variant->media_9_video = $raws['variant']['media_9_video']['id'] ? new CsFile([
+                        'id' => $raws['variant']['media_9_video']['id'],
+                        'path' => $raws['variant']['media_9_video']['path']
+                    ]) : null;
+
                     $product = new Products($raws['product']);
                     $product->category = new Categories($raws['category']);
                     $product->pack_type = new PackTypes($raws['pack_type']);

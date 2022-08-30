@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Casts\ImageUrlGenerate;
+use App\Services\Utility;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\File;
@@ -47,15 +48,6 @@ class ProdVariants extends Model
     ];
     protected $casts = [
         'id' => 'string',
-        'media_1_image' => ImageUrlGenerate::class,
-        'media_2_image' => ImageUrlGenerate::class,
-        'media_3_image' => ImageUrlGenerate::class,
-        'media_4_image' => ImageUrlGenerate::class,
-        'media_5_image' => ImageUrlGenerate::class,
-        'media_6_image' => ImageUrlGenerate::class,
-        'media_7_image' => ImageUrlGenerate::class,
-        'media_8_video' => ImageUrlGenerate::class,
-        'media_9_video' => ImageUrlGenerate::class,
         'buy_price' => 'float',
         'selling_price' => 'float',
         'features' => 'array',
@@ -102,14 +94,50 @@ class ProdVariants extends Model
     }
     public function condition()
     {
-        return $this->hasOne(Conditions::class,'id','fk_condition_id');
+        return $this->hasOne(Conditions::class, 'id', 'fk_condition_id');
     }
+    public function media_1_image()
+    {
+        return $this->hasOne(CsFile::class, 'id', 'media_1_image');
+    }
+    public function media_2_image()
+    {
+        return $this->hasOne(CsFile::class, 'id', 'media_2_image');
+    }
+    public function media_3_image()
+    {
+        return $this->hasOne(CsFile::class, 'id', 'media_3_image');
+    }
+    public function media_4_image()
+    {
+        return $this->hasOne(CsFile::class, 'id', 'media_4_image');
+    }
+    public function media_5_image()
+    {
+        return $this->hasOne(CsFile::class, 'id', 'media_5_image');
+    }
+    public function media_6_image()
+    {
+        return $this->hasOne(CsFile::class, 'id', 'media_6_image');
+    }
+    public function media_7_image()
+    {
+        return $this->hasOne(CsFile::class, 'id', 'media_7_image');
+    }
+    public function media_8_video()
+    {
+        return $this->hasOne(CsFile::class, 'id', 'media_8_video');
+    }
+    public function media_9_video()
+    {
+        return $this->hasOne(CsFile::class, 'id', 'media_9_video');
+    }
+
     public static function boot()
     {
         parent::boot();
         self::deleting(function ($variant) {
-            error_log("deleting variant");
-            $variant->attributes()->detach();
+            Utility::log('variant [' . $variant->id . '] deleted');
         });
         self::deleted(function (ProdVariants $variant) {
             $images = [
@@ -135,7 +163,8 @@ class ProdVariants extends Model
                     error_log('Image.deleting.$file->not exists : true');
                 }
             }
-           
         });
     }
+
+   
 }

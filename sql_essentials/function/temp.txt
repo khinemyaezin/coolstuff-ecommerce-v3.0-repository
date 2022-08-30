@@ -1,0 +1,242 @@
+select * from stock
+----------
+with variant as   (select * from stock_variant  where fk_stock=2111190620112100003 and biz_status=2 
+				   --and fk_stock_variant2_option_dtl=2108010600147200003
+				  ) 
+(select distinct on (variant.fk_stock_variant1_option_dtl)
+ophdr.bz_status,ophdr.id header_id,ophdr.name header_name,opdtl.id option_id,opdtl.name option_name, 
+variant.path,variant.fk_stock,variant.variant1_title as title,1 as option_type from variant 
+inner join stock_variant_option_header ophdr on ophdr.id=variant.fk_stock_variant1_option_hdr 
+inner join stock_variant_option_detail opdtl on variant.fk_stock_variant1_option_dtl = opdtl.id
+order by variant.fk_stock_variant1_option_dtl,variant.fk_stock_variant2_option_dtl,variant.fk_stock_variant3_option_dtl) 
+union all
+(select  distinct on (variant.fk_stock_variant2_option_dtl) 
+ophdr.bz_status,ophdr.id header_id,ophdr.name header_name,opdtl.id option_id,opdtl.name option_name, 
+variant.path,variant.fk_stock,variant.variant2_title,2 from variant 
+inner join stock_variant_option_header ophdr on ophdr.id=variant.fk_stock_variant2_option_hdr 
+inner join stock_variant_option_detail opdtl on variant.fk_stock_variant2_option_dtl = opdtl.id
+order by variant.fk_stock_variant2_option_dtl,variant.fk_stock_variant3_option_dtl) 
+union all
+(select distinct on (variant.fk_stock_variant3_option_dtl) 
+ophdr.bz_status,ophdr.id header_id,ophdr.name header_name,opdtl.id option_id,opdtl.name option_name, 
+variant.path,variant.fk_stock,variant.variant3_title,3 from variant 
+inner join stock_variant_option_header ophdr on ophdr.id=variant.fk_stock_variant3_option_hdr 
+inner join stock_variant_option_detail opdtl on variant.fk_stock_variant3_option_dtl = opdtl.id)
+----------------
+ select distinct on (stock)  stock.id as stock_id,   stock.name as title,   stock.fk_theme as theme_id,   sv.id as var_id,   sv.fk_stock_variant1_option_hdr as option1HdrId,   sv.fk_stock_variant2_option_hdr as option2HdrId,   sv.fk_stock_variant3_option_hdr as option3HdrId,   sv.fk_stock_variant1_option_dtl as option1DtlId,   sv.fk_stock_variant2_option_dtl as option2DtlId,   sv.fk_stock_variant3_option_dtl as option3DtlId,   sv.variant1_title var1_title,   sv.variant2_title var2_title,   sv.variant3_title var3_title,   sv.path as img_link,   sv.selling_price as price,   sv.quantity as quantity,   con.name as con_name  from stock_variant sv  
+ inner join condition con on con.id=sv.fk_condition  
+ inner join stock on stock.id = sv.fk_stock 
+ where sv.biz_status= 2  
+ and sv.id = 2111210950288700002 
+ and sv.fk_stock_variant1_option_dtl = 2107310539471200010 
+ and sv.fk_stock_variant2_option_dtl = 2108010600147500006 
+--  and sv.fk_stock_variant3_option_dtl = 2107310539483000132
+---------
+select 
+stk.name,
+stk.manufacture,
+stk.description,
+stk.features,
+stk.bullet_points,
+brand.id,
+brand.name
+from stock stk
+inner join brand on brand.id=stk.fk_brand
+where stk.id=2111160931496100002
+-----------------------------------------
+select count(*) over() as total,
+count(sv.id),
+ stock.id,
+ stock.biz_status, 
+ stock.code, 
+ stock.name, 
+ stock.status, 
+ stock.cdate, 
+ stock.mdate, 
+ stock.fk_packtype,
+ stock.manufacture, 
+ stock.stock_brand_title,
+ stock.fk_category, 
+ stock.fk_brand, 
+ stock.path,
+ stock.fk_theme,
+ theme.name as theme_name,
+ stock.path as image_path,
+ image.id as image_id,
+ sg.id as prodgroup_id,
+ sg.name as prodgroup_name
+ from stock inner join stock_variant sv on sv.fk_stock = stock.id 
+  left join stock_variant_theme theme on theme.id=stock.fk_theme
+  left join image on image.id = stock.fk_image   inner join brand on brand.id=stock.fk_brand
+  left join stock_group sg on sg.id = stock.fk_stock_group
+group by stock.id,theme.name,image.id,sg.id 
+-----------
+select 
+sv.id as sv_id,
+sv.selling_price as price,
+sv.description as description,
+sv.features as features,
+from stock
+inner join stock_variant sv on stock.id=sv.fk_stock
+inner join brand on brand.id=stock.fk_brand
+inner join condition con on con.id=sv.fk_condition
+where stock.id=2111190620112100003
+and sv.id=2111190620110400022
+--------
+ select distinct on (stock)  
+ stock.id as stock_id,   
+ stock.name as title,   
+ stock.fk_theme as theme_id, 
+ stock.manufacture as manufacture, 
+ sv.id as var_id,   
+ sv.fk_stock_variant1_option_hdr as option1HdrId,   
+ sv.fk_stock_variant2_option_hdr as option2HdrId,   
+ sv.fk_stock_variant3_option_hdr as option3HdrId,   
+ sv.fk_stock_variant1_option_dtl as option1DtlId,   
+ sv.fk_stock_variant2_option_dtl as option2DtlId,   
+ sv.fk_stock_variant3_option_dtl as option3DtlId,  
+ sv.variant1_title var1_title,   
+ sv.variant2_title var2_title,   
+ sv.variant3_title var3_title,   
+ sv.path as img_link,   
+ sv.selling_price as price,   
+ sv.quantity as quantity,   
+ con.name as con_name,	
+ brand.id as brand_id,	
+ brand.name as brand_name from stock 
+ inner join stock_variant sv on stock.id = sv.fk_stock 
+ inner join condition con on con.id=sv.fk_condition  
+ inner join brand on brand.id=stock.fk_brand 
+ where sv.biz_status= 2   
+ and sv.fk_stock_variant1_option_dtl = 2107310539471200010 
+ and sv.fk_stock_variant2_option_dtl = 2108010600147500006 
+ and stock.id = 2111210950288700002
+ -----------
+ with result as (select distinct(vh.id),vh.name from stock_variant_option_header vh
+ inner join stock_variant_theme theme on 
+ theme.fk_stock_variant_option_header1=vh.id 
+ or  theme.fk_stock_variant_option_header2=vh.id 
+ or  theme.fk_stock_variant_option_header3=vh.id)
+ select count(*) over(),* from result limit 3
+-------------------
+select * from stock_variant where id=2111221449559400005
+select * from stock_image where fk_stock_variant=2111221449559400005
+-----------16/12/2021
+with variant as   (select * from stock_variant  where fk_stock=2111190620112100003 and biz_status=2 
+				   --and fk_stock_variant2_option_dtl=2108010600147200003
+				  ) 
+(select distinct on (variant.fk_stock_variant1_option_hdr)
+ophdr.bz_status,ophdr.id header_id,ophdr.name header_name,
+variant.path,variant.fk_stock,1 as option_type from variant 
+inner join stock_variant_option_header ophdr on ophdr.id=variant.fk_stock_variant1_option_hdr 
+order by variant.fk_stock_variant1_option_hdr) 
+union all
+(select distinct on (variant.fk_stock_variant2_option_hdr)
+ophdr.bz_status,ophdr.id header_id,ophdr.name header_name,
+variant.path,variant.fk_stock,2 as option_type from variant 
+inner join stock_variant_option_header ophdr on ophdr.id=variant.fk_stock_variant2_option_hdr 
+order by variant.fk_stock_variant2_option_hdr) 
+union all
+(select distinct on (variant.fk_stock_variant3_option_hdr)
+ophdr.bz_status,ophdr.id header_id,ophdr.name header_name,
+variant.path,variant.fk_stock,3 as option_type from variant 
+inner join stock_variant_option_header ophdr on ophdr.id=variant.fk_stock_variant3_option_hdr 
+order by variant.fk_stock_variant3_option_hdr) ;
+
+---------------
+select * from stock where id=2112140833505700002
+---
+select 
+	count(*) over() as total,
+	cat.id as categroy_id,
+	cat.title as category_name,
+	opthdr.id as option_id,
+	opthdr.name as option_name
+from category_varoption jointable
+inner join categories cat on cat.id=jointable.fk_category
+inner join stock_variant_option_header opthdr on opthdr.id = jointable.fk_var_option
+order by opthdr.name asc
+offset 0 rows fetch next 20 rows only
+--------
+select id,title,path,depth from cs_getcategorybydepth(2)
+select * from categories
+----
+SELECT 
+	node.id,node.title,array_agg (parent.title ORDER BY parent.lft),
+	--array_to_string(array_agg (parent.title ORDER BY parent.lft),'/') as path,
+	(COUNT(parent.title) - 1) depth,
+	node.lft,node.rgt
+FROM categories AS node, categories AS parent
+WHERE node.lft BETWEEN parent.lft AND parent.rgt
+GROUP BY node.id,node.title,node.lft
+HAVING (COUNT(parent.title) - 1) = 2
+ORDER BY node.lft;
+----------------
+SELECT 
+catvar.fk_category as cat_id,
+opthdr.id as option_id,opthdr.name as option_name,
+catvar.id as jun_id
+FROM public.stock_variant_option_header opthdr
+inner join category_varoption catvar on catvar.fk_var_option=opthdr.id and catvar.fk_category=27 and opthdr.status=0
+where lower(opthdr.name) like 'c%'
+order by opthdr.name asc
+limit 5
+----------
+with result as (select distinct(vh.id),vh.name from stock_variant_option_header vh 
+						 inner join stock_variant_theme theme on  
+						 theme.fk_stock_variant_option_header1=vh.id  
+						 or  theme.fk_stock_variant_option_header2=vh.id 
+						 or  theme.fk_stock_variant_option_header3=vh.id)
+						 select count(*) over() as total,* from result limit 20;
+
+select * from stock_variant_option_header
+select * from myuser
+-----------------------
+(SELECT * FROM categories_leaf WHERE lower(replace(path,'/',' ')) = lower('cloth') LIMIT 10 ) UNION
+(SELECT * FROM categories_leaf WHERE  lower(replace(path,'/',' ')) LIKE lower('cloth%') LIMIT 10) UNION
+(SELECT * FROM categories_leaf WHERE  lower(replace(path,'/',' ')) LIKE lower('%cloth%') LIMIT 10) 
+
+SELECT t1.id,t1.lft,t1.rgt,title
+, (SELECT title 
+           FROM categories t2 
+           WHERE t2.lft < t1.lft AND t2.rgt > t1.rgt    
+			
+           ORDER BY t2.rgt-t1.rgt ASC
+			   limit 1) AS parent
+FROM categories t1
+ORDER BY rgt-lft DESC
+----
+SELECT row_number() over(order by t2.rgt desc)-1 as depth,t2.rgt,t2.lft,
+title 
+FROM categories t2 
+WHERE t2.lft < 110 AND t2.rgt > 111	
+ORDER BY t2.rgt-111 desc
+			   
+----
+SELECT node.id,node.title,
+array_agg (parent.title ORDER BY parent.lft) as path,
+(array_agg (parent.id ORDER BY parent.lft))[3] ,
+(COUNT(parent.title) - 1) depth,node.lft,node.rgt
+FROM categories AS node, categories AS parent
+WHERE node.lft BETWEEN parent.lft AND parent.rgt
+GROUP BY node.id,node.title,node.lft
+HAVING node.lft+1=node.rgt
+ORDER BY node.lft;
+--
+select array_agg(1,2,3,4,5)
+
+select * from categories_leaf;
+select add_category_leaf(3);
+--21/12/2021--------------------------------------------------------------------------------------------------------
+select optionheader.name,count(optiondetail.id) from stock_variant_option_header optionheader
+left join stock_variant_option_detail optiondetail on optiondetail.fk_stock_variant_option_header=optionheader.id
+inner join category_varoption catoption on catoption.fk_var_option=optionheader.id and catoption.fk_category=12
+group by optionheader.id
+having count(optiondetail.id)=0
+----
+select catvar.fk_category as cat_id,opthdr.id as option_id,opthdr.name as option_name,catvar.id as jun_id
+from public.stock_variant_option_header opthdr
+inner join category_varoption catvar on catvar.fk_var_option=opthdr.id where catvar.fk_category=12  
+ order by opthdr.name asc limit 100
+
+

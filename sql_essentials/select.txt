@@ -1,0 +1,11 @@
+select * from stock;
+select * from stock_variant;
+select * from brand;
+
+image/jpeg	.jpg, 
+image/jpeg	.jpeg,
+image/png	.png	
+.webp	
+
+php artisan make:migration create_files_table --create=files
+php artisan make:model Article -m

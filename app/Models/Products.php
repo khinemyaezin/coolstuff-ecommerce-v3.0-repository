@@ -65,4 +65,16 @@ class Products extends Model
         return $this->hasOne(VariantOptionHdrs::class,'id','fk_varopt_3_hdr_id');
     }
 
+    public static function boot()
+    {
+        parent::boot();
+        self::deleting(function ($variant) {
+            //Utility::log('variant ['.$variant->id.'] deleted');
+        });
+        self::deleted(function (ProdVariants $variant) {
+            
+           
+        });
+    }
+
 }
