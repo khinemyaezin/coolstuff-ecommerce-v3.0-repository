@@ -70,7 +70,7 @@ class ProdVariants extends Model
     }
     public function variantOption1Dtl()
     {
-        return $this->hasOne(VariantOptionDtls::class, 'id', 'fk_varopt_1_dtr_id');
+        return $this->hasOne(VariantOptionDtls::class, 'id', 'fk_varopt_1_dtl_id');
     }
     public function variantOption2Hdr()
     {

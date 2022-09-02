@@ -75,7 +75,7 @@ class ProductService
         try {
             $product = new Products();
             $product = Utility::prepareRelationships($criteria, $product);
-
+           // dd($product);
             $product = $this->classifyOptions($product->find($id));
             if ($product['fk_varopt_1_hdr_id'] == null) {
                 $product['variants'][0] = $this->productAttributes($product, $product['variants'][0]);

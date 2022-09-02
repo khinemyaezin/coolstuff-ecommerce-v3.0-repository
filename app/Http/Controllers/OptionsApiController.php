@@ -7,9 +7,8 @@ use App\Models\Criteria;
 use App\Models\ViewResult;
 use App\Services\Utility;
 use App\Services\VariantService;
-use Illuminate\Http\Request;
 
-class VariantsApiController extends Controller
+class OptionsApiController extends Controller
 {
     public function __construct(protected VariantService $service)
     {

@@ -49,9 +49,10 @@ class VariantService {
             try {
                 $details = $details->where('fk_varopt_hdr_id', '=', $headerId);
                 if (isset($criteria->details['title'])) {
-                    $details = $details->where('title', 'ilike', "%{$criteria->details['title']}%");
+                    $details = $details->where('title', 'ilike', "{$criteria->details['title']}%");
                 }
-                $result->details = $details->paginate(Utility::getPaginate($criteria->pagination));
+                $details = $details->orderBy('title','ASC');
+                $result->details = $details->paginate(10);
 
                 $result->success();
             } catch (RelationNotFoundException $e) {

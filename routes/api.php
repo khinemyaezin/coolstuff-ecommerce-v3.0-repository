@@ -5,15 +5,14 @@ use App\Http\Controllers\BrandsApiController;
 use App\Http\Controllers\CategoriesApiController;
 use App\Http\Controllers\CategoryAttributesApiController;
 use App\Http\Controllers\ConditionsApiController;
-use App\Http\Controllers\FileController;
 use App\Http\Controllers\FileUploadController;
+use App\Http\Controllers\OptionsApiController;
 use App\Http\Controllers\PackTypeApiController;
 use App\Http\Controllers\ProductsApiController;
 use App\Http\Controllers\ProdVariantsApiController;
 use App\Http\Controllers\RegionsApiController;
 use App\Http\Controllers\RolesApiController;
 use App\Http\Controllers\UsersApiController;
-use App\Http\Controllers\VariantsApiController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -75,8 +74,8 @@ Route::get('conditions', [ConditionsApiController::class, 'index']);
 /** PackTypes */
 Route::get('packtypes', [PackTypeApiController::class, 'index']);
 /** Variants */
-Route::get('variant-options/headers', [VariantsApiController::class, 'getHeaders']);
-Route::get('variant-options/headers/{id}/details', [VariantsApiController::class, 'getDetails']);
+Route::get('options/headers', [OptionsApiController::class, 'getHeaders']);
+Route::get('options/headers/{id}/details', [OptionsApiController::class, 'getDetails']);
 
 /** Products */
 Route::middleware('auth:sanctum')->post('products', [ProductsApiController::class, 'store']);
