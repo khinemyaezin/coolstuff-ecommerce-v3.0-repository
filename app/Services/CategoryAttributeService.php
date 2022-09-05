@@ -57,6 +57,9 @@ class CategoryAttributeService
                     $attributes = $attributes->where('title', 'ilike', "%{$criteria->details['title']}%");
                 }
                 $result->details = $attributes->paginate(Utility::getPaginate($criteria->pagination));
+                // $result->details->getCollection()->transform(function($category){
+                //     $category['varopt_hdr'];
+                // });
                 $result->success();
             } catch (RelationNotFoundException $e) {
                 $result->error($e);

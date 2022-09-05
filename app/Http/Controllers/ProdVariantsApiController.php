@@ -60,6 +60,7 @@ class ProdVariantsApiController extends Controller
             $criteria = new Criteria();
             $criteria->pagination = $request['pagination'];
             $criteria->relationships = Utility::splitToArray($request['relationships']);
+            $criteria->optional = $request->all();
             $criteria->details = [
                 'brothers' => $request['brothers'],
                 'id' => $request['vid'],

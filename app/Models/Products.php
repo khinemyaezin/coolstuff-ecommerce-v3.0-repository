@@ -68,13 +68,6 @@ class Products extends Model
     public static function boot()
     {
         parent::boot();
-        self::deleting(function ($variant) {
-            //Utility::log('variant ['.$variant->id.'] deleted');
-        });
-        self::deleted(function (ProdVariants $variant) {
-            
-           
-        });
     }
 
 }

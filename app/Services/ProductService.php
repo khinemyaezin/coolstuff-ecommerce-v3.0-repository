@@ -75,9 +75,10 @@ class ProductService
         try {
             $product = new Products();
             $product = Utility::prepareRelationships($criteria, $product);
-           // dd($product);
             $product = $this->classifyOptions($product->find($id));
-            if ($product['fk_varopt_1_hdr_id'] == null) {
+                
+            $product['has_variant'] = $product['fk_varopt_1_hdr_id'] == null ? false : true;
+            if (!$product['has_variant']) {
                 $product['variants'][0] = $this->productAttributes($product, $product['variants'][0]);
             }
             $result->details = $product;
@@ -94,7 +95,15 @@ class ProductService
     public function classifyOptions(Products $prod)
     {
 
-        $records =   DB::select('select * from classify_options(?,?,?,?)', [$prod->id, $prod->fk_varopt_1_hdr_id ?? -1, $prod->fk_varopt_2_hdr_id ?? -1, $prod->fk_varopt_3_hdr_id ?? -1]);
+        $records =   DB::select(
+            'select * from classify_options(?,?,?,?)',
+            [
+                $prod->id,
+                $prod->fk_varopt_1_hdr_id ?? -1,
+                $prod->fk_varopt_2_hdr_id ?? -1,
+                $prod->fk_varopt_3_hdr_id ?? -1
+            ]
+        );
         $prod = $prod->toArray();
         foreach ($records as $record) {
             $column = 'variant_option' . $record->option_type . '_hdr';
@@ -111,15 +120,47 @@ class ProductService
     }
     public function productAttributes($prod, $variant)
     {
-        $prodAttributes =  DB::select(
-            'select * from get_product_attributes(?,?,?)',
-            [
-                $prod['category']['level_category_id'],
-                $variant['id'],
-                $prod['id']
-            ]
-        );
-        $variant['attributes'] = $prodAttributes;
+        // $prodAttributes =  DB::select(
+        //     'select * from get_product_attributes(?,?,?)',
+        //     [
+        //         $prod['category']['level_category_id'],
+        //         $variant['id'],
+        //         $prod['id']
+        //     ]
+        // );
+        // $variant['attributes'] = collect($prodAttributes)->transform(function ($item, $key) {
+        //     dd($item);
+        //      return $item;
+
+        // });
+        $lvlCategoryId = $prod['category']['level_category_id'];
+        $productAttributes  = DB::table('variant_option_hdrs')
+            ->join('category_attributes', function ($join)  use ($lvlCategoryId) {
+                $join->on('variant_option_hdrs.id', '=', 'category_attributes.fk_varoption_hdr_id');
+                $join->where("category_attributes.fk_category_id", "=", $lvlCategoryId);
+            })
+            ->leftJoin('prod_attributes', 'variant_option_hdrs.id', '=', 'prod_attributes.fk_varopt_hdr_id')
+            ->leftJoin('variant_option_dtls', 'variant_option_dtls.id', '=', 'prod_attributes.fk_varopt_dtl_id')
+            ->leftJoin('variant_option_units', 'variant_option_units.id', '=', 'prod_attributes.fk_varopt_unit_id')
+            ->select(
+                'prod_attributes.id as id',
+                'allow_dtls_custom_name',
+                'need_dtls_mapping',
+                'value',
+                'variant_option_hdrs.id as varopt_hdr.id',
+                'variant_option_hdrs.title as varopt_hdr.title',
+                'variant_option_dtls.id as varopt_dtl.id',
+                'variant_option_dtls.title as varopt_dtl.title',
+                'variant_option_units.id as varopt_unit.id',
+                'variant_option_units.title as varopt_unit.title'
+            )
+            ->get();
+        $variant['attributes'] = $productAttributes->transform(function($attribute){
+            $dot =  collect($attribute)->undot();
+            $dot['varopt_dtl'] = $dot['varopt_dtl']['id'] == null ? null : $dot['varopt_dtl'];
+            $dot['varopt_unit'] = $dot['varopt_unit']['id'] == null ? null : $dot['varopt_unit'];
+            return $dot;
+        });
         return $variant;
     }
 
@@ -477,7 +518,7 @@ class ProductService
             if (isset($criteria->details['brothers']) && $criteria->details['brothers']) {
                 $brothers = ProdVariants::where('fk_prod_id', '=', $prodVariant->fk_prod_id)
                     ->whereNot('id', '=', $prodVariant->id)
-                    ->select(['id', 'fk_prod_id', 'var_1_title'])->get();
+                    ->select(['id', 'fk_prod_id', 'var_1_title','var_2_title','var_3_title'])->get();
             }
 
             // Merge into one collection;

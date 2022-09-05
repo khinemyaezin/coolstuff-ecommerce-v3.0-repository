@@ -16,6 +16,7 @@ use App\Services\Utility;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class ProductsApiController extends Controller
 {
@@ -152,6 +153,9 @@ class ProductsApiController extends Controller
 
     public function update(ProductUpdateRequest $request)
     {
+        if($request->route('id') != $request->id) {
+            throw ValidationException::withMessages(['id' => 'Invalid IDs']);
+        }
         DB::beginTransaction();
         $result = null;
         $product = new Products([
@@ -227,15 +231,18 @@ class ProductsApiController extends Controller
         $result->completeTransaction();
         return response()->json($result);
     }
+    
     public function destroy($id)
     {
         DB::beginTransaction();
         $result = new ViewResult();
         try {
             $product = Products::find($id);
+            
             if (!$product) {
                 throw new Exception("Product doesnt exist",1002);
             }
+            $product->variants()->delete();
             if ($product->delete()) {
                 $result->success();
             }

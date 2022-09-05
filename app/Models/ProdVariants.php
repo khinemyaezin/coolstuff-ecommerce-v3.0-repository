@@ -78,7 +78,7 @@ class ProdVariants extends Model
     }
     public function variantOption2Dtl()
     {
-        return $this->hasOne(VariantOptionDtls::class, 'id', 'fk_varopt_2_dtr_id');
+        return $this->hasOne(VariantOptionDtls::class, 'id', 'fk_varopt_2_dtl_id');
     }
     public function variantOption3Hdr()
     {
@@ -86,11 +86,12 @@ class ProdVariants extends Model
     }
     public function variantOption3Dtl()
     {
-        return $this->hasOne(VariantOptionDtls::class, 'id', 'fk_varopt_3_dtr_id');
+        return $this->hasOne(VariantOptionDtls::class, 'id', 'fk_varopt_3_dtl_id');
     }
     public function attributes()
     {
         return $this->belongsToMany(VariantOptionHdrs::class, 'prod_attributes', 'fk_variant_id', 'fk_varopt_hdr_id');
+            
     }
     public function condition()
     {
@@ -165,6 +166,4 @@ class ProdVariants extends Model
             }
         });
     }
-
-   
 }
