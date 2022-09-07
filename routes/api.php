@@ -6,6 +6,7 @@ use App\Http\Controllers\CategoriesApiController;
 use App\Http\Controllers\CategoryAttributesApiController;
 use App\Http\Controllers\ConditionsApiController;
 use App\Http\Controllers\FileUploadController;
+use App\Http\Controllers\InventoryApiController;
 use App\Http\Controllers\OptionsApiController;
 use App\Http\Controllers\PackTypeApiController;
 use App\Http\Controllers\ProductsApiController;
@@ -39,23 +40,18 @@ Route::middleware('auth:sanctum')->get('categories', [CategoriesApiController::c
 Route::middleware('auth:sanctum')->get('category-leaves', [CategoriesApiController::class, 'searchCategories']);
 Route::middleware('auth:sanctum')->post('categories', [CategoriesApiController::class, 'store']);
 Route::middleware('auth:sanctum')->get('categories/{id}/subcategories', [CategoriesApiController::class, 'getSubCategories']);
-Route::middleware('auth:sanctum')->put('categories/{id}', [CategoriesApiController::class, 'update'])->where('id', '[0-9]+|exists:categories,id');
+Route::middleware('auth:sanctum')->put('categories/{id}', [CategoriesApiController::class, 'update']);
 Route::middleware('auth:sanctum')->post('category-leaves', [CategoriesApiController::class, 'createCategoryLeaves']);
-Route::middleware('auth:sanctum')->get('categories-withdepth/{depth}', [CategoriesApiController::class, 'getCategoriesByDepth'])->where('depth', '[0-9]+');
+Route::middleware('auth:sanctum')->get('categories-withdepth/{depth}', [CategoriesApiController::class, 'getCategoriesByDepth']);
 /** CategoryAttributes */
-Route::middleware('auth:sanctum')->put('categories/{id}/attributes', [CategoryAttributesApiController::class, 'store'])->where('id','[0-9]+|exists:categories,id');
-Route::middleware('auth:sanctum')->get('categories/{id}/attributes/setup', [CategoryAttributesApiController::class, 'getSetup'])->where('id','[0-9]+|exists:categories,id');
+Route::middleware('auth:sanctum')->put('categories/{id}/attributes', [CategoryAttributesApiController::class, 'store']);
+Route::middleware('auth:sanctum')->get('categories/{id}/attributes/setup', [CategoryAttributesApiController::class, 'getSetup']);
 //id = level category id
-Route::middleware('auth:sanctum')->get('categories/{id}/attributes', [CategoryAttributesApiController::class, 'index'])->where('id','[0-9]+|exists:categories,id');
-
-Route::middleware('auth:sanctum')->get('test', [CategoryAttributesApiController::class, 'test']);
-
-
-
+Route::middleware('auth:sanctum')->get('categories/{id}/attributes', [CategoryAttributesApiController::class, 'index']);
 /** Users */
 Route::middleware('auth:sanctum')->get('users', [UsersApiController::class, 'index']);
-Route::middleware('auth:sanctum')->post('users/{userid}/privileges', [UsersApiController::class, 'savePrivileges'])->where('userid', '[0-9]+');
-Route::middleware('auth:sanctum')->put('users/{id}', [UsersApiController::class, 'update'])->where('id', '[0-9]+|exists:users,id');
+Route::middleware('auth:sanctum')->post('users/{userid}/privileges', [UsersApiController::class, 'savePrivileges']);
+Route::middleware('auth:sanctum')->put('users/{id}', [UsersApiController::class, 'update']);
 
 /** Regions */
 Route::middleware('auth:sanctum')->apiResource('regions', RegionsApiController::class);
@@ -66,8 +62,8 @@ Route::middleware('auth:sanctum')->apiResource('roles', RolesApiController::clas
 /** Brands */
 Route::post('brands/register', [BrandsApiController::class, 'store']);
 Route::middleware('auth:sanctum')->get('brands', [BrandsApiController::class, 'index']);
-Route::middleware('auth:sanctum')->get('brands/{id}', [BrandsApiController::class, 'show'])->where('id', '[0-9]+|exists:brands,id');
-Route::middleware('auth:sanctum')->put('brands/{id}', [BrandsApiController::class, 'update'])->where('id', '[0-9]+|exists:brands,id');
+Route::middleware('auth:sanctum')->get('brands/{id}', [BrandsApiController::class, 'show']);
+Route::middleware('auth:sanctum')->put('brands/{id}', [BrandsApiController::class, 'update']);
 
 /** Conditions */
 Route::get('conditions', [ConditionsApiController::class, 'index']);
@@ -84,9 +80,13 @@ Route::middleware('auth:sanctum')->get('products/{id}', [ProductsApiController::
 Route::middleware('auth:sanctum')->put('products/{id}', [ProductsApiController::class, 'update']);
 Route::middleware('auth:sanctum')->delete('products/{id}', [ProductsApiController::class, 'destroy']);
 Route::middleware('auth:sanctum')->get('products/{id}/{vid}', [ProdVariantsApiController::class, 'getById']);
-Route::middleware('auth:sanctum')->put('prod-variants', [ProdVariantsApiController::class, 'update']);
+Route::middleware('auth:sanctum')->put('products/{id}/{vid}', [ProdVariantsApiController::class, 'update']);
+
+
 
 Route::middleware('auth:sanctum')->get('brands/{brandId}/inventory/products', [ProdVariantsApiController::class, 'index'])
+->where('brandId', '[0-9]+|exists:brands,id');
+Route::middleware('auth:sanctum')->put('brands/{brandId}/inventory/variants', [InventoryApiController::class, 'updateVariants'])
 ->where('brandId', '[0-9]+|exists:brands,id');
 
 Route::middleware('auth:sanctum')->post('files',[FileUploadController::class,'store']);

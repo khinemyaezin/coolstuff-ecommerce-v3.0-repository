@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\InvalidRequest;
+use App\Http\Requests\UserUpdateRequest;
 use App\Models\Criteria;
 use App\Models\Images;
 use App\Models\UserPrivileges;
@@ -75,33 +76,16 @@ class UsersApiController extends Controller
      * @param  \App\Models\Users  $users
      * @return \Illuminate\Http\Response
      */
-    public function update($id)
+    public function update(UserUpdateRequest $request)
     {
         DB::beginTransaction();
         $result = null;
-        $request = request();
-        $validator = validator($request->all(), [
-            'first_name' => 'string|required|max:100',
-            'last_name' => 'string|required|max:100',
-            'image_url' => 'string|nullable',
-            'email' => 'string|email|required',
-            'phone' => array('string', 'regex:/(^[0-9]+$)/u','nullable'),
-            'address' => 'string|required',
-        ]);
-        if ($validator->fails()) {
-            $result = new ViewResult();
-            $result->error(new InvalidRequest(), $validator->errors());
-        } else {
-            $param = [
-                'first_name' => $request['first_name'],
-                'last_name' => $request['last_name'],
-                'image_url' => $request['image_url'],
-                'email' => $request['email'],
-                'phone' => $request['phone'],
-                'address' => $request['address'],
-            ];
-            $result = $this->userService->updateUser($param,$id);
-        }
+        $id = $request->route('id');
+        $criteria = new Criteria();
+        $criteria->details = $request->validated();
+
+        $result = $this->userService->updateUser($criteria, $id);
+
         $result->completeTransaction();
         return response()->json($result);
     }

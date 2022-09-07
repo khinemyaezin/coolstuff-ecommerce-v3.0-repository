@@ -134,7 +134,12 @@ class Utility
     }
     static function getURL($filePath)
     {
-        return $filePath ? str_replace('\\', '/', asset('storage/' . $filePath)) : null;
+        if(filter_var($filePath, FILTER_VALIDATE_URL)) {
+            return $filePath;
+        }else {
+            return $filePath ? str_replace('\\', '/', asset('storage/' . $filePath)) : null;
+        }
+        
     }
     static function log($content)
     {

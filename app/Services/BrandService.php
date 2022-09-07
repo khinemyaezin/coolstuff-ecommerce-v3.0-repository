@@ -26,30 +26,39 @@ class BrandService
         $subfixSerial = sprintf("%'.05d", $serial ?? 1);
         return  strtoupper("{$prefixTitle}{$countryCode}{$subfixSerial}");
     }
-    public function register(Brands $brand, Users $user = null)
+    public function register(Criteria $criteria)
     {
         $result = new ViewResult();
         try {
-            $profileImage = new Images($brand->image_profile_url, Utility::$IMAGE_AVATARS);
-            $coverImage   = new Images($brand->image_cover_url, Utility::$IMAGE_AVATARS);
+            $brand = new Brands();
+            $brand->title = $criteria->details['brand']['title'];
+            $brand->fk_region_id = $criteria->details['brand']['region_id'];
+            $brand->profile_image = $criteria->details['brand']['profile_image'];
+            $brand->cover_image = $criteria->details['brand']['cover_image'];
+            $brand->public_id = $this::getBrandPublicId($brand);
 
-            $brand->public_id           = $this::getBrandPublicId($brand);
-            $brand->image_profile_url   = $profileImage->getPath();
-            $brand->image_cover_url     = $coverImage->getPath();
+            $user = new Users();
+            $user->first_name = $criteria->details['user']['first_name'];
+            $user->last_name = $criteria->details['user']['last_name'];
+            $user->email = $criteria->details['user']['email'];
+            $user->phone = $criteria->details['user']['phone'];
+            $user->address = $criteria->details['user']['address'];
+            $user->password = $criteria->details['user']['password'];
+
             if (!$brand->save()) {
                 throw new FailToSave("Brand");
             }
             if ($user) {
-                $user->password         = Hash::make($user->password);
-                $user->fk_usertype_id   = Utility::settings()->fk_def_brandreg_usertype_id;
+                $user->password = Hash::make($user->password);
+                $user->fk_usertype_id = Utility::settings()->fk_def_brandreg_usertype_id;
+
                 if (!$brand->users()->saveMany([
                     $user
                 ])) {
                     throw new FailToSave("User");
                 }
             }
-            $profileImage->save();
-            $coverImage->save();
+            
             $result->success();
         } catch (Exception $e) {
             $result->error($e);
@@ -81,29 +90,16 @@ class BrandService
         }
         return $result;
     }
-    public function updateBrand(array $param, $id)
+    public function updateBrand(Criteria $criteria, $id)
     {
         $result = new ViewResult();
         try {
-            $profileImage   = new Images($param['image_profile_url'], Utility::$IMAGE_AVATARS);
-            $coverImage     = new Images($param['image_cover_url'], Utility::$IMAGE_AVATARS);
-
             $brand = Brands::find($id);
-            $param['image_profile_url'] = $profileImage->getPath($brand->getRawOriginal('image_profile_url'));
-            $param['image_cover_url'] = $coverImage->getPath($brand->getRawOriginal('image_cover_url'));
-            $brand->update($param);
-            // $brand->title= $param['title'];
-            // $brand->image_profile_url= $profileImage->getPath($brand->getRawOriginal('image_profile_url'));
-            // $brand->image_cover_url= $coverImage->getPath($brand->getRawOriginal('image_cover_url'));
-            error_log($brand->image_profile_url);
-            error_log($brand->image_cover_url);
-
-            $result->complete($brand->save());
-            if ($result->success) {
-                $profileImage->save();
-                $coverImage->save();
-                $result->details = Brands::find($id);
-            }
+            $brand->title = $criteria->details['title'];
+            $brand->profile_image = $criteria->details['profile_image'];
+            $brand->cover_image = $criteria->details['cover_image'];
+            $brand->save();
+            $result->success();
         } catch (Exception $e) {
             $result->error($e);
         }
@@ -113,27 +109,23 @@ class BrandService
     {
         $result = new ViewResult();
         try {
-            $records = CsFile::where(
-                'fk_brand_id',
-                '=',
-                Auth::user()->fk_brand_id
-            );
+            $brand = Brands::find(Auth::user()->fk_brand_id);
+            $records = $brand->files();
 
-            if(isset($criteria->optional['ratio'])) {
-                $records = $records->where('ratio','=',$criteria->optional['ratio']);
+            if (isset($criteria->optional['ratio'])) {
+                $records = $records->where('ratio', '=', $criteria->optional['ratio']);
             }
 
-            $records = $records->orderBy('id','DESC')->paginate(
+            $records = $records->orderBy('id', 'DESC')->paginate(
                 Utility::getPaginate($criteria->pagination)
             );
 
-            if($criteria->pagination) {
+            if ($criteria->pagination) {
                 $records->appends(['pagination' => $criteria->pagination]);
 
-                if(isset($criteria->optional['ratio'])) {
-                     $records->appends(['ratio' => $criteria->optional['ratio']]);
+                if (isset($criteria->optional['ratio'])) {
+                    $records->appends(['ratio' => $criteria->optional['ratio']]);
                 }
-               
             }
             $result->details = $records;
             $result->success();

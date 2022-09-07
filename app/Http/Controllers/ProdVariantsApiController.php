@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\InvalidRequest;
+use App\Http\Requests\GetProductByIdRequest;
 use App\Http\Requests\ProdVariantUpdateRequest;
 use App\Models\Criteria;
-use App\Models\ProdVariants;
 use App\Models\ViewResult;
 use App\Services\ProductService;
 use App\Services\Utility;
@@ -45,38 +45,35 @@ class ProdVariantsApiController extends Controller
         return response()->json($result);
     }
 
-    public function getById()
+    public function getById(GetProductByIdRequest $request)
     {
-        $request = request();
-        $validator = validator($request->all(), [
-            'relationships' => 'string|nullable',
-        ]);
+        $criteria = new Criteria();
+        $criteria->pagination = $request['pagination'];
+        $criteria->relationships = Utility::splitToArray($request['relationships']);
+        $criteria->optional = $request->all();
+        $criteria->details = [
+            'brothers' => $request['brothers'],
+            'id' => $request->route('vid'),
+            'pid' => $request->route('id')
+        ];
 
-        if ($validator->fails()) {
-            $result = new ViewResult();
-            $result->error(new InvalidRequest(), $validator->errors());
-        } else {
-
-            $criteria = new Criteria();
-            $criteria->pagination = $request['pagination'];
-            $criteria->relationships = Utility::splitToArray($request['relationships']);
-            $criteria->optional = $request->all();
-            $criteria->details = [
-                'brothers' => $request['brothers'],
-                'id' => $request['vid'],
-                'pid' => $request['id']
-            ];
-
-            $result = $this->service->getVariantsById( $criteria);
-        }
+        $result = $this->service->getVariantsById($criteria);
         return response()->json($result);
     }
+
 
     public function update(ProdVariantUpdateRequest $request)
     {
         DB::beginTransaction();
-        $result = null;
-        $result = $this->service->updateVariants($request->validated()['variants']);
+
+        $criteria = new Criteria();
+        $criteria->updatedColumns =  $request['updated_columns'];
+        $criteria->customColumns = $request['custom_columns'];
+        $criteria->details = [
+            "id" => $request->route('vid'),
+            "variant" => $request->validated()['variant']
+        ];
+        $result = $this->service->updateVariantByColumns($criteria);
         $result->completeTransaction();
         return response()->json($result);
     }

@@ -15,6 +15,7 @@ use App\Models\Regions;
 use App\Models\VariantOptionHdrs;
 use App\Models\ViewResult;
 use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\RelationNotFoundException;
 use Illuminate\Support\Facades\DB;
 
@@ -76,10 +77,14 @@ class ProductService
             $product = new Products();
             $product = Utility::prepareRelationships($criteria, $product);
             $product = $this->classifyOptions($product->find($id));
-                
+
             $product['has_variant'] = $product['fk_varopt_1_hdr_id'] == null ? false : true;
+
             if (!$product['has_variant']) {
-                $product['variants'][0] = $this->productAttributes($product, $product['variants'][0]);
+                $product['variants'][0] = $this->productAttributes(
+                    $product['category']['level_category_id'],
+                    $product['variants'][0]
+                );
             }
             $result->details = $product;
             $result->success();
@@ -118,7 +123,7 @@ class ProductService
         }
         return $prod;
     }
-    public function productAttributes($prod, $variant)
+    public function productAttributes($lvlCategoryId, $variant)
     {
         // $prodAttributes =  DB::select(
         //     'select * from get_product_attributes(?,?,?)',
@@ -133,13 +138,16 @@ class ProductService
         //      return $item;
 
         // });
-        $lvlCategoryId = $prod['category']['level_category_id'];
+        $variantId = $variant['id'];
         $productAttributes  = DB::table('variant_option_hdrs')
             ->join('category_attributes', function ($join)  use ($lvlCategoryId) {
                 $join->on('variant_option_hdrs.id', '=', 'category_attributes.fk_varoption_hdr_id');
                 $join->where("category_attributes.fk_category_id", "=", $lvlCategoryId);
             })
-            ->leftJoin('prod_attributes', 'variant_option_hdrs.id', '=', 'prod_attributes.fk_varopt_hdr_id')
+            ->leftJoin('prod_attributes', function ($join) use ($variantId) {
+                $join->on('variant_option_hdrs.id', '=', 'prod_attributes.fk_varopt_hdr_id');
+                $join->where('prod_attributes.fk_variant_id', '=', $variantId);
+            })
             ->leftJoin('variant_option_dtls', 'variant_option_dtls.id', '=', 'prod_attributes.fk_varopt_dtl_id')
             ->leftJoin('variant_option_units', 'variant_option_units.id', '=', 'prod_attributes.fk_varopt_unit_id')
             ->select(
@@ -155,7 +163,7 @@ class ProductService
                 'variant_option_units.title as varopt_unit.title'
             )
             ->get();
-        $variant['attributes'] = $productAttributes->transform(function($attribute){
+        $variant['attributes'] = $productAttributes->transform(function ($attribute) {
             $dot =  collect($attribute)->undot();
             $dot['varopt_dtl'] = $dot['varopt_dtl']['id'] == null ? null : $dot['varopt_dtl'];
             $dot['varopt_unit'] = $dot['varopt_unit']['id'] == null ? null : $dot['varopt_unit'];
@@ -295,15 +303,53 @@ class ProductService
     {
         $result = new ViewResult();
         try {
-            foreach ($variants as $variant) {
+            foreach ($variants as $key => $variant) {
                 $db = ProdVariants::find($variant['id']);
-                $db->buy_price  = $variant['buy_price'];
-                $db->selling_price = $variant['selling_price'];
-                $db->qty = $variant['qty'];
-                $db->fk_condition_id = $variant['condition'];
+                foreach ($variant as $key => $value) {
+                    $db[$key] = $variant[$key];
+                }
+                // $db->buy_price  = $variant['buy_price'];
+                // $db->selling_price = $variant['selling_price'];
+                // $db->qty = $variant['qty'];
+                // $db->fk_condition_id = $variant['condition'];
                 $db->save();
             }
 
+            $result->success();
+        } catch (Exception $e) {
+            $result->error($e);
+        }
+        return $result;
+    }
+
+    public function updateVariantByColumns(Criteria $criteria)
+    {
+        $result = new ViewResult();
+        try {
+            $dbVariant = ProdVariants::find($criteria->details['id']);
+
+            if (!$dbVariant) throw new ModelNotFoundException();
+
+            foreach ($criteria->updatedColumns as $col) {
+                $dbVariant[$col] = $criteria->details['variant'][$col];
+            }
+            $dbVariant->save();
+
+            if (in_array("attributes", $criteria->customColumns)) {
+                $attributes = [];
+                if (isset($criteria->details['variant']['attributes'])) {
+                    foreach ($criteria->details['variant']['attributes'] as $attri) {
+                        $optHdrId = $attri['fk_varopt_hdr_id'];
+                        $attributes[$optHdrId] = [
+                            'fk_prod_id' => $dbVariant->product->id,
+                            'fk_varopt_dtl_id' => $attri['fk_varopt_dtl_id'],
+                            'fk_varopt_unit_id' =>  $attri['fk_varopt_unit_id'],
+                            'value' => $attri['value']
+                        ];
+                    }
+                }
+                $dbVariant->attributes()->sync($attributes);
+            }
             $result->success();
         } catch (Exception $e) {
             $result->error($e);
@@ -509,16 +555,26 @@ class ProductService
         $result = new ViewResult();
         DB::enableQueryLog();
         try {
-            // Variants By Id
-            $prodVariant = Utility::prepareRelationships($criteria, new ProdVariants())->find($criteria->details['id']);
+            /**'
+             * Get variant by id;
+             */
+            $prodVariant = Utility::prepareRelationships($criteria, new ProdVariants())
+                ->find($criteria->details['id']);
+            if (!$prodVariant) throw new ModelNotFoundException('Requested product not found',1002);
 
-            // Additional Variants
+            $lvlCategoryId = $prodVariant->product->category->level_category_id;
+            $prodVariant = $this->productAttributes($lvlCategoryId, $prodVariant);
+
+            /**
+             * Additional Variants
+             */
+
             $brothers = collect([]);
 
             if (isset($criteria->details['brothers']) && $criteria->details['brothers']) {
                 $brothers = ProdVariants::where('fk_prod_id', '=', $prodVariant->fk_prod_id)
                     ->whereNot('id', '=', $prodVariant->id)
-                    ->select(['id', 'fk_prod_id', 'var_1_title','var_2_title','var_3_title'])->get();
+                    ->select(['id', 'fk_prod_id', 'var_1_title', 'var_2_title', 'var_3_title'])->get();
             }
 
             // Merge into one collection;

@@ -6,6 +6,7 @@ use App\Exceptions\FailToSave;
 use App\Http\Requests\FileRequest;
 use App\Http\Requests\FileUploadRequest;
 use App\Models\Criteria;
+use App\Models\FilesInBrand;
 use App\Models\Images;
 use App\Models\ViewResult;
 use App\Services\BrandService;
@@ -20,7 +21,7 @@ class FileUploadController extends Controller
     function __construct(protected BrandService $brandService)
     {
     }
-    
+
     public function store(FileUploadRequest $request)
     {
         DB::beginTransaction();
@@ -40,13 +41,18 @@ class FileUploadController extends Controller
                     }
 
                     $image = new Images($csFile, Utility::$IMAGE_PRODUCTS);
-
-                    $csFile->fk_brand_id = Auth::user()->fk_brand_id;
                     $csFile->path = $image->getPath();
 
-                    //dd($csFile);
                     if (!$csFile->save()) {
                         throw new FailToSave($csFile->id);
+                    }
+                    $filesInBrand = new FilesInBrand([
+                        'fk_brand_id' => Auth::user()->fk_brand_id,
+                        'fk_file_id' => $csFile->id
+                    ]);
+
+                    if (!$filesInBrand->save()) {
+                        throw new FailToSave("Fail to save filesInBrands");
                     }
                     if (!$image->save()) {
                         throw new FailToSave($csFile->path);

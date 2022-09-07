@@ -48,8 +48,6 @@ class ProdVariants extends Model
     ];
     protected $casts = [
         'id' => 'string',
-        'buy_price' => 'float',
-        'selling_price' => 'float',
         'features' => 'array',
         'created_at' => 'datetime:d-m-Y h:i:s A',
         'updated_at' => 'datetime:d-m-Y h:i:s A',

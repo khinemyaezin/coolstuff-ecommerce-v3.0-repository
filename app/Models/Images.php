@@ -99,7 +99,6 @@ class Images
             'path' => '',
             'mime_type' => $imeiType,
             'extension' => $extension,
-            'fk_brand_id' => ''
         ]);
         $fileModel->file = $file;
         return $fileModel;

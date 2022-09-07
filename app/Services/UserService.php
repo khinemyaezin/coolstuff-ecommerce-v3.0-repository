@@ -8,6 +8,7 @@ use App\Models\UserPrivileges;
 use App\Models\Users;
 use App\Models\ViewResult;
 use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\RelationNotFoundException;
 
 
@@ -20,7 +21,7 @@ class UserService
         try {
             $users = new Users();
             $users = Utility::prepareRelationships($criteria, $users);
-            
+
             try {
                 if (isset($criteria->details['first_name'])) {
                     $users = $users->where('first_name', 'LIKE', "%{$criteria->details['first_name']}%");
@@ -51,21 +52,22 @@ class UserService
         }
         return $result;
     }
-    public function updateUser(array $param, $id)
+    public function updateUser(Criteria $criteria, $id)
     {
         $result = new ViewResult();
         try {
-            $userImage = new Images($param['image_url'], Utility::$IMAGE_AVATARS);
-            $user = Users::find($id);
-            $user->first_name   = $param['first_name'];
-            $user->last_name    = $param['last_name'];
-            $user->image_url    = $userImage->getPath($user->getRawOriginal('image_url'));
-            $user->email        = $param['email'];
-            $user->phone        = $param['phone'];
-            $user->address      = $param['address'];
 
-            $result->complete($user->save());
-            $userImage->save();
+            $user = Users::find($id);
+            if(!$user) throw new ModelNotFoundException();
+            
+            $user->first_name   = $criteria->details['first_name'];
+            $user->last_name    = $criteria->details['last_name'];
+            $user->profile_image    = $criteria->details['profile_image'];
+            $user->email        = $criteria->details['email'];
+            $user->phone        = $criteria->details['phone'];
+            $user->address      = $criteria->details['address'];
+            $user->save();
+            $result->success();
         } catch (Exception $e) {
             $result->error($e);
         }

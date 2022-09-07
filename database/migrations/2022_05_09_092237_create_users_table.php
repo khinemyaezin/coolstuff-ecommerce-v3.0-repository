@@ -31,7 +31,7 @@ return new class extends Migration
             $table->foreign('fk_usertype_id')->references('id')->on('user_types');
             $table->bigInteger('fk_brand_id')->nullable();
             $table->foreign('fk_brand_id')->references('id')->on('brands');
-            $table->text('image_url')->nullable();
+            $table->bigInteger('profile_image')->nullable();
             $table->string('email',200);
             $table->timestamp('email_verify_at')->nullable();
             $table->string('phone',200)->nullable();
@@ -39,6 +39,7 @@ return new class extends Migration
             $table->text('password')->nullable();
             $table->rememberToken();
             $table->timestamps();
+            $table->foreign('profile_image')->references('id')->on('files')->cascadeOnUpdate()->nullOnDelete();
         });
     }
 

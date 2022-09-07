@@ -58,7 +58,6 @@ return new class extends Migration
             $table->foreign('fk_prod_id')->references('id')->on('products')->onDelete('cascade');
 
             foreach ( range(1,7) as $value) {
-                //$table->foreignId('id')->nullable()->constrained("table_name")->cascadeOnUpdate()->nullOnDelete();
                 $table->foreign('media_'.$value.'_image')->references('id')->on('files')->cascadeOnUpdate()->nullOnDelete();
             }
             $table->foreign('media_8_video')->references('id')->on('files')->cascadeOnUpdate()->nullOnDelete();

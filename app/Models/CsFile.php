@@ -25,4 +25,11 @@ class CsFile extends Model
         'id' => 'string',
         'path' => ImageUrlGenerate::class,
     ];
+    protected $hidden = [
+        'status',
+        'biz_status',
+        'title',
+        'created_at',
+        'updated_at'
+    ];
 }

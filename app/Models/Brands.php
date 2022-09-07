@@ -13,13 +13,11 @@ class Brands extends Model
        'title',
        'public_id',
        'fk_region_id',
-       'image_profile_url',
-       'image_cover_url'
+       'profile_image',
+       'cover_image'
     ];
     protected  $casts = [
         'id' => 'string',
-        'image_profile_url' => ImageUrlGenerate::class,
-        'image_cover_url' => ImageUrlGenerate::class,
         'created_at' => 'datetime:d-m-Y h:i:s A',
         'updated_at' => 'datetime:d-m-Y h:i:s A',
     ];
@@ -34,6 +32,18 @@ class Brands extends Model
     public function region()
     {
         return $this->hasOne(Regions::class, 'fk_region_id', 'id');
+    }
+    public function profileImage()
+    {
+        return $this->hasOne(CsFile::class, 'id', 'profile_image');
+    }
+    public function coverImage()
+    {
+        return $this->hasOne(CsFile::class, 'id', 'cover_image');
+    }
+    public function files()
+    {
+       return $this->belongsToMany(CsFile::class,'files_in_brands','fk_brand_id','fk_file_id');
     }
    
 }

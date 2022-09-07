@@ -6,4 +6,6 @@ class Criteria {
     public $details;
     public $pagination = -1;
     public $optional ;
+    public $updatedColumns = [];
+    public $customColumns = [];
 }

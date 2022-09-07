@@ -14,18 +14,17 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('brands', function (Blueprint $table) {
+        Schema::create('files', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('public_id',10);
-            $table->string('title',200);
             $table->smallInteger('status')->default(Utility::$BIZ_STATUS['active']);
             $table->smallInteger('biz_status')->default(Utility::$ROW_STATUS['normal']);
-            $table->bigInteger('profile_image')->nullable();
-            $table->bigInteger('cover_image')->nullable();
-            $table->bigInteger('fk_region_id');
-            $table->foreign('fk_region_id')->references('id')->on('regions');
-            $table->foreign('profile_image')->references('id')->on('files')->cascadeOnUpdate()->nullOnDelete();
-            $table->foreign('cover_image')->references('id')->on('files')->cascadeOnUpdate()->nullOnDelete();
+            $table->text('title');
+            $table->text('path');
+            $table->string('mime_type',100)->nullable();
+            $table->string('extension',10);
+            $table->string('ratio',10);
+            // $table->bigInteger('fk_brand_id');
+            // $table->foreign('fk_brand_id')->references('id')->on('brands')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -37,6 +36,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('brands');
+        Schema::dropIfExists('files');
     }
 };

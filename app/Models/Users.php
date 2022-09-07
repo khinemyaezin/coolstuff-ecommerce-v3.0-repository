@@ -77,6 +77,11 @@ class Users extends Authenticatable
         return $this->hasOne(UserTypes::class, 'id', 'fk_usertype_id');
     }
 
+    public function profileImage()
+    {
+        return $this->hasOne(CsFile::class, 'id', 'profile_image');
+    }
+
     public function brand()
     {
         return $this->hasOne(Brands::class, 'id', 'fk_brand_id');

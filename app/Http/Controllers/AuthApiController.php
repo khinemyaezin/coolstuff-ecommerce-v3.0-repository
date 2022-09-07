@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\InvalidRequest;
+use App\Models\Criteria;
 use App\Models\Users;
 use App\Models\ViewResult;
 use App\Services\UserService;
 use App\Services\Utility;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Foundation\Auth\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -31,7 +33,13 @@ class AuthApiController extends Controller
                 $resp->error(throw new AuthenticationException());
                 return response(new ViewResult(), Response::HTTP_UNAUTHORIZED);
             }
-            $user = Users::with('brand')->with('userType')->find(Auth::id());
+            $criteria = new Criteria();
+            $criteria->relationships = Utility::splitToArray('brand,userType,profileImage');
+            $criteria->optional = [
+                'brand' => 'profileImage,coverImage'
+            ];
+            $user = Utility::prepareRelationships($criteria, new Users());
+            $user = $user->find(Auth::id());
         
             $privileges = [];
             foreach ($user->roles as $role) {
@@ -109,7 +117,13 @@ class AuthApiController extends Controller
     public function getCurrentUserFromCookie()
     {
         $result = new ViewResult();
-        $user = Users::with('brand')->with('userType')->find(Auth::id());
+        $criteria = new Criteria();
+        $criteria->relationships = Utility::splitToArray('brand,userType,profileImage');
+        $criteria->optional = [
+            'brand' => 'profileImage,coverImage'
+        ];
+        $user = Utility::prepareRelationships($criteria, new Users());
+        $user = $user->find(Auth::id());
         $privileges = [];
         foreach ($user->roles as $role) {
             foreach ( $role->tasks as $task) {
