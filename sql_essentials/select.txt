@@ -9,3 +9,6 @@ image/png	.png
 
 php artisan make:migration create_files_table --create=files
 php artisan make:model Article -m
+
+php artisan migrate:fresh
+php artisan db:seed --class=SQLFunction

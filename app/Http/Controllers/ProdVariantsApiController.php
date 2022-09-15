@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\InvalidRequest;
+use App\Http\Requests\GetInventoryProductsRequest;
 use App\Http\Requests\GetProductByIdRequest;
 use App\Http\Requests\ProdVariantUpdateRequest;
 use App\Models\Criteria;
@@ -17,31 +18,19 @@ class ProdVariantsApiController extends Controller
     {
         # code...
     }
-    public function index()
+    public function index(GetInventoryProductsRequest $request)
     {
+        $criteria = new Criteria();
+        $criteria->pagination = $request['pagination'];
+        $criteria->relationships = Utility::splitToArray($request['relationships']);
+        $criteria->details = [
+            'search' =>  $request['search'],
+            'productId' => $request['productId'],
+            'filterVariants' => Utility::splitToArray($request['filterVariants'])
+        ];
 
-        $request = request();
-        $validator = validator($request->all(), [
-            'relationships' => 'string|nullable',
-        ]);
+        $result = $this->service->getVariants($request['brandId'], $criteria);
 
-        if ($validator->fails()) {
-            $result = new ViewResult();
-            $result->error(new InvalidRequest(), $validator->errors());
-        } else {
-
-            $criteria = new Criteria();
-            $criteria->pagination = $request['pagination'];
-            $criteria->relationships = Utility::splitToArray($request['relationships']);
-            $criteria->details = [
-                'product_title' =>  $request['product_title'],
-                'product_id' =>  $request['product_id'],
-                'product_manufacture' =>  $request['product_manufacture'],
-                'filter_variants' => Utility::splitToArray($request['filter_variants'])
-            ];
-
-            $result = $this->service->getVariants($request['brandId'], $criteria);
-        }
         return response()->json($result);
     }
 

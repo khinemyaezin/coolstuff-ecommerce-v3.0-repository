@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\InvalidRequest;
+use App\Http\Requests\CategorySaveRequest;
+use App\Http\Requests\GetCategoryByDepthRequest;
+use App\Http\Requests\GetCategoryRequest;
 use App\Models\Categories;
+use App\Models\Criteria;
 use App\Models\ViewResult;
 use App\Services\CategoryService;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class CategoriesApiController extends Controller
@@ -15,44 +18,40 @@ class CategoriesApiController extends Controller
     {
     }
 
-    public function index()
+    public function index(GetCategoryRequest $request)
     {
-        return response()->json($this->categoryService->getCategories());
+        $criteria = new Criteria();
+        $criteria->pagination = $request['pagination'];
+        $criteria->details = $request->validated();
+        return response()->json($this->categoryService->getCategories( $criteria));
     }
 
     public function getSubCategories()
     {
         return response()->json($this->categoryService->getSubCategories(request()->id));
     }
-    public function getCategoriesByDepth($depth)
+
+    public function getCategoriesByDepth(GetCategoryByDepthRequest $request)
     {
-        return response()->json($this->categoryService->getCategoriesByDepth($depth));
+        $criteria = new Criteria();
+        $criteria->pagination = $request['pagination'];
+        $criteria->optional = $request->validated();
+        $criteria->details['depth'] = $request->route('depth');
+        return response()->json($this->categoryService->getCategoriesByDepth($criteria));
     }
 
-    public function store(Request $request)
+    public function store(CategorySaveRequest $request)
     {
         DB::beginTransaction();
         $result = null;
-        $validator = validator($request->all(), [
-            'parent_id' => array('string', 'required', 'regex:/(^[0-9]+$)/u', 'exists:categories,id'),
-            'title' => 'string|required|max:100'
+
+        $category = new Categories([
+            'title' => $request['title'],
         ]);
-        if ($validator->fails()) {
-            $result = new ViewResult();
-            $result->error(new InvalidRequest(), $validator->errors());
-        } else {
-            $category = new Categories([
-                'title' => $request['title'],
-            ]);
-            $result = $this->categoryService->create($category, $request->parent_id);
-        }
+        $result = $this->categoryService->create($category, $request->parent_id);
+
         $result->completeTransaction();
         return response()->json($result);
-    }
-
-    public function show(Categories $categories)
-    {
-        //
     }
 
     public function update($id)
@@ -76,9 +75,12 @@ class CategoriesApiController extends Controller
         return response()->json($result);
     }
 
-    public function destroy(Categories $categories)
+    public function destroy($id)
     {
-        //
+        DB::beginTransaction();
+        $result = $this->categoryService->delete($id);
+        $result->completeTransaction();
+        return response()->json($result);
     }
     public function createCategoryLeaves()
     {

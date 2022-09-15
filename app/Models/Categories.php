@@ -19,7 +19,8 @@ class Categories extends Model
     ];
     protected $hidden = [
         'status',
-        'pivot'
+        'pivot',
+        'ts_path_search'
     ];
 
     public function attributes()

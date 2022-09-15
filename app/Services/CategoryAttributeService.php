@@ -33,7 +33,7 @@ class CategoryAttributeService
     {
         $result = new ViewResult();
         try {
-            $result->details = Categories::find($categoryId)->attributes()->sync($variantOptionHdrIds);
+            $result->details = Categories::findOrFail($categoryId)->attributes()->sync($variantOptionHdrIds);
             $result->success();
         } catch (Exception $e) {
             $result->error($e);
@@ -44,7 +44,7 @@ class CategoryAttributeService
     {
         $result = new ViewResult();
         try {
-            $category = Categories::find($categoryId);
+            $category = Categories::findOrFail($categoryId);
             $attributes = $category->attributes();
 
             if ($criteria->relationships && is_array($criteria->relationships)) {

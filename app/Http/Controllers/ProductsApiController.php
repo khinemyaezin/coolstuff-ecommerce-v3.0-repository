@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\InvalidRequest;
+use App\Http\Requests\GetProductByIdRequest;
+use App\Http\Requests\GetProductsRequest;
 use App\Http\Requests\ProductSaveRequest;
 use App\Http\Requests\ProductUpdateRequest;
 use App\Models\Criteria;
@@ -29,36 +31,26 @@ class ProductsApiController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(GetProductsRequest $request)
     {
-        $request = request();
-        $validator = validator($request->all(), [
-            'relationships' => 'string|nullable',
-            'title' => 'string|nullable|max:100',
-            'brand' => 'string|max:200|nullable',
-            'manufacture' => 'string|max:200|nullable',
-        ]);
-        if ($validator->fails()) {
-            $result = new ViewResult();
-            $result->error(new InvalidRequest(), $validator->errors());
-        } else {
-            $criteria = new Criteria();
-            $criteria->pagination = $request['pagination'];
-            $criteria->relationships = Utility::splitToArray($request['relationships']);
-            $criteria->details = [
-                'title' =>  $request['title'],
-                'brand' =>  $request['brand'],
-                'manufacture' =>  $request['manufacture'],
-            ];
-            $result = $this->service->getProducts($criteria);
-        }
+        $criteria = new Criteria();
+        $criteria->pagination = $request['pagination'];
+        $criteria->relationships = Utility::splitToArray($request['relationships']);
+        $criteria->details = [
+            'title' =>  $request['title'],
+            'brand' =>  $request['brand'],
+            'manufacture' =>  $request['manufacture'],
+        ];
+
+        $result = $this->service->getProducts($criteria);
+
         return response()->json($result);
     }
 
     public function store(ProductSaveRequest $request)
     {
         DB::beginTransaction();
-        $result = null;
+        $result = $request->validated();
         $product = new Products([
             'biz_status' => $request['biz_status'],
             'title' =>  $request['title'],
@@ -67,6 +59,7 @@ class ProductsApiController extends Controller
             'package_qty' =>  $request['package_qty'],
             'fk_brand_id' =>  $request['fk_brand_id'],
             'fk_category_id' =>  $request['fk_category_id'],
+            'fk_lvlcategory_id' =>  $request['fk_lvlcategory_id'],
             'fk_packtype_id' =>  $request['fk_packtype_id'],
             'fk_prod_group_id' =>  $request['fk_prod_group_id'],
             'fk_currency_id' =>  $request['fk_currency_id'],
@@ -122,28 +115,22 @@ class ProductsApiController extends Controller
                 return $var;
             }, $request->variants);
         }
-        
+
         $result = $this->service->store($product, $variants);
         $result->completeTransaction();
         return response()->json($result);
     }
-    public function show($id)
+
+    public function show(GetProductByIdRequest $request)
     {
-        $request = request();
-        $validator = validator($request->all(), [
-            'relationships' => 'string|nullable'
-        ]);
-        if ($validator->fails()) {
-            $result = new ViewResult();
-            $result->error(new InvalidRequest(), $validator->errors());
-        } else {
-            $criteria = new Criteria();
-            $criteria->pagination = $request['pagination'];
-            $criteria->relationships = Utility::splitToArray($request['relationships']);
-            $criteria->optional = $request->all();
-            $result = $this->service->getProduct($criteria, $id);
-        }
-        return response()->json($result);
+
+        $criteria = new Criteria();
+        $criteria->pagination = $request['pagination'];
+        $criteria->relationships = Utility::splitToArray($request['relationships']);
+        $criteria->optional = $request->all();
+        $result = $this->service->getProduct($criteria, $request->route('id'));
+
+        return response()->json($result, $result->getHttpStatus());
     }
 
     public function edit(Products $products)
@@ -153,7 +140,7 @@ class ProductsApiController extends Controller
 
     public function update(ProductUpdateRequest $request)
     {
-        if($request->route('id') != $request->id) {
+        if ($request->route('id') != $request->id) {
             throw ValidationException::withMessages(['id' => 'Invalid IDs']);
         }
         DB::beginTransaction();
@@ -165,7 +152,6 @@ class ProductsApiController extends Controller
             'manufacture' =>  $request['manufacture'],
             'package_qty' =>  $request['package_qty'],
             'fk_brand_id' =>  $request['fk_brand_id'],
-            'fk_category_id' =>  $request['fk_category_id'],
             'fk_packtype_id' =>  $request['fk_packtype_id'],
             'fk_prod_group_id' =>  $request['fk_prod_group_id'],
             'fk_currency_id' =>  $request['fk_currency_id'],
@@ -231,17 +217,13 @@ class ProductsApiController extends Controller
         $result->completeTransaction();
         return response()->json($result);
     }
-    
+
     public function destroy($id)
     {
         DB::beginTransaction();
         $result = new ViewResult();
         try {
-            $product = Products::find($id);
-            
-            if (!$product) {
-                throw new Exception("Product doesnt exist",1002);
-            }
+            $product = Products::findOrFail($id);
             $product->variants()->delete();
             if ($product->delete()) {
                 $result->success();

@@ -24,6 +24,7 @@ return new class extends Migration
             $table->integer('package_qty')->default(0);
             $table->bigInteger('fk_brand_id');
             $table->bigInteger('fk_category_id');
+            $table->bigInteger('fk_lvlcategory_id');
             $table->bigInteger('fk_packtype_id');
             $table->bigInteger('fk_prod_group_id')->nullable();
             $table->bigInteger('fk_currency_id');
@@ -32,6 +33,7 @@ return new class extends Migration
             $table->bigInteger('fk_varopt_3_hdr_id')->nullable();
             $table->foreign('fk_brand_id')->references('id')->on('brands');
             $table->foreign('fk_category_id')->references('id')->on('categories');
+            $table->foreign('fk_lvlcategory_id')->references('id')->on('categories');
             $table->foreign('fk_packtype_id')->references('id')->on('pack_types');
             $table->foreign('fk_prod_group_id')->references('id')->on('prod_groups');
             $table->foreign('fk_currency_id')->references('id')->on('regions');

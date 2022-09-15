@@ -16,49 +16,63 @@ class SQLFunction extends Seeder
     {
         // Store Category Function.
         $sql = "CREATE OR REPLACE FUNCTION store_category(myid integer, title text) RETURNS integer AS $$
-                    declare mylft integer;
-                    declare resultcount integer;
-                    BEGIN
-                        select lft into mylft from categories where id = myid;
-                        update categories set rgt = (rgt+2) where rgt > mylft;
-                        update categories set lft = lft +2 where lft > mylft;
-                        insert into categories (title,lft,rgt,created_at,updated_at) values (
-                              title, mylft+1, mylft+2, now(), now()
-                        );
-                        SELECT currval('categories_id_seq') into resultcount;
-                        return resultcount;
-                    END;
+                	declare mylft integer;
+                	declare resultcount integer;
+                       BEGIN
+                			select lft into mylft from categories where id = myid;
+                  			update categories set rgt = (rgt+2) where rgt > mylft;
+                  			update categories set lft = lft +2 where lft > mylft;
+                                      			insert into categories (title,lft,rgt,created_at,updated_at) values (
+                  				title, mylft+1, mylft+2, now(), now()
+                  			);
+                			SELECT currval('categories_id_seq') into resultcount;
+                           
+                			with fullNode as (
+                				SELECT node.id,node.title,array_to_string( array_remove(array_agg (parent.title ORDER BY parent.lft),'root'), ', ' ) as path,
+                				(COUNT(parent.title) - 1) depth,node.lft,node.rgt
+                				FROM categories AS node, categories AS parent
+                				WHERE node.lft BETWEEN parent.lft AND parent.rgt 
+                				and node.id = resultcount
+                				GROUP BY node.id,node.title,node.lft
+                				ORDER BY node.lft
+                			) update categories set full_path = fullNode.path from fullNode where fullNode.id=categories.id;
+                 			return resultcount;
+                               
+                       END;
                 $$ LANGUAGE plpgsql;";
         DB::unprepared($sql);
 
-        // Store CategoryLeaf Function.
-        $sql = "CREATE OR REPLACE FUNCTION store_category_leaves() RETURNS void AS $$
+        // --FUNCTON CREATE CATEGORY TRIGGER FUNCTON 
+        $sql = "CREATE OR REPLACE FUNCTION categories_tsvector_trigger() RETURNS trigger as $$
+                    begin
+                        new.ts_path_search := setweight(to_tsvector('english', coalesce(new.title, '')), 'A') ||
+                        setweight(to_tsvector('english', coalesce(new.full_path, '')), 'B');
+                        return new;
+                    end
+                $$ LANGUAGE plpgsql;";
+        DB::unprepared($sql);
+
+        $sql = "DROP TRIGGER if exists categories_tsvector_update on categories cascade;";
+        DB::unprepared($sql);
+
+        $sql = "CREATE TRIGGER categories_tsvector_update BEFORE INSERT OR UPDATE
+                ON categories FOR EACH ROW EXECUTE PROCEDURE categories_tsvector_trigger();";
+        DB::unprepared($sql);
+
+        /** Remove row from Category */
+        $sql = "CREATE OR REPLACE FUNCTION delete_category(myid integer) RETURNS void AS $$
+                declare mylft integer;
+                declare myrgt integer;
+                declare mydepth integer;
+                declare resultcount integer;
                 BEGIN
-		    		delete from category_leaves;
-		    		drop table if exists fullnode;
-		    		drop table if exists leafNode;
-		    		CREATE TEMP TABLE fullnode (
-   		    			id integer,title text default '',path text default '',depth integer,lft int,rgt int
-		    		);
-		    		CREATE TEMP TABLE leafNode (
-   		    			id integer,title text default '',path text default '',depth integer,lft int,rgt int
-		    		);
-		    		INSERT INTO fullnode (id,title,path,depth,lft,rgt) 
-		    			SELECT node.id,node.title,array_to_string(array_agg (parent.title ORDER BY parent.lft),'/') as path,
-		    			(COUNT(parent.title) - 1) depth,node.lft,node.rgt
-		    			FROM categories AS node, categories AS parent
-		    			WHERE node.lft BETWEEN parent.lft AND parent.rgt
-		    			GROUP BY node.id,node.title,node.lft
-		    			ORDER BY node.lft;
-		    		INSERT INTO leafNode (id,title,lft,rgt) 
-		    			SELECT node1.id,node1.title,node1.lft,node1.rgt
-		    			FROM categories AS node1, categories AS parent1
-		    			WHERE node1.lft BETWEEN parent1.lft AND parent1.rgt and parent1.rgt = parent1.lft +1
-		    			GROUP BY node1.id,node1.title,node1.lft
-		    			ORDER BY node1.lft;
-		    		insert into category_leaves (id,title,path,depth,lft,rgt)
-		    		select fullnode.id,leafNode.title,fullnode.path,fullnode.depth,fullnode.lft,fullnode.rgt from  fullnode 
-		    		inner join leafNode on leafNode.id=fullnode.id;
+                    SELECT lft INTO mylft FROM categories WHERE id = myid;
+                    SELECT lft,rgt,(rgt - lft + 1) INTO mylft,myrgt,mydepth FROM categories WHERE id = myid;
+                    DELETE FROM categories WHERE lft BETWEEN mylft AND myrgt;
+                            
+                    update categories SET rgt = rgt - mydepth WHERE rgt > myrgt;
+                    UPDATE categories SET lft = lft - mydepth WHERE lft > mylft;
+                            
                 END;
             $$ LANGUAGE plpgsql;";
         DB::unprepared($sql);
@@ -124,7 +138,7 @@ class SQLFunction extends Seeder
                 $$ LANGUAGE plpgsql;";
         DB::unprepared($sql);
 
-        $sql="CREATE OR REPLACE FUNCTION get_product_attributes(lvlCategoryId bigint,variantId bigint,productId bigint) RETURNS 
+        $sql = "CREATE OR REPLACE FUNCTION get_product_attributes(lvlCategoryId bigint,variantId bigint,productId bigint) RETURNS 
                 table(
                     id bigint,
                     fk_varopt_hdr_id bigint,
@@ -180,6 +194,23 @@ class SQLFunction extends Seeder
                                  right join optionGroup on attri.fk_varopt_hdr_id= optionGroup.option_id;   
                         END;
             $$ LANGUAGE plpgsql;";
+        DB::unprepared($sql);
+
+        // --FUNCTON CREATE VARIANTS TRIGGER FUNCTON 
+        $sql = "CREATE OR REPLACE FUNCTION prodvariant_tsvector_trigger() RETURNS trigger as $$
+                    begin
+                        new.ts_search := setweight(to_tsvector('english', coalesce(new.title, '')), 'A') ||
+                        setweight(to_tsvector('english', coalesce(new.full_path, '')), 'B');
+                        return new;
+                    end
+                $$ LANGUAGE plpgsql;";
+        DB::unprepared($sql);
+
+        $sql = "DROP TRIGGER if exists categories_tsvector_update on categories cascade;";
+        DB::unprepared($sql);
+
+        $sql = "CREATE TRIGGER categories_tsvector_update BEFORE INSERT OR UPDATE
+                ON categories FOR EACH ROW EXECUTE PROCEDURE categories_tsvector_trigger();";
         DB::unprepared($sql);
     }
 }

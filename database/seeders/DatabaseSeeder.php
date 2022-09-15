@@ -10,14 +10,16 @@ use App\Models\Roles;
 use App\Models\RolesPrivileges;
 use App\Models\SystemSettings;
 use App\Models\Tasks;
+use App\Models\UserPrivileges;
+use App\Models\Users;
 use App\Models\UserTypes;
 use App\Models\VariantOptionDtls;
 use App\Models\VariantOptionHdrs;
 use App\Models\VariantOptionUnits;
-use App\Services\Utility;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -88,34 +90,58 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        
 
-        // UserPrivileges::truncate();
-        // $json = File::get("database/data/user_role.json");
-        // $userPrivileges = json_decode($json);
+        /** User roles */
+        UserPrivileges::truncate();
+        $json = File::get("database/data/user_role.json");
+        $userPrivileges = json_decode($json);
 
-        // foreach ($userPrivileges as $key => $value) {
-        //     UserPrivileges::create([
-        //         "title" => $value->title,
-        //         "fk_user_id" => $value->fk_user_id,
-        //         "fk_role_id" => $value->fk_role_id,
-        //     ]);
-        // }
+        foreach ($userPrivileges as $key => $value) {
+            // UserPrivileges::create([
+            //     "title" => $value->title,
+            //     "fk_user_id" => $value->fk_user_id,
+            //     "fk_role_id" => $value->fk_role_id,
+            // ]);
+        }
+
+        // Admin User Imports
+        Users::truncate();
+        $json = File::get("database/data/users.json");
+        $data = json_decode($json);
+
+        foreach ($data as $key => $value) {
+            Users::create([
+                "first_name" => $value->first_name,
+                "last_name" => $value->last_name,
+                "fk_usertype_id" => $value->fk_usertype_id,
+                "email" => $value->email,
+                "password" => Hash::make($value->password)
+            ]);
+        }
 
         // Categories Import
         Categories::truncate();
         $json = File::get("database/data/categories.json");
-        $categories = json_decode($json);
-
-        foreach ($categories as $key => $value) {
+        $data = json_decode($json);
+        foreach ($data as $key => $value) {
             Categories::create([
                 "title" => $value->title,
                 "lft" => $value->lft,
                 "rgt" => $value->rgt,
             ]);
-        };
-        DB::select('select store_category_leaf(?)', [Utility::$CATEGORY_DEPTH_LVL_FOR_ATTRIBUTES]);
+        }
+        $sql = "with fullNode as (
+                    SELECT node.id,node.title,array_to_string( array_remove(array_agg (parent.title ORDER BY parent.lft),'root'), ', ' ) as path,
+                        (COUNT(parent.title) - 1) depth,node.lft,node.rgt
+                        FROM categories AS node, categories AS parent
+                        WHERE node.lft BETWEEN parent.lft AND parent.rgt 
+                        GROUP BY node.id,node.title,node.lft
+                        ORDER BY node.lft
+                ) update categories set full_path = fullNode.path from fullNode where fullNode.id=categories.id;";
+        DB::unprepared($sql);
 
+
+        
         // Conditions Import
         Conditions::truncate();
         $json = File::get("database/data/conditions.json");

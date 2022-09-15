@@ -19,13 +19,56 @@ CREATE OR REPLACE FUNCTION store_category(myid integer, title text) RETURNS inte
   				insert into categories (title,lft,rgt,created_at,updated_at) values (
   					title, mylft+1, mylft+2, now(), now()
   				);
-				  SELECT currval('categories_id_seq') into resultcount;
- 				  return resultcount;
+				SELECT currval('categories_id_seq') into resultcount;
+				
+				with fullNode as (
+					SELECT node.id,node.title,array_to_string( array_remove(array_agg (parent.title ORDER BY parent.lft),'root'), ', ' ) as path,
+					(COUNT(parent.title) - 1) depth,node.lft,node.rgt
+					FROM categories AS node, categories AS parent
+					WHERE node.lft BETWEEN parent.lft AND parent.rgt 
+					and node.id = resultcount
+					GROUP BY node.id,node.title,node.lft
+					ORDER BY node.lft
+				) update categories set full_path = fullNode.path from fullNode where fullNode.id=categories.id;
+ 				return resultcount;
 
         END;
 $$ LANGUAGE plpgsql;
 
---FUNCTION ADD CATEGORY_leaf
+--FUNCTON CREATE CATEGORY TRIGGER FUNCTON  
+CREATE OR REPLACE FUNCTION categories_tsvector_trigger() RETURNS trigger as $$
+begin
+	new.ts_path_search := setweight(to_tsvector('english', coalesce(new.title, '')), 'A') ||
+	setweight(to_tsvector('english', coalesce(new.full_path, '')), 'B');
+	return new;
+end
+$$ LANGUAGE plpgsql;
+
+--TRIGGER CATEGORIES UPDATE OR INSERT
+DROP TRIGGER if exists categories_tsvector_update on categories cascade;
+
+CREATE TRIGGER categories_tsvector_update BEFORE INSERT OR UPDATE
+ON categories FOR EACH ROW EXECUTE PROCEDURE categories_tsvector_trigger();
+
+--FUNCTION REMOVE CATEGORY
+CREATE OR REPLACE FUNCTION delete_category(myid integer) RETURNS void AS $$
+    declare mylft integer;
+    declare myrgt integer;
+    declare mydepth integer;
+    declare resultcount integer;
+    BEGIN
+        SELECT lft INTO mylft FROM categories WHERE id = myid;
+        SELECT lft,rgt,(rgt - lft + 1) INTO mylft,myrgt,mydepth FROM categories WHERE id = myid;
+        DELETE FROM categories WHERE lft BETWEEN mylft AND myrgt;
+
+        update categories SET rgt = rgt - mydepth WHERE rgt > myrgt;
+        UPDATE categories SET lft = lft - mydepth WHERE lft > mylft;
+
+    END;
+$$ LANGUAGE plpgsql;
+				
+-- @Deprecated
+-- FUNCTION ADD CATEGORY_leaf 
 CREATE OR REPLACE FUNCTION store_category_leaf() RETURNS void AS $$
 	
         BEGIN

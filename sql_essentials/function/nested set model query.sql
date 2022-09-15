@@ -16,9 +16,9 @@ SELECT node.id,node.title, (COUNT(parent.title) - 1) AS depth
 FROM categories AS node,
         categories AS parent
 WHERE node.lft BETWEEN parent.lft AND parent.rgt 
--- and parent.id=9
+
 GROUP BY node.title,node.lft ,node.id
---HAVING (COUNT(parent.title) - 1) =2
+HAVING (COUNT(parent.title) - 1) = 2
 ORDER BY node.lft
 
 
@@ -34,7 +34,7 @@ FROM categories AS node,
                 FROM categories AS node,
                 categories AS parent
                 WHERE node.lft BETWEEN parent.lft AND parent.rgt
-                AND node.id = 12
+                AND node.id = 39
                 GROUP BY node.title
         )AS sub_tree
 WHERE node.lft BETWEEN parent.lft AND parent.rgt
@@ -84,7 +84,7 @@ SELECT parent.*
 FROM categories AS node,
         categories AS parent
 WHERE node.lft BETWEEN parent.lft AND parent.rgt
-        AND node.id = 12
+        AND node.id = 39
 ORDER BY parent.lft
 
 --GET LEAF NODE OF UNDER NODE

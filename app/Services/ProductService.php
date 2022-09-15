@@ -7,7 +7,6 @@ use App\Models\Categories;
 use App\Models\Conditions;
 use App\Models\Criteria;
 use App\Models\CsFile;
-use App\Models\Images;
 use App\Models\PackTypes;
 use App\Models\Products;
 use App\Models\ProdVariants;
@@ -76,21 +75,19 @@ class ProductService
         try {
             $product = new Products();
             $product = Utility::prepareRelationships($criteria, $product);
-            $product = $this->classifyOptions($product->find($id));
+            $product = $this->classifyOptions($product->findOrFail($id));
 
             $product['has_variant'] = $product['fk_varopt_1_hdr_id'] == null ? false : true;
 
+
             if (!$product['has_variant']) {
                 $product['variants'][0] = $this->productAttributes(
-                    $product['category']['level_category_id'],
+                    $product['fk_lvlcategory_id'],
                     $product['variants'][0]
                 );
             }
             $result->details = $product;
             $result->success();
-        } catch (RelationNotFoundException $e) {
-            $result->error($e);
-            $result->message = "'" . $e->relation . "' relation does not exists";
         } catch (Exception $e) {
             $result->error($e);
         }
@@ -125,19 +122,6 @@ class ProductService
     }
     public function productAttributes($lvlCategoryId, $variant)
     {
-        // $prodAttributes =  DB::select(
-        //     'select * from get_product_attributes(?,?,?)',
-        //     [
-        //         $prod['category']['level_category_id'],
-        //         $variant['id'],
-        //         $prod['id']
-        //     ]
-        // );
-        // $variant['attributes'] = collect($prodAttributes)->transform(function ($item, $key) {
-        //     dd($item);
-        //      return $item;
-
-        // });
         $variantId = $variant['id'];
         $productAttributes  = DB::table('variant_option_hdrs')
             ->join('category_attributes', function ($join)  use ($lvlCategoryId) {
@@ -163,12 +147,14 @@ class ProductService
                 'variant_option_units.title as varopt_unit.title'
             )
             ->get();
+
         $variant['attributes'] = $productAttributes->transform(function ($attribute) {
             $dot =  collect($attribute)->undot();
             $dot['varopt_dtl'] = $dot['varopt_dtl']['id'] == null ? null : $dot['varopt_dtl'];
             $dot['varopt_unit'] = $dot['varopt_unit']['id'] == null ? null : $dot['varopt_unit'];
             return $dot;
         });
+
         return $variant;
     }
 
@@ -178,14 +164,13 @@ class ProductService
         try {
             //DB::enableQueryLog();
 
-            $product = Products::find($prodId);
+            $product = Products::findOrFail($prodId);
             $product->biz_status            = $paramProduct->biz_status;
             $product->title                 = $paramProduct->title;
             $product->brand                 = $paramProduct->brand;
             $product->manufacture           = $paramProduct->manufacture;
             $product->package_qty           = $paramProduct->package_qty;
             $product->fk_brand_id           = $paramProduct->fk_brand_id;
-            $product->fk_category_id        = $paramProduct->fk_category_id;
             $product->fk_packtype_id        = $paramProduct->fk_packtype_id;
             $product->fk_prod_group_id      = $paramProduct->fk_prod_group_id;
             $product->fk_currency_id        = $paramProduct->fk_currency_id;
@@ -380,39 +365,46 @@ class ProductService
     public function getVariants($brandId, Criteria $criteria)
     {
         $result = new ViewResult();
-        DB::enableQueryLog();
+        $result->enableQueryLog();
         try {
             $paginate = true;
             $records = DB::table('products')
                 ->join('prod_variants', 'products.id', '=', 'prod_variants.fk_prod_id')
-                ->join('categories', 'categories.id', '=', 'products.fk_category_id')
-                ->join('pack_types', 'pack_types.id', '=', 'products.fk_packtype_id')
+                // ->join('categories', 'categories.id', '=', 'products.fk_category_id')
+                // ->join('pack_types', 'pack_types.id', '=', 'products.fk_packtype_id')
                 ->join('regions', 'regions.id', '=', 'products.fk_currency_id')
                 ->join('conditions', 'prod_variants.fk_condition_id', '=', 'conditions.id')
                 ->leftJoin('variant_option_hdrs as option1', 'products.fk_varopt_1_hdr_id', '=', 'option1.id')
                 ->leftJoin('variant_option_hdrs as option2', 'products.fk_varopt_2_hdr_id', '=', 'option2.id')
                 ->leftJoin('variant_option_hdrs as option3', 'products.fk_varopt_3_hdr_id', '=', 'option3.id')
                 ->leftJoin('files as file_1', 'prod_variants.media_1_image', '=', 'file_1.id')
-                ->leftJoin('files as file_2', 'prod_variants.media_2_image', '=', 'file_2.id')
-                ->leftJoin('files as file_3', 'prod_variants.media_3_image', '=', 'file_3.id')
-                ->leftJoin('files as file_4', 'prod_variants.media_4_image', '=', 'file_4.id')
-                ->leftJoin('files as file_5', 'prod_variants.media_5_image', '=', 'file_5.id')
-                ->leftJoin('files as file_6', 'prod_variants.media_6_image', '=', 'file_6.id')
-                ->leftJoin('files as file_7', 'prod_variants.media_7_image', '=', 'file_7.id')
-                ->leftJoin('files as file_8', 'prod_variants.media_8_video', '=', 'file_8.id')
-                ->leftJoin('files as file_9', 'prod_variants.media_9_video', '=', 'file_9.id')
+                // ->leftJoin('files as file_2', 'prod_variants.media_2_image', '=', 'file_2.id')
+                // ->leftJoin('files as file_3', 'prod_variants.media_3_image', '=', 'file_3.id')
+                // ->leftJoin('files as file_4', 'prod_variants.media_4_image', '=', 'file_4.id')
+                // ->leftJoin('files as file_5', 'prod_variants.media_5_image', '=', 'file_5.id')
+                // ->leftJoin('files as file_6', 'prod_variants.media_6_image', '=', 'file_6.id')
+                // ->leftJoin('files as file_7', 'prod_variants.media_7_image', '=', 'file_7.id')
+                // ->leftJoin('files as file_8', 'prod_variants.media_8_video', '=', 'file_8.id')
+                // ->leftJoin('files as file_9', 'prod_variants.media_9_video', '=', 'file_9.id')
                 ->where('products.fk_brand_id', '=', $brandId);
 
-            if (isset($criteria->details['product_title'])) {
-                $records = $records->where('products.title', 'ilike', "%{$criteria->details['product_title']}%");
+            if (isset($criteria->details['search'])) {
+                $records = $records->whereRaw(
+                    "to_tsvector('simple',products.title || ' ' || prod_variants.seller_sku || ' ' || prod_variants.prod_desc) @@  phraseto_tsquery(?)",
+                    [
+                        $criteria->details['search']
+                    ]
+                );
             }
-            if (isset($criteria->details['filter_variants'])) {
-                foreach ($criteria->details['filter_variants'] as $value) {
+
+
+            if (isset($criteria->details['filterVariants'])) {
+                foreach ($criteria->details['filterVariants'] as $value) {
                     $records = $records->where('prod_variants.id', '!=', $value);
                 }
             }
-            if (isset($criteria->details['product_id'])) {
-                $records = $records->where('products.id', '=', $criteria->details['product_id']);
+            if (isset($criteria->details['productId'])) {
+                $records = $records->where('products.id', '=', $criteria->details['productId']);
                 $paginate = false;
             } else {
                 $records = $records->distinct('products.id');
@@ -424,17 +416,17 @@ class ProductService
                 'products.title as product.title',
                 'products.brand as product.brand',
                 'products.manufacture as product.manufacture',
-                'products.package_qty as product.package_qty',
+                // 'products.package_qty as product.package_qty',
                 'option1.id as option1.id',
                 'option1.title as option1.title',
                 'option2.id as option2.id',
                 'option2.title as option2.title',
                 'option3.id as option3.id',
                 'option3.title as option3.title',
-                'categories.id as category.id',
-                'categories.title as category.title',
-                'pack_types.id as pack_type.id',
-                'pack_types.title as pack_type.title',
+                // 'categories.id as category.id',
+                // 'categories.title as category.title',
+                // 'pack_types.id as pack_type.id',
+                // 'pack_types.title as pack_type.title',
                 'regions.id as currency.id',
                 'regions.currency_code as currency.currency_code',
                 "prod_variants.id as variant.id",
@@ -459,22 +451,22 @@ class ProductService
 
                 'file_1.id as   variant.media_1_image.id',
                 'file_1.path as variant.media_1_image.path',
-                'file_2.id as   variant.media_2_image.id',
-                'file_2.path as variant.media_2_image.path',
-                'file_3.id as   variant.media_3_image.id',
-                'file_3.path as variant.media_3_image.path',
-                'file_4.id as   variant.media_4_image.id',
-                'file_4.path as variant.media_4_image.path',
-                'file_5.id as   variant.media_5_image.id',
-                'file_5.path as variant.media_5_image.path',
-                'file_6.id as   variant.media_6_image.id',
-                'file_6.path as variant.media_6_image.path',
-                'file_7.id as   variant.media_7_image.id',
-                'file_7.path as variant.media_7_image.path',
-                'file_8.id as   variant.media_8_video.id',
-                'file_8.path as variant.media_8_video.path',
-                'file_9.id as   variant.media_9_video.id',
-                'file_9.path as variant.media_9_video.path',
+                // 'file_2.id as   variant.media_2_image.id',
+                // 'file_2.path as variant.media_2_image.path',
+                // 'file_3.id as   variant.media_3_image.id',
+                // 'file_3.path as variant.media_3_image.path',
+                // 'file_4.id as   variant.media_4_image.id',
+                // 'file_4.path as variant.media_4_image.path',
+                // 'file_5.id as   variant.media_5_image.id',
+                // 'file_5.path as variant.media_5_image.path',
+                // 'file_6.id as   variant.media_6_image.id',
+                // 'file_6.path as variant.media_6_image.path',
+                // 'file_7.id as   variant.media_7_image.id',
+                // 'file_7.path as variant.media_7_image.path',
+                // 'file_8.id as   variant.media_8_video.id',
+                // 'file_8.path as variant.media_8_video.path',
+                // 'file_9.id as   variant.media_9_video.id',
+                // 'file_9.path as variant.media_9_video.path',
             );
 
             if ($paginate) {
@@ -491,42 +483,42 @@ class ProductService
                         'id' => $raws['variant']['media_1_image']['id'],
                         'path' => $raws['variant']['media_1_image']['path']
                     ]) : null;
-                    $variant->media_2_image = $raws['variant']['media_2_image']['id'] ? new CsFile([
-                        'id' => $raws['variant']['media_2_image']['id'],
-                        'path' => $raws['variant']['media_2_image']['path']
-                    ]) : null;
-                    $variant->media_3_image = $raws['variant']['media_3_image']['id'] ? new CsFile([
-                        'id' => $raws['variant']['media_3_image']['id'],
-                        'path' => $raws['variant']['media_3_image']['path']
-                    ]) : null;
-                    $variant->media_4_image = $raws['variant']['media_4_image']['id'] ? new CsFile([
-                        'id' => $raws['variant']['media_4_image']['id'],
-                        'path' => $raws['variant']['media_4_image']['path']
-                    ]) : null;
-                    $variant->media_5_image = $raws['variant']['media_5_image']['id'] ? new CsFile([
-                        'id' => $raws['variant']['media_5_image']['id'],
-                        'path' => $raws['variant']['media_5_image']['path']
-                    ]) : null;
-                    $variant->media_6_image = $raws['variant']['media_6_image']['id'] ? new CsFile([
-                        'id' => $raws['variant']['media_6_image']['id'],
-                        'path' => $raws['variant']['media_6_image']['path']
-                    ]) : null;
-                    $variant->media_7_image = $raws['variant']['media_7_image']['id'] ? new CsFile([
-                        'id' => $raws['variant']['media_7_image']['id'],
-                        'path' => $raws['variant']['media_7_image']['path']
-                    ]) : null;
-                    $variant->media_8_video = $raws['variant']['media_8_video']['id'] ? new CsFile([
-                        'id' => $raws['variant']['media_8_video']['id'],
-                        'path' => $raws['variant']['media_8_video']['path']
-                    ]) : null;
-                    $variant->media_9_video = $raws['variant']['media_9_video']['id'] ? new CsFile([
-                        'id' => $raws['variant']['media_9_video']['id'],
-                        'path' => $raws['variant']['media_9_video']['path']
-                    ]) : null;
+                    // $variant->media_2_image = $raws['variant']['media_2_image']['id'] ? new CsFile([
+                    //     'id' => $raws['variant']['media_2_image']['id'],
+                    //     'path' => $raws['variant']['media_2_image']['path']
+                    // ]) : null;
+                    // $variant->media_3_image = $raws['variant']['media_3_image']['id'] ? new CsFile([
+                    //     'id' => $raws['variant']['media_3_image']['id'],
+                    //     'path' => $raws['variant']['media_3_image']['path']
+                    // ]) : null;
+                    // $variant->media_4_image = $raws['variant']['media_4_image']['id'] ? new CsFile([
+                    //     'id' => $raws['variant']['media_4_image']['id'],
+                    //     'path' => $raws['variant']['media_4_image']['path']
+                    // ]) : null;
+                    // $variant->media_5_image = $raws['variant']['media_5_image']['id'] ? new CsFile([
+                    //     'id' => $raws['variant']['media_5_image']['id'],
+                    //     'path' => $raws['variant']['media_5_image']['path']
+                    // ]) : null;
+                    // $variant->media_6_image = $raws['variant']['media_6_image']['id'] ? new CsFile([
+                    //     'id' => $raws['variant']['media_6_image']['id'],
+                    //     'path' => $raws['variant']['media_6_image']['path']
+                    // ]) : null;
+                    // $variant->media_7_image = $raws['variant']['media_7_image']['id'] ? new CsFile([
+                    //     'id' => $raws['variant']['media_7_image']['id'],
+                    //     'path' => $raws['variant']['media_7_image']['path']
+                    // ]) : null;
+                    // $variant->media_8_video = $raws['variant']['media_8_video']['id'] ? new CsFile([
+                    //     'id' => $raws['variant']['media_8_video']['id'],
+                    //     'path' => $raws['variant']['media_8_video']['path']
+                    // ]) : null;
+                    // $variant->media_9_video = $raws['variant']['media_9_video']['id'] ? new CsFile([
+                    //     'id' => $raws['variant']['media_9_video']['id'],
+                    //     'path' => $raws['variant']['media_9_video']['path']
+                    // ]) : null;
 
                     $product = new Products($raws['product']);
-                    $product->category = new Categories($raws['category']);
-                    $product->pack_type = new PackTypes($raws['pack_type']);
+                    // $product->category = new Categories($raws['category']);
+                    // $product->pack_type = new PackTypes($raws['pack_type']);
                     $product->currency = new Regions($raws['currency']);
                     $product->variant_option1_hdr = $raws['option1']['id'] ? new VariantOptionHdrs($raws['option1']) : null;
                     $product->variant_option2_hdr = $raws['option2']['id'] ? new VariantOptionHdrs($raws['option2']) : null;
@@ -541,9 +533,8 @@ class ProductService
                 $records = $map($records);
             }
             $result->details = $records;
-
+            $result->generateQueryLog();
             $result->success();
-            //$result->queryLog = DB::getQueryLog();
         } catch (Exception $e) {
             $result->error($e);
         }
@@ -553,16 +544,15 @@ class ProductService
     public function getVariantsById(Criteria $criteria)
     {
         $result = new ViewResult();
-        DB::enableQueryLog();
         try {
             /**'
              * Get variant by id;
              */
             $prodVariant = Utility::prepareRelationships($criteria, new ProdVariants())
                 ->find($criteria->details['id']);
-            if (!$prodVariant) throw new ModelNotFoundException('Requested product not found',1002);
+            if (!$prodVariant) throw new ModelNotFoundException('Requested product not found', 1002);
 
-            $lvlCategoryId = $prodVariant->product->category->level_category_id;
+            $lvlCategoryId = $prodVariant->product->fk_lvlcategory_id;
             $prodVariant = $this->productAttributes($lvlCategoryId, $prodVariant);
 
             /**

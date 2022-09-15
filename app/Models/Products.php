@@ -25,6 +25,7 @@ class Products extends Model
         "package_qty",
         "fk_brand_id",
         "fk_category_id",
+        "fk_lvlcategory_id",
         "fk_packtype_id",
         "fk_group_id",
         "fk_currency_id",
@@ -38,7 +39,11 @@ class Products extends Model
     }
     public function category()
     {
-        return $this->hasOne(CategoryLeaves::class,'id','fk_category_id');
+        return $this->hasOne(Categories::class,'id','fk_category_id');
+    }
+    public function lvlCategory()
+    {
+        return $this->hasOne(Categories::class,'id','fk_lvlcategory_id');
     }
     public function packType()
     {

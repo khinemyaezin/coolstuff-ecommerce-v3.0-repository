@@ -32,6 +32,7 @@ class ProductSaveRequest extends FormRequest
             'package_qty' => 'integer|required',
             'fk_brand_id' => 'required|exists:brands,id',
             'fk_category_id' => 'required|exists:categories,id',
+            'fk_lvlcategory_id' => 'required|exists:categories,id',
             'fk_packtype_id' => 'required|exists:pack_types,id',
             'fk_group_id' => 'nullable|exists:prod_groups,id',
             'fk_currency_id' => 'required|exists:regions,id',

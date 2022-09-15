@@ -4,6 +4,9 @@ namespace App\Services;
 
 use App\Models\Criteria;
 use App\Models\ViewResult;
+use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\Eloquent\RelationNotFoundException;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 
@@ -69,30 +72,47 @@ class Utility
             return false;
         }
     }
-    static function translateError($error)
+    static function translateError(Exception $error)
     {
+        $myError = [
+            "message" => "",
+            "httpStatus" => 200
+        ];
+        if ($error instanceof ModelNotFoundException) {
+            $myError['message'] = "Request ID " . join(' ',$error->getIds()) . " doesn't exist";
+            $myError['httpStatus'] = 404;
+            return $myError;
+
+        } 
+        if ($error instanceof RelationNotFoundException) {
+            $myError['message'] =  $error->relation . "' relation does not exists";
+            $myError['httpStatus'] = 404;
+            return $myError;
+        };
+
         switch ($error->getCode()) {
                 //framework
             case 1001:
-                return "Invalid Request";
+                $myError['message'] =  "Invalid Request";
                 break;
             case 1002:
-                return "Request resource doesn't exist";
+                $myError['message'] =  "Request resource doesn't exist";
                 break;
 
                 //sql error 
             case 23503:
-                return "The action can't be completed because another process is using.";
+                $myError['message'] =  "The action can't be completed because another process is using.";
                 break;
 
             case 23505:
-                return "Data already exists.";
+                $myError['message'] =  "Data already exists.";
                 break;
 
             default:
-                return "Something went wrong!";
+                $myError['message'] =  "Something went wrong!";
                 break;
         }
+        return $myError;
     }
     public static function settings()
     {
@@ -134,15 +154,15 @@ class Utility
     }
     static function getURL($filePath)
     {
-        if(filter_var($filePath, FILTER_VALIDATE_URL)) {
+        if (filter_var($filePath, FILTER_VALIDATE_URL)) {
             return $filePath;
-        }else {
+        } else {
             return $filePath ? str_replace('\\', '/', asset('storage/' . $filePath)) : null;
         }
-        
     }
     static function log($content)
     {
+        return;
         Log::build([
             'driver' => 'single',
             'path' => storage_path('logs/debug.log'),
