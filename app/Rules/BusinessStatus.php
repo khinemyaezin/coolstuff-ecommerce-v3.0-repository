@@ -2,7 +2,7 @@
 
 namespace App\Rules;
 
-use App\Services\Utility;
+use App\Enums\BizStatus;
 use Illuminate\Contracts\Validation\Rule;
 
 class BusinessStatus implements Rule
@@ -26,7 +26,7 @@ class BusinessStatus implements Rule
      */
     public function passes($attribute, $value)
     {
-        return array_search($value, Utility::$BIZ_STATUS ,true);
+        return in_array($value,BizStatus::all());
     }
 
     /**

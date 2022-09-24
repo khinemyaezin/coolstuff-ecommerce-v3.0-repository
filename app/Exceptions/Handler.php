@@ -2,7 +2,9 @@
 
 namespace App\Exceptions;
 
+use App\Models\ViewResult;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -44,7 +46,27 @@ class Handler extends ExceptionHandler
     public function register()
     {
         $this->reportable(function (Throwable $e) {
-            //
         });
+    }
+
+    protected function unauthenticated($request, $exception)
+    {
+        return $this->shouldReturnJson($request, $exception)
+            ? response()->json([
+                'message' => $exception->getMessage(),
+                'status' => 401,
+                'success' => false
+            ], 401)
+            : redirect()->guest($exception->redirectTo() ?? route('login'));
+    }
+
+    public function render($request, Throwable $exception)
+    {
+        $viewResponse = new ViewResult();
+        $viewResponse->error($exception);
+
+        error_log(get_class($exception));
+        return response()->json($viewResponse,$viewResponse->getHttpStatus());
+        //return parent::render($request, $exception);
     }
 }

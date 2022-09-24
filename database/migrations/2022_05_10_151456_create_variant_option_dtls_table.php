@@ -1,6 +1,7 @@
 <?php
 
-use App\Services\Utility;
+use App\Enums\BizStatus;
+use App\Enums\RowStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -16,12 +17,12 @@ return new class extends Migration
     {
         Schema::create('variant_option_dtls', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->smallInteger('status')->default(Utility::$BIZ_STATUS['active']);
-            $table->smallInteger('biz_status')->default(Utility::$ROW_STATUS['normal']);
+            $table->smallInteger('status')->default(BizStatus::ACTIVE->value);
+            $table->smallInteger('biz_status')->default(RowStatus::NORMAL->value);
             $table->text('code');
             $table->text('title');
             $table->bigInteger('fk_varopt_hdr_id');
-            $table->foreign('fk_varopt_hdr_id')->references('id')->on('variant_option_hdrs');
+            $table->foreign('fk_varopt_hdr_id')->references('id')->on('variant_option_hdrs')->onDelete('cascade');
             $table->timestamps();
         });
     }

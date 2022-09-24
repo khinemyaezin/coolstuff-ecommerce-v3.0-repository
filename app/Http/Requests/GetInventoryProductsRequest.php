@@ -25,9 +25,9 @@ class GetInventoryProductsRequest extends FormRequest
     {
         return [
             'relationships' => 'string|nullable',
-            'filterVariants' => 'string|nullable',
+            'filter_variants' => 'string|nullable',
             'search' => 'string|nullable',
-            'productId' => 'string|nullable|exists:products,id'
+            'product_id' => 'string|nullable|exists:products,id'
         ];
     }
 }

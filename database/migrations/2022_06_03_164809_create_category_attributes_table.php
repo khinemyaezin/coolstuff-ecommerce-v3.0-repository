@@ -1,6 +1,7 @@
 <?php
 
-use App\Services\Utility;
+use App\Enums\BizStatus;
+use App\Enums\RowStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -16,8 +17,8 @@ return new class extends Migration
     {
         Schema::create('category_attributes', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->smallInteger('status')->default(Utility::$BIZ_STATUS['active']);
-            $table->smallInteger('biz_status')->default(Utility::$ROW_STATUS['normal']);
+            $table->smallInteger('status')->default(BizStatus::ACTIVE->value);
+            $table->smallInteger('biz_status')->default(RowStatus::NORMAL->value);
             $table->bigInteger('fk_category_id');
             $table->bigInteger('fk_varoption_hdr_id');
             $table->foreign('fk_category_id')->references('id')->on('categories');

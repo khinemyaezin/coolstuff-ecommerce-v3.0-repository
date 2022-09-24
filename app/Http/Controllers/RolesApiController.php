@@ -33,14 +33,14 @@ class RolesApiController extends Controller
         ]);
         if ($validator->fails()) {
             $result = new ViewResult();
-            $result->error(new InvalidRequest(),$validator->errors());
+            //$result->error(new InvalidRequest(),$validator->errors());
         } else {
             $criteria = new Criteria();
             $criteria->relationships = $request->relationships;
             $criteria->details = $request->details;
             $result = $this->roleService->getRoles($criteria);
         }
-        return response()->json($result);
+        return response()->json($result, $result->getHttpStatus());
     }
 
     /**
@@ -59,7 +59,7 @@ class RolesApiController extends Controller
             ]);
             if ($validator->fails()) {
                 $result = new ViewResult();
-                $result->error(new InvalidRequest(),$validator->errors());
+                //$result->error(new InvalidRequest(),$validator->errors());
             } else {
                 $roles = new Roles([
                     'title'=> $request['title']

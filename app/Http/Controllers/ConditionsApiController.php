@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\InvalidRequest;
+use App\Http\Requests\GetConditionsRequest;
 use App\Models\condition;
 use App\Models\Criteria;
 use App\Models\ViewResult;
@@ -15,54 +16,21 @@ class ConditionsApiController extends Controller
     {
     }
 
-    public function index()
+    public function index(GetConditionsRequest $request)
     {
-        $result = null;
-        $request = request();
-        $validator = validator($request->all(), [
-            'relationships' => 'array',
-            'details.*' => [
-                'title' => 'string|nullable',
-            ]
-        ]);
-        if ($validator->fails()) {
-            $result = new ViewResult();
-            $result->error(new InvalidRequest(), $validator->errors());
-        } else {
-            $criteria = new Criteria();
-            $criteria->relationships = $request['relationships'];
-            $criteria->details = $request['details'];
-            $result = $this->service->getConditions($criteria);
-        }
-        return response()->json($result);
+
+        $criteria = new Criteria($request);
+        $result = $this->service->getConditions($criteria);
+
+        return response()->json($result, $result->getHttpStatus());
     }
-   
+
     public function create()
     {
         //
     }
-   
-    public function store(Request $request)
-    {
-        //
-    }
-    
-    public function show(condition $condition)
-    {
-        //
-    }
 
-    public function edit(condition $condition)
-    {
-        //
-    }
-    
-    public function update(Request $request, condition $condition)
-    {
-        //
-    }
-   
-    public function destroy(condition $condition)
+    public function store(Request $request)
     {
         //
     }

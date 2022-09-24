@@ -38,7 +38,8 @@ class ProductUpdateRequest extends FormRequest
             'fk_varopt_1_hdr_id' => 'string|nullable|exists:variant_option_hdrs,id',
             'fk_varopt_2_hdr_id' => 'string|nullable|exists:variant_option_hdrs,id',
             'fk_varopt_3_hdr_id' => 'string|nullable|exists:variant_option_hdrs,id',
-            'variants' => 'array|nullable',
+            'variants' => 'array|required',
+            'variants.*.id' => 'string|nullable',
             'variants.*.biz_status' => [new BusinessStatus, 'required'],
             'variants.*.seller_sku' => 'string|required|max:50',
             'variants.*.fk_varopt_1_hdr_id' => 'nullable|exists:variant_option_hdrs,id',
@@ -61,11 +62,20 @@ class ProductUpdateRequest extends FormRequest
             'variants.*.prod_desc' => 'string|nullable',
             'variants.*.start_at' => 'string|nullable',
             'variants.*.expired_at' => 'string|nullable',
-            'variants.*.attributes.*' => 'array|nullable',
+            'variants.*.attributes' => 'array|nullable',
             'variants.*.attributes.*.fk_varopt_hdr_id' => 'nullable|exists:variant_option_hdrs,id',
             'variants.*.attributes.*.fk_varopt_dtl_id' => 'nullable|exists:variant_option_dtls,id',
             'variants.*.attributes.*.fk_varopt_unit_id' => 'nullable|exists:variant_option_units,id',
-            'variants.*.attributes.*.value' => 'string'
+            'variants.*.attributes.*.value' => 'string',
+            'variants.*.media_1_image'=>'string|nullable|exists:files,id',
+            'variants.*.media_2_image'=>'string|nullable|exists:files,id',
+            'variants.*.media_3_image'=>'string|nullable|exists:files,id',
+            'variants.*.media_4_image'=>'string|nullable|exists:files,id',
+            'variants.*.media_5_image'=>'string|nullable|exists:files,id',
+            'variants.*.media_6_image'=>'string|nullable|exists:files,id',
+            'variants.*.media_7_image'=>'string|nullable|exists:files,id',
+            'variants.*.media_8_video'=>'string|nullable|exists:files,id',
+            'variants.*.media_9_video'=>'string|nullable|exists:files,id',
         ];
     }
 }

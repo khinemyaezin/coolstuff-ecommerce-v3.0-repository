@@ -196,21 +196,21 @@ class SQLFunction extends Seeder
             $$ LANGUAGE plpgsql;";
         DB::unprepared($sql);
 
-        // --FUNCTON CREATE VARIANTS TRIGGER FUNCTON 
-        $sql = "CREATE OR REPLACE FUNCTION prodvariant_tsvector_trigger() RETURNS trigger as $$
-                    begin
-                        new.ts_search := setweight(to_tsvector('english', coalesce(new.title, '')), 'A') ||
-                        setweight(to_tsvector('english', coalesce(new.full_path, '')), 'B');
-                        return new;
-                    end
-                $$ LANGUAGE plpgsql;";
-        DB::unprepared($sql);
+        // // --FUNCTON CREATE VARIANTS TRIGGER FUNCTON 
+        // $sql = "CREATE OR REPLACE FUNCTION prodvariant_tsvector_trigger() RETURNS trigger as $$
+        //             begin
+        //                 new.ts_search := setweight(to_tsvector('english', coalesce(new.title, '')), 'A') ||
+        //                 setweight(to_tsvector('english', coalesce(new.full_path, '')), 'B');
+        //                 return new;
+        //             end
+        //         $$ LANGUAGE plpgsql;";
+        // DB::unprepared($sql);
 
-        $sql = "DROP TRIGGER if exists categories_tsvector_update on categories cascade;";
-        DB::unprepared($sql);
+        // $sql = "DROP TRIGGER if exists categories_tsvector_update on categories cascade;";
+        // DB::unprepared($sql);
 
-        $sql = "CREATE TRIGGER categories_tsvector_update BEFORE INSERT OR UPDATE
-                ON categories FOR EACH ROW EXECUTE PROCEDURE categories_tsvector_trigger();";
-        DB::unprepared($sql);
+        // $sql = "CREATE TRIGGER categories_tsvector_update BEFORE INSERT OR UPDATE
+        //         ON categories FOR EACH ROW EXECUTE PROCEDURE categories_tsvector_trigger();";
+        // DB::unprepared($sql);
     }
 }

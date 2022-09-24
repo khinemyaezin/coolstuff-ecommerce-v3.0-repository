@@ -38,7 +38,7 @@ class RoleService
                 if (isset($criteria->details['title'])) {
                     $roles = $roles->where('title', 'LIKE', "%{$criteria->details['title']}%");
                 }
-                $result->details = $roles->paginate(Utility::$PAGINATION_COUNT);
+                $result->details = $roles->paginate(config('constants.PAGINATION_COUNT'));
                 $result->success();
             } catch (RelationNotFoundException $e) {
                 $result->error($e);

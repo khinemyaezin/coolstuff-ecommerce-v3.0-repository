@@ -7,7 +7,7 @@ use App\Models\Criteria;
 use App\Models\Regions;
 use App\Models\ViewResult;
 use App\Services\RegionService;
-use App\Services\Utility;
+use App\Services\Common;
 use Illuminate\Http\Request;
 
 class RegionsApiController extends Controller
@@ -34,7 +34,7 @@ class RegionsApiController extends Controller
         ]);
         if ($validator->fails()) {
             $result = new ViewResult();
-            $result->error(new InvalidRequest());
+            //$result->error(new InvalidRequest());
         } else {
             $criteria->relationships = $request['relationships'];
             $criteria->details = [
@@ -45,7 +45,7 @@ class RegionsApiController extends Controller
             $criteria->pagination = $request->pagination;
             $result = $this->regionService->getRegions($criteria);
         }
-        return response()->json($result);
+        return response()->json($result, $result->getHttpStatus());
     }
     public function store(Request $request)
     {
@@ -63,12 +63,12 @@ class RegionsApiController extends Controller
         ]);
         if ($validator->fails()) {
             $result = new ViewResult();
-            $result->error(new InvalidRequest());
+           // $result->error(new InvalidRequest());
         } else {
             $criteria->relationships = $request['relationships'];
             $result = $this->regionService->getRegion($criteria, $id);
         }
-        return response()->json($result);
+        return response()->json($result, $result->getHttpStatus());
     }
 
 

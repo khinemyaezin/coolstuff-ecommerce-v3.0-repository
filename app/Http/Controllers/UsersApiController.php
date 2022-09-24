@@ -10,7 +10,7 @@ use App\Models\UserPrivileges;
 use App\Models\Users;
 use App\Models\ViewResult;
 use App\Services\UserService;
-use App\Services\Utility;
+use App\Services\Common;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -37,14 +37,14 @@ class UsersApiController extends Controller
         ]);
         if ($validator->fails()) {
             $result = new ViewResult();
-            $result->error(new InvalidRequest(), $validator->errors());
+            //$result->error(new InvalidRequest(), $validator->errors());
         } else {
             $criteria = new Criteria();
             $criteria->relationships = $request['relationships'];
             $criteria->details = $request['details'];
             $result = $this->userService->getUsers($criteria);
         }
-        return response()->json($result);
+        return response()->json($result, $result->getHttpStatus());
     }
 
     /**
@@ -87,7 +87,7 @@ class UsersApiController extends Controller
         $result = $this->userService->updateUser($criteria, $id);
 
         $result->completeTransaction();
-        return response()->json($result);
+        return response()->json($result, $result->getHttpStatus());
     }
 
     /**
@@ -112,7 +112,7 @@ class UsersApiController extends Controller
         ]);
         if ($validator->fails()) {
             $result = new ViewResult();
-            $result->error(new InvalidRequest(), $validator->errors());
+            //$result->error(new InvalidRequest(), $validator->errors());
         } else {
             $userPrivileges = [];
             foreach ($request->roles as $role) {
@@ -126,6 +126,6 @@ class UsersApiController extends Controller
             $result = $this->userService->saveUserPrivileges($userPrivileges);
         }
         $result->completeTransaction();
-        return response()->json($result);
+        return response()->json($result, $result->getHttpStatus());
     }
 }

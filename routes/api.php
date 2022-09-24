@@ -13,6 +13,7 @@ use App\Http\Controllers\ProductsApiController;
 use App\Http\Controllers\ProdVariantsApiController;
 use App\Http\Controllers\RegionsApiController;
 use App\Http\Controllers\RolesApiController;
+use App\Http\Controllers\TestController;
 use App\Http\Controllers\UsersApiController;
 use Illuminate\Support\Facades\Route;
 
@@ -72,7 +73,14 @@ Route::get('conditions', [ConditionsApiController::class, 'index']);
 Route::get('packtypes', [PackTypeApiController::class, 'index']);
 /** Variants */
 Route::get('options/headers', [OptionsApiController::class, 'getHeaders']);
-Route::get('options/headers/{id}/details', [OptionsApiController::class, 'getDetails']);
+Route::post('options/headers', [OptionsApiController::class, 'saveHeader']);
+Route::get('options/headers/{id}', [OptionsApiController::class, 'getHeaderById'])->where('id', '[0-9]+');
+Route::get('options/headers/{id}/details', [OptionsApiController::class, 'getDetails'])->where('id', '[0-9]+');
+Route::post('options/headers/{id}/details', [OptionsApiController::class, 'saveDetails'])->where('id', '[0-9]+');
+Route::put('options/headers/{id}', [OptionsApiController::class, 'update'])->where('id', '[0-9]+');
+Route::delete('options/headers/{id}', [OptionsApiController::class, 'destory'])->where('id', '[0-9]+');
+
+
 
 /** Products */
 Route::middleware('auth:sanctum')->post('products', [ProductsApiController::class, 'store']);
@@ -82,6 +90,8 @@ Route::middleware('auth:sanctum')->put('products/{id}', [ProductsApiController::
 Route::middleware('auth:sanctum')->delete('products/{id}', [ProductsApiController::class, 'destroy'])->where('id', '[0-9]+');
 Route::middleware('auth:sanctum')->get('products/{id}/{vid}', [ProdVariantsApiController::class, 'getById'])->where('id', '[0-9]+')->where('vid', '[0-9]+');
 Route::middleware('auth:sanctum')->put('products/{id}/{vid}', [ProdVariantsApiController::class, 'update'])->where('id', '[0-9]+')->where('vid', '[0-9]+');
+Route::middleware('auth:sanctum')->delete('products/{id}/{vid}', [ProdVariantsApiController::class, 'delete'])->where('id', '[0-9]+')->where('vid', '[0-9]+');
+
 
 
 
@@ -92,3 +102,8 @@ Route::middleware('auth:sanctum')->put('brands/{brandId}/inventory/variants', [I
 
 Route::middleware('auth:sanctum')->post('files', [FileUploadController::class, 'store']);
 Route::middleware('auth:sanctum')->get('files', [FileUploadController::class, 'getMedias']);
+
+Route::get('test', [TestController::class, 'get']);
+Route::post('test', [TestController::class, 'post']);
+Route::put('test', [TestController::class, 'put']);
+Route::delete('test', [TestController::class, 'delete']);

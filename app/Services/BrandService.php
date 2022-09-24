@@ -45,20 +45,16 @@ class BrandService
             $user->address = $criteria->details['user']['address'];
             $user->password = $criteria->details['user']['password'];
 
-            if (!$brand->save()) {
-                throw new FailToSave("Brand");
-            }
+            $brand->save();
             if ($user) {
                 $user->password = Hash::make($user->password);
-                $user->fk_usertype_id = Utility::settings()->fk_def_brandreg_usertype_id;
+                $user->fk_usertype_id = Common::settings()->fk_def_brandreg_usertype_id;
 
-                if (!$brand->users()->saveMany([
+                $brand->users()->saveMany([
                     $user
-                ])) {
-                    throw new FailToSave("User");
-                }
+                ]);
             }
-            
+
             $result->success();
         } catch (Exception $e) {
             $result->error($e);
@@ -70,16 +66,15 @@ class BrandService
         $result = new ViewResult();
 
         try {
-            $brands = new Brands();
-            $brands = Utility::prepareRelationships($criteria, $brands);
+            $brands = Common::prepareRelationships($criteria, new Brands());
 
-            if (isset($criteria->details['title'])) {
-                $brands = $brands->where('title', 'LIKE', "%{$criteria->details['title']}%");
+            if (isset($criteria->httpParams['title'])) {
+                $brands = $brands->where('title', 'LIKE', "%{$criteria->httpParams['title']}%");
             }
-            if (isset($criteria->details['public_id'])) {
-                $brands = $brands->where('public_id', 'LIKE', "%{$criteria->details['public_id']}%");
+            if (isset($criteria->httpParams['public_id'])) {
+                $brands = $brands->where('public_id', 'LIKE', "%{$criteria->httpParams['public_id']}%");
             }
-            $result->details = $brands->paginate(Utility::$PAGINATION_COUNT);
+            $result->details = $brands->paginate(config('constants.PAGINATION_COUNT'));
 
             $result->success();
         } catch (RelationNotFoundException $e) {
@@ -117,7 +112,7 @@ class BrandService
             }
 
             $records = $records->orderBy('id', 'DESC')->paginate(
-                Utility::getPaginate($criteria->pagination)
+                Common::getPaginate($criteria->pagination)
             );
 
             if ($criteria->pagination) {

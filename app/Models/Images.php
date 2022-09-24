@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Services\Utility;
+use App\Services\Common;
 use Exception;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
@@ -85,7 +85,7 @@ class Images
 
     public function logImageStatus($order)
     {
-        Utility::log("Image_" . $order . " path => " . $this->path);
+        Common::log("Image_" . $order . " path => " . $this->path);
     }
 
     public static function prepareFile(UploadedFile $file): CsFile

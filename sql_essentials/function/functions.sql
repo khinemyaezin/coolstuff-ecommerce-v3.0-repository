@@ -369,5 +369,22 @@ EXECUTE PROCEDURE  cs_bef_deleteuser();
 
 DROP TRIGGER cs_bef_deleteuser ON myuser;
 
+--FUNCTION KEYWORDs 
+CREATE OR REPLACE FUNCTION set_product_default(stringToSplit text)  RETURNS 
+table(
+	title text,
+)
+AS $$
+	declare splitedString text:='';
+	declare pos int;
+        BEGIN
+			WHILE string_to_array(stringToSplit,',') > 0 LOOP
+				pos = CHARINDEX(',',stringToSplit);
+				splitedString =  SUBSTRING(stringToSplit, 1, pos-1);
+			END LOOP;
+			
+        END;
+$$ LANGUAGE plpgsql;
+
 
 

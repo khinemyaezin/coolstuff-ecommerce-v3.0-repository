@@ -2,7 +2,7 @@
 
 namespace App\Casts;
 
-use App\Services\Utility;
+use App\Services\Common;
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 
 class ImageUrlGenerate implements CastsAttributes
@@ -19,7 +19,7 @@ class ImageUrlGenerate implements CastsAttributes
     public function get($model, string $key, $value, array $attributes)
     {
         if($value) {
-             return Utility::getURL($value);
+             return Common::getURL($value);
         }
        
     }

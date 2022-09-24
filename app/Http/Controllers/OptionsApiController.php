@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Exceptions\InvalidRequest;
+use App\Http\Requests\GetOptionDetailsRequest;
+use App\Http\Requests\GetOptionHeaderByIdRequest;
+use App\Http\Requests\GetOptionHeaderRequest;
+use App\Http\Requests\OptionHeaderSaveRequest;
+use App\Http\Requests\OptionUpdateRequest;
 use App\Models\Criteria;
-use App\Models\ViewResult;
-use App\Services\Utility;
 use App\Services\VariantService;
+use Illuminate\Support\Facades\DB;
 
 class OptionsApiController extends Controller
 {
@@ -14,47 +17,51 @@ class OptionsApiController extends Controller
     {
         # code...
     }
-    public function getHeaders()
+    public function getHeaders(GetOptionHeaderRequest $request)
     {
-        $result = null;
-        $request = request();
-        $validator = validator($request->all(), [
-            'relationships' => 'string|nullable',
-            'title' => 'string|nullable',
+        $criteria = new Criteria($request);
 
-        ]);
-        if ($validator->fails()) {
-            $result = new ViewResult();
-            $result->error(new InvalidRequest(), $validator->errors());
-        } else {
-            $criteria = new Criteria();
-            $criteria->relationships = Utility::splitToArray($request['relationships']);
-            $criteria->details = [
-                "title" => $request['title']
-            ];
-            $result = $this->service->getHeaders($criteria);
-        }
-        return response()->json($result);
+        $result = $this->service->getHeaders($criteria);
+
+        return response()->json($result, $result->getHttpStatus());
     }
-    public function getDetails($id)
+
+    public function getHeaderById(GetOptionHeaderByIdRequest $request)
     {
-        $result = null;
-        $request = request();
-        $validator = validator($request->all(), [
-            'relationships' => 'string|nullable',
-            'title' => 'string|nullable',
-        ]);
-        if ($validator->fails()) {
-            $result = new ViewResult();
-            $result->error(new InvalidRequest(), $validator->errors());
-        } else {
-            $criteria = new Criteria();
-            $criteria->relationships = Utility::splitToArray($request['relationships']);
-            $criteria->details = [
-                "title" => $request['title']
-            ];
-            $result = $this->service->getDetails($criteria, $id);
-        }
-        return response()->json($result);
+        $criteria = new Criteria($request);
+        $result = $this->service->getHeader($criteria);
+
+        return response()->json($result, $result->getHttpStatus());
+    }
+
+    public function getDetails(GetOptionDetailsRequest $request)
+    {
+        $criteria = new Criteria($request);
+        $result = $this->service->getDetails($criteria, $request->route('id'));
+        return response()->json($result, $result->getHttpStatus());
+    }
+
+    public function update(OptionUpdateRequest $request)
+    {
+        DB::beginTransaction();
+        $criteria = new Criteria($request);
+        $result = $this->service->updateHeader($criteria);
+        $result->completeTransaction();
+        return response()->json($result, $result->getHttpStatus());
+    }
+    public function saveHeader(OptionHeaderSaveRequest $request)
+    {
+        DB::beginTransaction();
+        $criteria = new Criteria($request);
+        $result = $this->service->saveHeader($criteria);
+        $result->completeTransaction();
+        return response()->json($result, $result->getHttpStatus());
+    }
+    public function destory($id)
+    {
+        DB::beginTransaction();
+        $result = $this->service->delete($id);
+        $result->completeTransaction();
+        return response()->json($result, $result->getHttpStatus());
     }
 }

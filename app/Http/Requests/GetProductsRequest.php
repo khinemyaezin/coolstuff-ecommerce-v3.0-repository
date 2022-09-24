@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Services\Common;
 use Illuminate\Foundation\Http\FormRequest;
 
 class GetProductsRequest extends FormRequest
@@ -23,11 +24,12 @@ class GetProductsRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            'relationships' => 'string|nullable',
+
+        $rules = [
             'title' => 'string|nullable|max:100',
             'brand' => 'string|max:200|nullable',
             'manufacture' => 'string|max:200|nullable',
         ];
+        return array_merge($rules,Common::DEFAULT_VALIDATION_RULES);
     }
 }

@@ -23,7 +23,7 @@ class PackTypeService {
                 if (isset($criteria->details['title'])) {
                     $packtype = $packtype->where('title', 'LIKE', "%{$criteria->details['title']}%");
                 }
-                $result->details = $packtype->paginate(Utility::getPaginate($criteria->pagination));
+                $result->details = $packtype->paginate(Common::getPaginate($criteria->pagination));
 
                 $result->success();
             } catch (RelationNotFoundException $e) {

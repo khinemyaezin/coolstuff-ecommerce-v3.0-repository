@@ -10,7 +10,7 @@ use App\Models\FilesInBrand;
 use App\Models\Images;
 use App\Models\ViewResult;
 use App\Services\BrandService;
-use App\Services\Utility;
+use App\Services\Common;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -40,33 +40,27 @@ class FileUploadController extends Controller
                         throw new Exception('Invalid format', 1001);
                     }
 
-                    $image = new Images($csFile, Utility::$IMAGE_PRODUCTS);
+                    $image = new Images($csFile, config('constants.IMAGE_PRODUCTS'));
                     $csFile->path = $image->getPath();
 
-                    if (!$csFile->save()) {
-                        throw new FailToSave($csFile->id);
-                    }
+                    $csFile->save();
                     $filesInBrand = new FilesInBrand([
                         'fk_brand_id' => Auth::user()->fk_brand_id,
                         'fk_file_id' => $csFile->id
                     ]);
 
-                    if (!$filesInBrand->save()) {
-                        throw new FailToSave("Fail to save filesInBrands");
-                    }
-                    if (!$image->save()) {
-                        throw new FailToSave($csFile->path);
-                    }
+                    $filesInBrand->save();
+                    $image->save();
                     array_push($result->details, $csFile);
                     $result->success();
                 }
             }
         } catch (Exception $e) {
-            Utility::log("error uploading images");
+            Common::log("error uploading images");
             $result->error($e);
         }
         $result->completeTransaction();
-        return response()->json($result);
+        return response()->json($result, $result->getHttpStatus());
     }
 
     public function getMedias(FileRequest $request)
@@ -75,7 +69,7 @@ class FileUploadController extends Controller
         $criteria->pagination = $request['pagination'];
         $criteria->optional = $request->all();
         $result = $this->brandService->getMedias($criteria);
-        return response()->json($result);
+        return response()->json($result, $result->getHttpStatus());
     }
 }
 

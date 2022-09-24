@@ -20,7 +20,7 @@ class UserService
         $result = new ViewResult();
         try {
             $users = new Users();
-            $users = Utility::prepareRelationships($criteria, $users);
+            $users = Common::prepareRelationships($criteria, $users);
 
             try {
                 if (isset($criteria->details['first_name'])) {
@@ -29,7 +29,7 @@ class UserService
                 if (isset($criteria->details['last_name'])) {
                     $users = $users->where('last_name', 'LIKE', "%{$criteria->details['last_name']}%");
                 }
-                $result->details = $users->paginate(Utility::$PAGINATION_COUNT);
+                $result->details = $users->paginate(config('constants.PAGINATION_COUNT'));
 
                 $result->success();
             } catch (RelationNotFoundException $e) {

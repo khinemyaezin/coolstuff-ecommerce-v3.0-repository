@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProdVariantsUpdateRequest;
+use App\Models\Criteria;
 use App\Services\ProductService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -17,8 +18,9 @@ class InventoryApiController extends Controller
     {
     
         DB::beginTransaction();
-        $result = $this->service->updateVariants($request->validated()['variants']);
+        $criteria = new Criteria($request);
+        $result = $this->service->updateInventoryVariants($criteria);
         $result->completeTransaction();
-        return response()->json($result);
+        return response()->json($result, $result->getHttpStatus());
     }
 }

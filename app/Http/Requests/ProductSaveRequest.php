@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\BizStatus;
 use App\Rules\BusinessStatus;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class ProductSaveRequest extends FormRequest
 {

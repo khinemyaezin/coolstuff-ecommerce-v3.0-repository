@@ -1,6 +1,7 @@
 <?php
 
-use App\Services\Utility;
+use App\Enums\BizStatus;
+use App\Enums\RowStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -18,8 +19,8 @@ return new class extends Migration
             $table->bigIncrements('id');
             $table->string('public_id',10);
             $table->string('title',200);
-            $table->smallInteger('status')->default(Utility::$BIZ_STATUS['active']);
-            $table->smallInteger('biz_status')->default(Utility::$ROW_STATUS['normal']);
+            $table->smallInteger('status')->default(BizStatus::ACTIVE->value);
+            $table->smallInteger('biz_status')->default(RowStatus::NORMAL->value);
             $table->bigInteger('profile_image')->nullable();
             $table->bigInteger('cover_image')->nullable();
             $table->bigInteger('fk_region_id');

@@ -10,7 +10,8 @@ class VariantOptionDtls extends Model
     use HasFactory;
     protected $fillable = [
         'title',
-        'fk_varopt_hdr'
+        'code',
+        'fk_varopt_hdr_id'
     ];
     protected  $casts = [
         'id' => 'string',

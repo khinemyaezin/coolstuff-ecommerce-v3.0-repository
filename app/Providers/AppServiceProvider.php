@@ -60,6 +60,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(ProductService::class, function ($app) {
             return new ProductService();
         });
+        
     }
 
     /**

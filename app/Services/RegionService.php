@@ -33,7 +33,7 @@ class RegionService
                     $regions = $regions->where('country_code', 'ilike', "%{$criteria->details['country_code']}%");
                 }
                 $regions->where('currency_code','<>',null);
-                $regions = $regions->paginate(Utility::getPaginate($criteria->pagination));
+                $regions = $regions->paginate(Common::getPaginate($criteria->pagination));
                 $result->details = $regions;
                 $result->success();
             } catch (RelationNotFoundException $e) {

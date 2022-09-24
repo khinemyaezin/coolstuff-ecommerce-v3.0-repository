@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\InvalidRequest;
+use App\Http\Requests\CategoryAttributesSaveRequest;
+use App\Http\Requests\GetCategoryAttributesRequest;
 use App\Models\Criteria;
 use App\Models\Products;
 use App\Models\ViewResult;
 use App\Services\CategoryAttributeService;
-use App\Services\Utility;
+use App\Services\Common;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -17,53 +19,33 @@ class CategoryAttributesApiController extends Controller
     {
         # code...
     }
-    public function index($id)
+    public function index(GetCategoryAttributesRequest $request)
     {
-        $request = request();
-        $validator = validator($request->all(), [
-            'title' => 'string|nullable|max:100'
-        ]);
-        if ($validator->fails()) {
-            $result = new ViewResult();
-            $result->error(new InvalidRequest(), $validator->errors());
-        } else {
-            $criteria = new Criteria();
-            $criteria->pagination = $request['pagination'];
-            $criteria->relationships = Utility::splitToArray($request['relationships']); 
-            $criteria->details = [
-                "title"=> $request['title']
-            ];
-            $result = $this->service->all($criteria,$id);
-        }
-        return response()->json($result);
+
+        $criteria = new Criteria($request);
+        $result = $this->service->all($criteria);
+
+        return response()->json($result, $result->getHttpStatus());
     }
+
     public function getSetup($id)
     {
         $criteria = new Criteria();
-        return response()->json($this->service->getSetup($criteria,$id));
+        return response()->json($this->service->getSetup($criteria, $id));
     }
-    public function store($id)
+
+    public function store(CategoryAttributesSaveRequest $request)
     {
         DB::beginTransaction();
-        $result = null;
-        $request = request();
-        $validator = validator($request->all(), [
-            'variant_option_hdr_ids' => 'array|required',
-            'variant_option_hdr_ids.*' => 'string|exists:variant_option_hdrs,id',
-        ]);
-        if ($validator->fails()) {
-            $result = new ViewResult();
-            $result->error(new InvalidRequest(), $validator->errors());
-        } else {
-            $param = $request['variant_option_hdr_ids'];
-            $result = $this->service->store($id,$param);
-        }
+        $criteria = new Criteria($request);
+        $result = $this->service->store($request->route('id'), $criteria);
+
         $result->completeTransaction();
-        return response()->json($result);
+        return response()->json($result, $result->getHttpStatus());
     }
 
     public function test()
     {
-       return response()->json(preg_match('/^$|^-1$/', request()->text));
+        return response()->json(preg_match('/^$|^-1$/', request()->text));
     }
 }

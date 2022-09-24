@@ -66,7 +66,7 @@ class CategoryService
             ->havingRaw('(COUNT(parent.title)-1)=?', [$depth])
             ->orderBy('node.lft')
             ->selectRaw("node.id,node.title,node.full_path as path,(COUNT(parent.title)-1) as depth")
-            ->paginate(Utility::getPaginate($criteria->pagination));
+            ->paginate(Common::getPaginate($criteria->pagination));
 
             foreach($criteria->optional as $key=>$value) {
                 $records->appends([$key => $value]);
@@ -127,9 +127,7 @@ class CategoryService
 
             $category = Categories::findOrFail($data->id);
             $category->title = $data->title;
-            $result->complete(
-                $category->save()
-            );
+            $category->save();
         } catch (Exception $e) {
             $result->error($e);
         }
@@ -151,18 +149,7 @@ class CategoryService
         }
         return $result;
     }
-    public function createCategoryLeaves()
-    {
-        $result = new ViewResult();
-        try {
-            $result->details = DB::select('select store_category_leaf(?)', [Utility::$CATEGORY_DEPTH_LVL_FOR_ATTRIBUTES]);
-            $result->success();
-        } catch (Exception $e) {
-            $result->error($e);
-        }
-        return $result;
-    }
-
+   
     public function searchCategories($title)
     {
         $result = new ViewResult();

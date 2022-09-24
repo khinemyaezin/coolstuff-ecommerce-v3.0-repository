@@ -34,7 +34,7 @@ class PackTypeApiController extends Controller
             $criteria->details = $request['details'];
             $result = $this->service->getPacktypes($criteria);
         }
-        return response()->json($result);
+        return response()->json($result, $result->getHttpStatus());
     }
 
    

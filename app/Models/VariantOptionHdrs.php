@@ -10,7 +10,13 @@ class VariantOptionHdrs extends Model
     use HasFactory;
     protected $fillable = [
         'id',
-        'title'
+        'status',
+        'biz_status',
+        'title',
+        'allow_dtls_custom_name',
+        'need_dtls_mapping',
+        'created_at',
+        'updated_at',
     ];
     protected  $casts = [
         'id' => 'string',
@@ -30,10 +36,10 @@ class VariantOptionHdrs extends Model
     }
     public function categories()
     {
-        return $this->belongsToMany(Categories::class, 'category_attributes',  'fk_varoption_hdr_id','fk_category_id');
+        return $this->belongsToMany(Categories::class, 'category_attributes',  'fk_varoption_hdr_id', 'fk_category_id');
     }
     public function prodVariants()
     {
-        return $this->belongsToMany(ProdVariants::class,'prod_attributes', 'fk_varopt_hdr_id','fk_variant_id');
+        return $this->belongsToMany(ProdVariants::class, 'prod_attributes', 'fk_varopt_hdr_id', 'fk_variant_id');
     }
 }

@@ -9,7 +9,7 @@ use App\Http\Requests\ProdVariantUpdateRequest;
 use App\Models\Criteria;
 use App\Models\ViewResult;
 use App\Services\ProductService;
-use App\Services\Utility;
+use App\Services\Common;
 use Illuminate\Support\Facades\DB;
 
 class ProdVariantsApiController extends Controller
@@ -20,34 +20,17 @@ class ProdVariantsApiController extends Controller
     }
     public function index(GetInventoryProductsRequest $request)
     {
-        $criteria = new Criteria();
-        $criteria->pagination = $request['pagination'];
-        $criteria->relationships = Utility::splitToArray($request['relationships']);
-        $criteria->details = [
-            'search' =>  $request['search'],
-            'productId' => $request['productId'],
-            'filterVariants' => Utility::splitToArray($request['filterVariants'])
-        ];
+        $criteria = new Criteria($request);
+        $result = $this->service->getVariants($request->route('brandId'), $criteria);
 
-        $result = $this->service->getVariants($request['brandId'], $criteria);
-
-        return response()->json($result);
+        return response()->json($result, $result->getHttpStatus());
     }
 
     public function getById(GetProductByIdRequest $request)
     {
-        $criteria = new Criteria();
-        $criteria->pagination = $request['pagination'];
-        $criteria->relationships = Utility::splitToArray($request['relationships']);
-        $criteria->optional = $request->all();
-        $criteria->details = [
-            'brothers' => $request['brothers'],
-            'id' => $request->route('vid'),
-            'pid' => $request->route('id')
-        ];
-
+        $criteria = new Criteria($request);
         $result = $this->service->getVariantsById($criteria);
-        return response()->json($result);
+        return response()->json($result, $result->getHttpStatus());
     }
 
 
@@ -55,15 +38,15 @@ class ProdVariantsApiController extends Controller
     {
         DB::beginTransaction();
 
-        $criteria = new Criteria();
-        $criteria->updatedColumns =  $request['updated_columns'];
-        $criteria->customColumns = $request['custom_columns'];
-        $criteria->details = [
-            "id" => $request->route('vid'),
-            "variant" => $request->validated()['variant']
-        ];
-        $result = $this->service->updateVariantByColumns($criteria);
+        $criteria = new Criteria($request);
+        $criteria->details['id'] = $request->route('vid');
+        $result = $this->service->updateVariant($criteria);
         $result->completeTransaction();
-        return response()->json($result);
+        return response()->json($result, $result->getHttpStatus());
+    }
+
+    public function delete($id)
+    {
+        DB::beginTransaction();
     }
 }

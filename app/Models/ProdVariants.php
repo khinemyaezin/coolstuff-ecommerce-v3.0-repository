@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use App\Casts\ImageUrlGenerate;
-use App\Services\Utility;
+use App\Services\Common;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\File;
@@ -17,6 +17,7 @@ class ProdVariants extends Model
         "id",
         "biz_status",
         "seller_sku",
+        "fk_prod_id",
         "fk_varopt_1_hdr_id",
         "fk_varopt_1_dtl_id",
         "var_1_title",
@@ -136,7 +137,7 @@ class ProdVariants extends Model
     {
         parent::boot();
         self::deleting(function ($variant) {
-            Utility::log('variant [' . $variant->id . '] deleted');
+            Common::log('variant [' . $variant->id . '] deleted');
         });
         self::deleted(function (ProdVariants $variant) {
             $images = [

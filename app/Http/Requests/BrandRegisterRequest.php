@@ -36,4 +36,18 @@ class BrandRegisterRequest extends FormRequest
             'user.password' => 'string|required',
         ];
     }
+    public function attributes()
+    {
+        return [
+         
+            'brand.title' => 'brand name',
+            'brand.region_id' => 'brand location',
+            'user.first_name' => 'seller first name',
+            'user.last_name' => 'seller last name',
+            'user.email' => "seller's email address",
+            'user.phone' => "seller's phone number",
+            'user.address' => "seller's address",
+            'user.password' => 'password',
+        ];
+    }
 }
