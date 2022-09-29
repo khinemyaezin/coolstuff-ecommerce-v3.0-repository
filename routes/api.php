@@ -7,6 +7,7 @@ use App\Http\Controllers\CategoryAttributesApiController;
 use App\Http\Controllers\ConditionsApiController;
 use App\Http\Controllers\FileUploadController;
 use App\Http\Controllers\InventoryApiController;
+use App\Http\Controllers\LocationApiController;
 use App\Http\Controllers\OptionsApiController;
 use App\Http\Controllers\PackTypeApiController;
 use App\Http\Controllers\ProductsApiController;
@@ -103,6 +104,21 @@ Route::middleware('auth:sanctum')->put('brands/{brandId}/inventory/variants', [I
 Route::middleware('auth:sanctum')->post('files', [FileUploadController::class, 'store']);
 Route::middleware('auth:sanctum')->get('files', [FileUploadController::class, 'getMedias']);
 
+/**
+ * Locations
+ */
+Route::middleware('auth:sanctum')->get('locations', [LocationApiController::class, 'getLocations']);
+Route::middleware('auth:sanctum')->get('locations/{id}', [LocationApiController::class, 'getLocationById'])->where('id', '[0-9]+|default');
+Route::middleware('auth:sanctum')->post('locations', [LocationApiController::class, 'saveLocation']);
+Route::middleware('auth:sanctum')->put('locations/{id}', [LocationApiController::class, 'updateLocation'])->where('id', '[0-9]+');
+Route::middleware('auth:sanctum')->put('locations/default', [LocationApiController::class, 'updateDefaultLocation']);
+Route::middleware('auth:sanctum')->get('locations/by-product', [LocationApiController::class, 'getLocationsByProduct']);
+Route::middleware('auth:sanctum')->put('locations/{id}/products/{prodId}', [LocationApiController::class, 'updateLocationQuantity'])->where('id', '[0-9]+')->where('prodId', '[0-9]+');;
+
+
+/**
+ * Test
+ */
 Route::get('test', [TestController::class, 'get']);
 Route::post('test', [TestController::class, 'post']);
 Route::put('test', [TestController::class, 'put']);

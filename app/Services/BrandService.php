@@ -2,11 +2,9 @@
 
 namespace App\Services;
 
-use App\Exceptions\FailToSave;
 use App\Models\Brands;
 use App\Models\Criteria;
-use App\Models\CsFile;
-use App\Models\Images;
+use App\Models\Location;
 use App\Models\Regions;
 use App\Models\Users;
 use App\Models\ViewResult;
@@ -26,6 +24,7 @@ class BrandService
         $subfixSerial = sprintf("%'.05d", $serial ?? 1);
         return  strtoupper("{$prefixTitle}{$countryCode}{$subfixSerial}");
     }
+
     public function register(Criteria $criteria)
     {
         $result = new ViewResult();
@@ -46,6 +45,7 @@ class BrandService
             $user->password = $criteria->details['user']['password'];
 
             $brand->save();
+
             if ($user) {
                 $user->password = Hash::make($user->password);
                 $user->fk_usertype_id = Common::settings()->fk_def_brandreg_usertype_id;
@@ -55,12 +55,19 @@ class BrandService
                 ]);
             }
 
+            $brand->locations()->saveMany([new Location([
+                "title"=>"My home",
+                "default"=>true,
+                "fk_region_id"=>$brand->fk_region_id,
+            ])]);
+
             $result->success();
         } catch (Exception $e) {
             $result->error($e);
         }
         return $result;
     }
+
     public function getBrands(Criteria $criteria)
     {
         $result = new ViewResult();
@@ -85,6 +92,7 @@ class BrandService
         }
         return $result;
     }
+
     public function updateBrand(Criteria $criteria, $id)
     {
         $result = new ViewResult();
@@ -100,6 +108,7 @@ class BrandService
         }
         return $result;
     }
+    
     public function getMedias(Criteria $criteria)
     {
         $result = new ViewResult();

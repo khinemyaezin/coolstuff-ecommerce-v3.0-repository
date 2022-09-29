@@ -19,6 +19,11 @@ use Illuminate\Support\Facades\DB;
 
 class ProductService
 {
+    protected LocationService $locationService;
+    public function __construct()
+    {
+        $this->locationService = resolve(LocationService::class);
+    }
 
 
     public function store(Criteria $criteria)
@@ -140,6 +145,14 @@ class ProductService
                     $product['variants'][0]
                 );
             }
+
+            /** Retrive product warehouse locations */
+            $product['variants'] = collect($product['variants'])->transform(function($variant){
+                $locationResult = $this->locationService->getLocationByProduct($variant['id']);
+                $variant['locations'] = $locationResult->details;
+                return $variant;
+            })->toArray();
+           
             $result->details = $product;
             $result->success();
         } catch (Exception $e) {

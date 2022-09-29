@@ -5,16 +5,19 @@ namespace App\Http\Controllers;
 use App\Exceptions\InvalidRequest;
 use App\Http\Requests\GetInventoryProductsRequest;
 use App\Http\Requests\GetProductByIdRequest;
+use App\Http\Requests\LocationQuantityUpdateRequest;
 use App\Http\Requests\ProdVariantUpdateRequest;
 use App\Models\Criteria;
 use App\Models\ViewResult;
 use App\Services\ProductService;
 use App\Services\Common;
+use App\Services\LocationService;
 use Illuminate\Support\Facades\DB;
 
 class ProdVariantsApiController extends Controller
 {
-    public function __construct(protected ProductService $service)
+    public function __construct(
+        protected ProductService $service)
     {
         # code...
     }
@@ -49,4 +52,6 @@ class ProdVariantsApiController extends Controller
     {
         DB::beginTransaction();
     }
+
+   
 }

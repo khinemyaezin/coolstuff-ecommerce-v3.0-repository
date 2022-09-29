@@ -92,6 +92,12 @@ class ProdVariants extends Model
         return $this->belongsToMany(VariantOptionHdrs::class, 'prod_attributes', 'fk_variant_id', 'fk_varopt_hdr_id');
             
     }
+    public function locations()
+    {
+        return $this->belongsToMany(Location::class, 'prod_locations', 'fk_prod_variant_id', 'fk_location_id');
+            
+    }
+    
     public function condition()
     {
         return $this->hasOne(Conditions::class, 'id', 'fk_condition_id');

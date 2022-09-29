@@ -45,5 +45,8 @@ class Brands extends Model
     {
        return $this->belongsToMany(CsFile::class,'files_in_brands','fk_brand_id','fk_file_id');
     }
+    public function locations() {
+        return $this->hasMany(Location::class,'fk_brand_id','id');
+    }
    
 }

@@ -21,7 +21,13 @@ return new class extends Migration
             $table->smallInteger('biz_status')->default(RowStatus::NORMAL->value);
             $table->text('title');
             $table->bigInteger('fk_brand_id');
+            $table->boolean('default')->default(true);
+            $table->bigInteger('fk_region_id');
+            $table->text('address')->nullable();
+            $table->string('apartment',200)->nullable();
+            $table->string('phone',100)->nullable();
             $table->foreign('fk_brand_id')->references('id')->on('brands')->onDelete('cascade');
+            $table->foreign('fk_region_id')->references('id')->on('regions')->nullOnDelete('cascade');
             $table->timestamps();
         });
     }

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Exceptions\InvalidRequestException;
 use App\Models\ViewResult;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\QueryException;
@@ -9,6 +10,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\RelationNotFoundException;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 
 trait ExceptionHandlerForResponse
@@ -53,7 +55,25 @@ trait ExceptionHandlerForResponse
             $viewResponse->message = $exception->getMessage();
             $viewResponse->errors = $exception->errors();
             $viewResponse->httpStatus = 422;
-        } else if ($exception instanceof ModelNotFoundException) {
+        } else if($exception instanceof NotFoundHttpException){
+            /**
+             * BAD REQEUSTS
+             */
+            $viewResponse->status = 404;
+            $viewResponse->message = $exception->getMessage();
+            $viewResponse->errors = "Request URL not found";
+            $viewResponse->httpStatus = 404;
+        }
+        else if($exception instanceof  InvalidRequestException){
+             /**
+             * BAD REQEUSTS
+             */
+            $viewResponse->status = $exception->getCode();
+            $viewResponse->message = $exception->getMessage();
+            $viewResponse->errors = "Request URL not found";
+            $viewResponse->httpStatus = 422;
+        }
+        else if ($exception instanceof ModelNotFoundException) {
 
             $viewResponse->status = 4001;
             $viewResponse->message = "Request ID " . join(' ', $exception->getIds() ?? []) . " doesn't exist";

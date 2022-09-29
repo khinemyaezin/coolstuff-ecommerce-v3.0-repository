@@ -7,6 +7,7 @@ use App\Services\BrandService;
 use App\Services\CategoryAttributeService;
 use App\Services\CategoryService;
 use App\Services\ConditionsService;
+use App\Services\LocationService;
 use App\Services\PackTypeService;
 use App\Services\ProductService;
 use App\Services\RegionService;
@@ -59,6 +60,9 @@ class AppServiceProvider extends ServiceProvider
         });
         $this->app->singleton(ProductService::class, function ($app) {
             return new ProductService();
+        });
+        $this->app->singleton(LocationService::class, function ($app) {
+            return new LocationService();
         });
         
     }

@@ -33,10 +33,12 @@ return new class extends Migration
             $table->text('var_3_title')->nullable();
             $table->double('buy_price')->default(0.0);
             $table->double('selling_price')->default(0.0);
+            $table->double('compared_price')->default(0.0);
             $table->integer('qty')->default(0);
+            $table->boolean('track_qty')->default(true);
+            $table->boolean('keep_selling_outofstock')->default(false);
             $table->bigInteger('fk_condition_id');
             $table->string('condition_desc')->nullable();
-            $table->boolean('is_default')->default(false);
             $table->json('features')->nullable();
             $table->text('prod_desc')->nullable();
             $table->timestamp('start_at', 0)->nullable();
@@ -62,9 +64,9 @@ return new class extends Migration
             foreach ( range(1,7) as $value) {
                 $table->foreign('media_'.$value.'_image')->references('id')->on('files')->cascadeOnUpdate()->nullOnDelete();
             }
+
             $table->foreign('media_8_video')->references('id')->on('files')->cascadeOnUpdate()->nullOnDelete();
             $table->foreign('media_9_video')->references('id')->on('files')->cascadeOnUpdate()->nullOnDelete();
-            
             $table->unique(['fk_prod_id', 'seller_sku']);
 
             $table->timestamps();
