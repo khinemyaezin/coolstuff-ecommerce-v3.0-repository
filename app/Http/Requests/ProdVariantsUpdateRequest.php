@@ -39,7 +39,7 @@ class ProdVariantsUpdateRequest extends FormRequest
             'variants.*.buy_price' => 'numeric',
             'variants.*.selling_price' => 'numeric',
             'variants.*.qty' => 'numeric',
-            'variants.*.condition' => 'exists:conditions,id'
+            'variants.*.fk_condition_id' => 'exists:conditions,id'
         ];
     }
 

@@ -32,6 +32,7 @@ class BrandService
             $brand = new Brands();
             $brand->title = $criteria->details['brand']['title'];
             $brand->fk_region_id = $criteria->details['brand']['region_id'];
+            $brand->def_currency_id = $criteria->details['brand']['region_id'];
             $brand->profile_image = $criteria->details['brand']['profile_image'];
             $brand->cover_image = $criteria->details['brand']['cover_image'];
             $brand->public_id = $this::getBrandPublicId($brand);
@@ -56,9 +57,9 @@ class BrandService
             }
 
             $brand->locations()->saveMany([new Location([
-                "title"=>"My home",
-                "default"=>true,
-                "fk_region_id"=>$brand->fk_region_id,
+                "title" => "My home",
+                "default" => true,
+                "fk_region_id" => $brand->fk_region_id,
             ])]);
 
             $result->success();
@@ -108,7 +109,7 @@ class BrandService
         }
         return $result;
     }
-    
+
     public function getMedias(Criteria $criteria)
     {
         $result = new ViewResult();
@@ -132,6 +133,55 @@ class BrandService
                 }
             }
             $result->details = $records;
+            $result->success();
+        } catch (Exception $e) {
+            $result->error($e);
+        }
+        return $result;
+    }
+
+    public function getSettings()
+    {
+        $result = new ViewResult();
+        try {
+            $user = Auth::user();
+            $result->details = Brands::with(['defaultCurrency', 'industry'])->findOrFail($user->brand->id, [
+                'id',
+                'def_currency_id',
+                'industry_id',
+                'phone',
+                'sys_email',
+                'cus_email'
+
+            ]);
+            $result->success();
+        } catch (Exception $e) {
+            $result->error($e);
+        }
+        return $result;
+    }
+
+    public function updateSetting(Criteria $criteria)
+    {
+        $result = new ViewResult();
+        try {
+            $currentUser = (object) Auth::user();
+
+            $brand = Brands::find($currentUser->brand->id, [
+                'id',
+                'def_currency_id',
+                'industry_id',
+                'phone',
+                'sys_email',
+                'cus_email'
+            ]);
+
+            foreach ($criteria->details as $key => $value) {
+                $brand[$key] = $criteria->details[$key];
+            }
+            //dd($brand );
+            $brand->save();
+
             $result->success();
         } catch (Exception $e) {
             $result->error($e);

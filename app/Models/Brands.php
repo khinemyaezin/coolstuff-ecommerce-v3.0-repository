@@ -10,11 +10,16 @@ class Brands extends Model
 {
     use HasFactory;
     protected $fillable = [
-       'title',
-       'public_id',
-       'fk_region_id',
-       'profile_image',
-       'cover_image'
+        'title',
+        'public_id',
+        'fk_region_id',
+        'profile_image',
+        'cover_image',
+        "def_currency_id",
+        "industry_id",
+        "phone",
+        "sys_email",
+        "cus_email",
     ];
     protected  $casts = [
         'id' => 'string',
@@ -31,7 +36,11 @@ class Brands extends Model
     }
     public function region()
     {
-        return $this->hasOne(Regions::class, 'fk_region_id', 'id');
+        return $this->hasOne(Regions::class, 'id', 'fk_region_id');
+    }
+    public function defaultCurrency()
+    {
+        return $this->hasOne(Regions::class,  'id', 'def_currency_id');
     }
     public function profileImage()
     {
@@ -43,10 +52,15 @@ class Brands extends Model
     }
     public function files()
     {
-       return $this->belongsToMany(CsFile::class,'files_in_brands','fk_brand_id','fk_file_id');
+        return $this->belongsToMany(CsFile::class, 'files_in_brands', 'fk_brand_id', 'fk_file_id');
     }
-    public function locations() {
-        return $this->hasMany(Location::class,'fk_brand_id','id');
+    public function locations()
+    {
+        return $this->hasMany(Location::class, 'fk_brand_id', 'id');
     }
-   
+
+    public function industry()
+    {
+        return $this->hasOne(Categories::class,  'id', 'industry_id');
+    }
 }

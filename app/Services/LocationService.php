@@ -176,8 +176,8 @@ class LocationService
                     "prodloc.quantity as quantity"
                 ]
             )->get();
-            $result->details =  $warehouses->transform(function($data){
-                return collect($data)->undot();
+            $result->details =  $warehouses->transform(function ($data) {
+                return collect($data)->undot()->toArray();
             });
             $result->success();
         } catch (Exception $e) {
@@ -186,20 +186,43 @@ class LocationService
         return $result;
     }
 
-    public function updateLocationQuantity(Criteria $criteria){
+    public function updateLocationQuantity(Criteria $criteria)
+    {
         $result = new ViewResult();
-        try{
-            $prodLocation = ProdLocations::where('fk_location_id',$criteria->request->route('id'))
-            ->where('fk_prod_variant_id',$criteria->request->route('prodId'))->first();
-            if(!$prodLocation){
+        try {
+            $prodLocation = ProdLocations::where('fk_location_id', $criteria->request->route('id'))
+                ->where('fk_prod_variant_id', $criteria->request->route('prodId'))->first();
+            if (!$prodLocation) {
                 $mnfe =  new ModelNotFoundException();
-                $mnfe->setModel(Location::class,[$criteria->request->route('id')]);
+                $mnfe->setModel(Location::class, [$criteria->request->route('id')]);
                 throw $mnfe;
             }
             $prodLocation->quantity = $criteria->details['new_quantity'];
             $prodLocation->save();
             $result->success();
-        }catch(Exception $e) {
+        } catch (Exception $e) {
+            $result->error($e);
+        }
+        return $result;
+    }
+    public function updateVariantDefLocationQty($variantId, $quantity)
+    {
+        $result = new ViewResult();
+        try {
+            $prodLocation = DB::table('prod_locations')->join('locations', function ($join) {
+                $join->on('locations.id', '=', 'prod_locations.fk_location_id');
+                $join->where('locations.default', '=', true);
+            })
+                ->where('prod_locations.fk_prod_variant_id', '=', $variantId)
+                ->select(['prod_locations.id'])->first();
+                
+            if( !$prodLocation) throw new ModelNotFoundException();
+
+            ProdLocations::findOrFail($prodLocation->id)->update([
+                'quantity' => $quantity
+            ]);
+            $result->success();
+        } catch (Exception $e) {
             $result->error($e);
         }
         return $result;

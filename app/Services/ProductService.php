@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Daos\ProductsDao;
 use App\Enums\BizStatus;
 use App\Enums\ProductStatus;
 use App\Models\Conditions;
@@ -20,11 +21,13 @@ use Illuminate\Support\Facades\DB;
 class ProductService
 {
     protected LocationService $locationService;
+    protected ProductsDao $productsDao;
+
     public function __construct()
     {
         $this->locationService = resolve(LocationService::class);
+        $this->productsDao = resolve(ProductsDao::class);
     }
-
 
     public function store(Criteria $criteria)
     {
@@ -66,6 +69,7 @@ class ProductService
                         'var_3_title' => $variant['var_3_title'] ?? null,
                         'buy_price' => $variant['buy_price'],
                         'selling_price' =>  $variant['selling_price'],
+                        'track_qty' =>  $variant['track_qty'],
                         'qty' => $variant['qty'],
                         'fk_condition_id' => $variant['fk_condition_id'],
                         'condition_desc' => $variant['condition_desc'],
@@ -94,6 +98,16 @@ class ProductService
                             ];
                         }
                         $dbVariant->attributes()->sync($attributes);
+                    }
+                    if ($variant['locations'] ?? null && $dbVariant->track_qty) {
+                        $locations = [];
+                        foreach ($variant['locations'] as $loc) {
+                            $locations[$loc['fk_location_id']] = [
+                                'quantity' => $loc['quantity'],
+                                'fk_prod_variant_id' => $dbVariant->id,
+                            ];
+                        }
+                        $dbVariant->locations()->sync($locations);
                     }
                 }
             }
@@ -147,12 +161,16 @@ class ProductService
             }
 
             /** Retrive product warehouse locations */
-            $product['variants'] = collect($product['variants'])->transform(function($variant){
+            $product['variants'] = collect($product['variants'])->transform(function ($variant) {
                 $locationResult = $this->locationService->getLocationByProduct($variant['id']);
+                //dd($locationResult->details);
+                $defWarehouse = $locationResult->details->firstWhere('location.default', true);
+                //dd($defWarehouse);
+                $variant['qty'] = $defWarehouse['quantity'];
                 $variant['locations'] = $locationResult->details;
                 return $variant;
             })->toArray();
-           
+
             $result->details = $product;
             $result->success();
         } catch (Exception $e) {
@@ -272,6 +290,7 @@ class ProductService
                     $dbVariant->var_3_title                   = $variant['var_3_title']  ?? null;
                     $dbVariant->buy_price                     = $variant['buy_price'];
                     $dbVariant->selling_price                 = $variant['selling_price'];
+                    $dbVariant->track_qty                     = $variant['track_qty'];
                     $dbVariant->qty                           = $variant['qty'];
                     $dbVariant->fk_condition_id               = $variant['fk_condition_id'];
                     $dbVariant->condition_desc                = $variant['condition_desc'];
@@ -308,41 +327,54 @@ class ProductService
                             ];
                         }
                         $dbVariant->attributes()->sync($attributes);
+
+                        // Warehouse update
+                        if ($variant['locations'] ?? null && $dbVariant->track_qty) {
+                            $locations = [];
+                            foreach ($variant['locations'] as $loc) {
+                                $locations[$loc['fk_location_id']] = [
+                                    'quantity' => $loc['quantity'],
+                                    'fk_prod_variant_id' => $dbVariant->id,
+                                ];
+                            }
+                            $dbVariant->locations()->sync($locations);
+                        }
                     } else {
                         $dbVariant->save();
                     }
                 } else {
                     $dbVariant =  ProdVariants::create([
-                        'biz_status' => $variant['biz_status'],
-                        'seller_sku' => $variant['seller_sku'],
-                        'fk_prod_id' => $product->id,
-                        'fk_varopt_1_hdr_id' => $variant['fk_varopt_1_hdr_id'] ?? null,
-                        'fk_varopt_1_dtl_id' => $variant['fk_varopt_1_dtl_id'] ?? null,
-                        'var_1_title' => $variant['var_1_title'] ?? null,
-                        'fk_varopt_2_hdr_id' => $variant['fk_varopt_2_hdr_id'] ?? null,
-                        'fk_varopt_2_dtl_id' => $variant['fk_varopt_2_dtl_id'] ?? null,
-                        'var_2_title' => $variant['var_2_title'] ?? null,
-                        'fk_varopt_3_hdr_id' => $variant['fk_varopt_3_hdr_id'] ?? null,
-                        'fk_varopt_3_dtl_id' => $variant['fk_varopt_3_dtl_id'] ?? null,
-                        'var_3_title' => $variant['var_3_title'] ?? null,
-                        'buy_price' => $variant['buy_price'],
-                        'selling_price' =>  $variant['selling_price'],
-                        'qty' => $variant['qty'],
-                        'fk_condition_id' => $variant['fk_condition_id'],
-                        'condition_desc' => $variant['condition_desc'],
-                        'features' => $variant['features'],
-                        'prod_desc' => $variant['prod_desc'],
-                        "start_at" => date_create_from_format('d-m-Y h:i:s A',  $variant['start_at']),
-                        "expired_at" => date_create_from_format('d-m-Y h:i:s A', $variant['expired_at']),
-                        'media_1_image' => $variant['media_1_image'],
-                        'media_2_image' => $variant['media_2_image'],
-                        'media_3_image' => $variant['media_3_image'],
-                        'media_4_image' => $variant['media_4_image'],
-                        'media_5_image' => $variant['media_5_image'],
-                        'media_6_image' => $variant['media_6_image'],
-                        'media_7_image' => $variant['media_7_image'],
-                        'media_8_video' => $variant['media_8_video'],
-                        'media_9_video' => $variant['media_9_video'],
+                        'biz_status'            => $variant['biz_status'],
+                        'seller_sku'            => $variant['seller_sku'],
+                        'fk_prod_id'            => $product->id,
+                        'fk_varopt_1_hdr_id'    => $variant['fk_varopt_1_hdr_id'] ?? null,
+                        'fk_varopt_1_dtl_id'    => $variant['fk_varopt_1_dtl_id'] ?? null,
+                        'var_1_title'           => $variant['var_1_title'] ?? null,
+                        'fk_varopt_2_hdr_id'    => $variant['fk_varopt_2_hdr_id'] ?? null,
+                        'fk_varopt_2_dtl_id'    => $variant['fk_varopt_2_dtl_id'] ?? null,
+                        'var_2_title'           => $variant['var_2_title'] ?? null,
+                        'fk_varopt_3_hdr_id'    => $variant['fk_varopt_3_hdr_id'] ?? null,
+                        'fk_varopt_3_dtl_id'    => $variant['fk_varopt_3_dtl_id'] ?? null,
+                        'var_3_title'           => $variant['var_3_title'] ?? null,
+                        'buy_price'             => $variant['buy_price'],
+                        'selling_price'         => $variant['selling_price'],
+                        'track_qty'             => $variant['track_qty'],
+                        'qty'                   => $variant['qty'],
+                        'fk_condition_id'       => $variant['fk_condition_id'],
+                        'condition_desc'        => $variant['condition_desc'],
+                        'features'              => $variant['features'],
+                        'prod_desc'             => $variant['prod_desc'],
+                        "start_at"              => date_create_from_format('d-m-Y h:i:s A',  $variant['start_at']),
+                        "expired_at"            => date_create_from_format('d-m-Y h:i:s A', $variant['expired_at']),
+                        'media_1_image'         => $variant['media_1_image'],
+                        'media_2_image'         => $variant['media_2_image'],
+                        'media_3_image'         => $variant['media_3_image'],
+                        'media_4_image'         => $variant['media_4_image'],
+                        'media_5_image'         => $variant['media_5_image'],
+                        'media_6_image'         => $variant['media_6_image'],
+                        'media_7_image'         => $variant['media_7_image'],
+                        'media_8_video'         => $variant['media_8_video'],
+                        'media_9_video'         => $variant['media_9_video'],
                     ]);
                     if ($variant['attributes'] ?? null) {
                         $attributes = [];
@@ -355,6 +387,18 @@ class ProductService
                             ];
                         }
                         $dbVariant->attributes()->sync($attributes);
+                    }
+
+                    // Warehouse update
+                    if ($variant['locations'] ?? null && $dbVariant->track_qty) {
+                        $locations = [];
+                        foreach ($variant['locations'] as $loc) {
+                            $locations[$loc['fk_location_id']] = [
+                                'quantity' => $loc['quantity'],
+                                'fk_prod_variant_id' => $dbVariant->id,
+                            ];
+                        }
+                        $dbVariant->locations()->sync($locations);
                     }
                 }
             }
@@ -371,14 +415,38 @@ class ProductService
     {
         $result = new ViewResult();
         try {
+
             foreach ($criteria->details['variants'] as $key => $variant) {
                 $db = ProdVariants::findOrFail($variant['id']);
-                foreach ($variant as $key => $value) {
-                    $db[$key] = $variant[$key];
-                }
+                $db->qty = $variant['qty'];
+                $db->buy_price = $variant['buy_price'];
+                $db->selling_price = $variant['selling_price'];
+                $db->fk_condition_id = $variant['fk_condition_id'];
                 $db->save();
-            }
 
+                $result = $this->locationService->updateVariantDefLocationQty($db->id, $variant['qty']);
+
+                if (!$result->success && $result->exception instanceof ModelNotFoundException) {
+                    $result = $this->locationService->getLocationByProduct($db->id);
+
+                    if (!$result->success) {
+                        throw $$result->exception;
+                    }
+
+                    if ($db->track_qty) {
+                        $locations = [];
+                        foreach ($result->details as $loc) {
+                            $locations[$loc['location']['id']] = [
+                                'fk_prod_variant_id' => $db->id,
+                                'quantity' => $loc['location']['default'] ? $variant['qty'] : 0,
+                            ];
+                        }
+                        $db->locations()->sync($locations);
+                    }
+                } else if (!$result->success) {
+                    throw $result->exception;
+                }
+            }
             $result->success();
         } catch (Exception $e) {
             $result->error($e);
@@ -404,6 +472,7 @@ class ProductService
             $dbVariant->var_3_title                   = $criteria->details['var_3_title']  ?? null;
             $dbVariant->buy_price                     = $criteria->details['buy_price'];
             $dbVariant->selling_price                 = $criteria->details['selling_price'];
+            $dbVariant->track_qty                     = $criteria->details['track_qty'];
             $dbVariant->qty                           = $criteria->details['qty'];
             $dbVariant->fk_condition_id               = $criteria->details['fk_condition_id'];
             $dbVariant->condition_desc                = $criteria->details['condition_desc'];
@@ -427,13 +496,27 @@ class ProductService
             $attributes = [];
             foreach ($criteria->details['attributes'] as $attri) {
                 $attributes[$attri['fk_varopt_hdr_id']] = [
-                    'fk_prod_id' => $$dbVariant->fk_prod_id,
+                    'fk_prod_id' => $dbVariant->fk_prod_id,
                     'fk_varopt_dtl_id' => $attri['fk_varopt_dtl_id'],
                     'fk_varopt_unit_id' =>  $attri['fk_varopt_unit_id'],
                     'value' => $attri['value']
                 ];
             }
-            $dbVariant->attributes()->sync($attributes);;
+
+            $dbVariant->attributes()->sync($attributes);
+
+            // Warehouse update
+            if ($criteria->details['locations'] ?? null  && $dbVariant->track_qty) {
+                $locations = [];
+                foreach ($criteria->details['locations'] as $loc) {
+                    $locations[$loc['fk_location_id']] = [
+                        'quantity' => $loc['quantity'],
+                        'fk_prod_variant_id' => $dbVariant->id,
+                    ];
+                }
+                $dbVariant->locations()->sync($locations);
+            }
+
             $result->success();
         } catch (Exception $e) {
             $result->error($e);
@@ -441,11 +524,24 @@ class ProductService
         return $result;
     }
 
-    public function getVariants($brandId, Criteria $criteria)
+    public function getSingleProducts($brandId, Criteria $criteria)
     {
         $result = new ViewResult();
+        $result->enableQueryLog();
         try {
             $paginate = true;
+
+            // Get variants with default warehouse
+            $warehouse = DB::table('prod_locations')->join('locations', function ($join) {
+                $join->on('locations.id', '=', 'prod_locations.fk_location_id');
+                $join->where('locations.default', '=', true);
+            })->select([
+                'prod_locations.fk_prod_variant_id',
+                'prod_locations.quantity'
+            ]);
+
+
+
             $records = DB::table('products')
                 ->join('prod_variants', 'products.id', '=', 'prod_variants.fk_prod_id')
                 ->join('regions', 'regions.id', '=', 'products.fk_currency_id')
@@ -454,8 +550,15 @@ class ProductService
                 ->leftJoin('variant_option_hdrs as option2', 'products.fk_varopt_2_hdr_id', '=', 'option2.id')
                 ->leftJoin('variant_option_hdrs as option3', 'products.fk_varopt_3_hdr_id', '=', 'option3.id')
                 ->leftJoin('files as file_1', 'prod_variants.media_1_image', '=', 'file_1.id')
+
+                // Get variants with default warehouse by subjoin
+                ->leftJoinSub($warehouse, 'warehouse', function ($join) {
+                    $join->on('warehouse.fk_prod_variant_id', '=', 'prod_variants.id');
+                })
+
                 ->where('products.fk_brand_id', '=', $brandId);
 
+            // Add search query
             if (isset($criteria->httpParams['search'])) {
                 $records = $records->whereRaw(
                     "products.title ilike ? or prod_variants.seller_sku ilike ? ",
@@ -474,6 +577,7 @@ class ProductService
             }
             if (isset($criteria->httpParams['product_id'])) {
                 $records = $records->where('products.id', '=', $criteria->httpParams['product_id']);
+                $records = $records->distinct('prod_variants.id');
                 $paginate = false;
             } else {
                 $records = $records->distinct('products.id');
@@ -508,7 +612,7 @@ class ProductService
                 "prod_variants.var_3_title as variant.var_3_title",
                 "prod_variants.buy_price as variant.buy_price",
                 "prod_variants.selling_price as variant.selling_price",
-                "prod_variants.qty as variant.qty",
+                "warehouse.quantity as variant.qty",
                 "conditions.id as condition.id",
                 "conditions.title as condition.title",
                 'prod_variants.start_at as variant.start_at',
@@ -523,10 +627,12 @@ class ProductService
             } else {
                 $records = $records->get();
             }
+
             $map = function ($rows) {
                 return $rows->transform(function ($variant) {
                     $raws = collect($variant)->undot()->toArray();
                     $variant = new ProdVariants($raws['variant']);
+                    $variant->qty = $variant->qty ?? 0;
                     $variant->condition = new Conditions($raws['condition']);
                     $variant->media_1_image = $raws['variant']['media_1_image']['id'] ? new CsFile([
                         'id' => $raws['variant']['media_1_image']['id'],
@@ -547,6 +653,7 @@ class ProductService
             } else {
                 $records = $map($records);
             }
+
             $result->details = $records;
             $result->generateQueryLog();
             $result->success();
@@ -569,6 +676,7 @@ class ProductService
 
             $lvlCategoryId = $prodVariant->product->fk_lvlcategory_id;
             $prodVariant = $this->productAttributes($lvlCategoryId, $prodVariant);
+            $prodVariant->locations = $this->locationService->getLocationByProduct($prodVariant->id)->details;
 
             /**
              * Additional Variants

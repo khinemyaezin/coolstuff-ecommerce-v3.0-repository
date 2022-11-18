@@ -56,6 +56,7 @@ class ProductSaveRequest extends FormRequest
             'variants.*.buy_price' => array('regex:/^[0-9]+(\.[0-9][0-9]?)?$/', 'required'),
             'variants.*.fk_buy_currency_id' => 'string|exists:regions,id',
             'variants.*.selling_price' =>  array('regex:/^[0-9]+(\.[0-9][0-9]?)?$/', 'required'),
+            'variants.*.track_qty' => 'boolean',
             'variants.*.qty' => 'integer|required',
             'variants.*.fk_condition_id' => 'required|exists:conditions,id',
             'variants.*.condition_desc' => 'nullable|string',
@@ -78,6 +79,11 @@ class ProductSaveRequest extends FormRequest
             'variants.*.media_7_image'=> 'nullable|exists:files,id',
             'variants.*.media_8_video'=> 'nullable|exists:files,id',
             'variants.*.media_9_video'=> 'nullable|exists:files,id',
+
+            'variants.*.locations' => 'array',
+            'variants.*.locations.*.fk_location_id' => 'exists:locations,id|required',
+            'variants.*.locations.*.quantity' => 'integer|required',
+            
         ];
     }
 }

@@ -6,6 +6,7 @@ use App\Enums\BizStatus;
 use App\Models\Criteria;
 use App\Models\VariantOptionDtls;
 use App\Models\VariantOptionHdrs;
+use App\Models\VariantOptionUnits;
 use App\Models\ViewResult;
 use Exception;
 use Illuminate\Database\Eloquent\RelationNotFoundException;
@@ -160,7 +161,60 @@ class VariantService
                 }
             }
 
+            if (isset($criteria->details['units']) && is_array($criteria->details['units'])) {
+                foreach ($criteria->details['units'] as $key => $value) {
+                    $columns = [
+                        "title" => $value['title'],
+                        "code" => $value['code'],
+                        'fk_varopt_hdr_id' => $optionHeader->id
+                    ];
+                    if (isset($value['id']) && Common::isID($value['id'])) {
+                        if ($value['biz_status'] == BizStatus::DELETED->value) {
+                            VariantOptionUnits::findOrFail($value['id'])->delete();
+                        } else {
+                            VariantOptionUnits::findOrFail($value['id'])->update(
+                                $columns
+                            );
+                        }
+                    } else {
+                        VariantOptionUnits::create($columns);
+                    }
+                }
+            }
+
             $result->success();
+        } catch (Exception $e) {
+            $result->error($e);
+        }
+        return $result;
+    }
+
+    public function getUnits(Criteria $criteria, $headerId)
+    {
+        $result = new ViewResult();
+        try {
+            $details = new VariantOptionUnits();
+            if ($criteria->relationships && is_array($criteria->relationships)) {
+                foreach ($criteria->relationships as $relationship) {
+                    $details = $details->with($relationship);
+                }
+            }
+            try {
+                $details = $details->where('fk_varopt_hdr_id', '=', $headerId);
+
+                if (isset($criteria->details['title'])) {
+                    $httpParam['title'] = $criteria->details['title'];
+                    $details = $details->where('title', 'ilike', "{$criteria->details['title']}%");
+                }
+                $details = $details->orderBy('title', 'ASC');
+                $result->details = $details->paginate(10);
+                $result->details->appends($criteria->httpParams);
+
+                $result->success();
+            } catch (RelationNotFoundException $e) {
+                $result->error($e);
+                $result->message = "'" . $e->relation . "' relation does not exists";
+            }
         } catch (Exception $e) {
             $result->error($e);
         }

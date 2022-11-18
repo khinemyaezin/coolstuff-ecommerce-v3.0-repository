@@ -41,6 +41,13 @@ class OptionsApiController extends Controller
         return response()->json($result, $result->getHttpStatus());
     }
 
+    public function getUnits(GetOptionDetailsRequest $request)
+    {
+        $criteria = new Criteria($request);
+        $result = $this->service->getUnits($criteria, $request->route('id'));
+        return response()->json($result, $result->getHttpStatus());
+    }
+
     public function update(OptionUpdateRequest $request)
     {
         DB::beginTransaction();

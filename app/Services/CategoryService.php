@@ -71,9 +71,6 @@ class CategoryService
             foreach($criteria->optional as $key=>$value) {
                 $records->appends([$key => $value]);
             }
-                // if (isset($criteria->optional['title'])) {
-                //     $records->appends(['title' => $criteria->optional['title']]);
-                // }
             
             $result->details = $records;
             $result->success();

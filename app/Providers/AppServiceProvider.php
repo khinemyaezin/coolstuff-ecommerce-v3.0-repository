@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Daos\ProductsDao;
 use App\Models\SystemSettings;
 use App\Services\BrandService;
 use App\Services\CategoryAttributeService;
@@ -60,6 +61,9 @@ class AppServiceProvider extends ServiceProvider
         });
         $this->app->singleton(ProductService::class, function ($app) {
             return new ProductService();
+        });
+        $this->app->singleton(ProductsDao::class, function ($app) {
+            return new ProductsDao();
         });
         $this->app->singleton(LocationService::class, function ($app) {
             return new LocationService();

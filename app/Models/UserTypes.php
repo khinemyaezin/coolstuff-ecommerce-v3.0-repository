@@ -13,4 +13,9 @@ class UserTypes extends Model
         'created_at' => 'datetime:d-m-Y h:i:s A',
         'updated_at' => 'datetime:d-m-Y h:i:s A',
     ];
+
+    public function users($relations = [])
+    {
+        return $this->hasMany(Users::class,'fk_usertype_id','id')->with($relations);
+    }
 }

@@ -10,6 +10,7 @@ use App\Models\Criteria;
 use App\Models\Products;
 use App\Models\ViewResult;
 use App\Enums\BizStatus;
+use App\Http\Requests\GetInventoryProductsRequest;
 use App\Services\ProductService;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -33,7 +34,7 @@ class ProductsApiController extends Controller
 
         return response()->json($result, $result->getHttpStatus());
     }
-
+ 
     public function store(ProductSaveRequest $request)
     {
         DB::beginTransaction();

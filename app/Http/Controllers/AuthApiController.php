@@ -32,14 +32,28 @@ class AuthApiController extends Controller
                 $resp->error(throw new AuthenticationException());
                 return response(new ViewResult(), Response::HTTP_UNAUTHORIZED);
             }
-            $criteria = new Criteria();
-            $criteria->relationships = Common::splitToArray('brand,userType,profileImage');
-            $criteria->httpParams = [
-                'brand' => 'profileImage,coverImage'
-            ];
-            $user = Common::prepareRelationships($criteria, new Users());
-            $user = $user->find(Auth::id());
-
+            $user = Users::with([
+                'userType',
+                'profileImage',
+                'brand' => function ($query) {
+                    $query->with(['profileImage', 'coverImage','region','defaultCurrency']);
+                    $query->select([
+                        'id',
+                        'public_id',
+                        'profile_image',
+                        'cover_image',
+                        'fk_region_id',
+                        'def_currency_id'
+                    ]);
+                }
+            ])->find(Auth::id(), [
+                'id',
+                'first_name',
+                'last_name',
+                'fk_usertype_id',
+                'fk_brand_id',
+                'profile_image',
+            ]);
             $privileges = [];
             foreach ($user->roles as $role) {
                 foreach ($role->tasks as $task) {
@@ -62,45 +76,15 @@ class AuthApiController extends Controller
             return response()->json($result, $result->getHttpStatus());
         }
     }
-    // public function register(Request $request)
-    // {
-    //     $result = null;
-    //     DB::beginTransaction();
-    //     try {
-    //         $validator = validator(request()->all(), [
-    //             'first_name' => 'string|required',
-    //             'last_name' => 'string|required',
-    //             'usertype_id' => 'string|required|exists:user_types,id',
-    //             'email' => 'string|required|email|unique:users,email',
-    //             'password' => 'string|required',
-    //         ]);
-    //         if ($validator->fails()) {
-    //             $result = new ViewResult();
-    //             $result->error(new InvalidRequest(),$validator->errors());
-    //         } else {
-    //             $user =  new Users();
-    //             $user->first_name = $request['first_name'];
-    //             $user->last_name = $request['last_name'];
-    //             $user->fk_usertype_id = $request['usertype_id'];
-    //             $user->email = $request['email'];
-    //             $user->password = Hash::make($request['password']);
-    //             $result = $this->userService->register($user);
-    //         }
-    //     } catch (Exception $e) {
-    //         $result = new ViewResult();
-    //         $result->error($e);
-    //     }
-
-    //     $result->completeTransaction();
-    //     return response([
-    //         $result
-    //     ]);
-    // }
-    public function logout()
+ 
+    public function logout(Request $request)
     {
         $currentUser = (object) Auth::user();
+
         $currentUser->tokens()->where('id', $currentUser->currentAccessToken()->id)->delete();
         $cookie = Cookie::forget(config('constants.TOKEN.NAME'));
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
         return response(["message" => "success"])->withCookie($cookie);
     }
     public function revokeSessions()
@@ -115,13 +99,28 @@ class AuthApiController extends Controller
     public function getCurrentUserFromCookie()
     {
         $result = new ViewResult();
-        $criteria = new Criteria();
-        $criteria->relationships = Common::splitToArray('brand,userType,profileImage');
-        $criteria->httpParams = [
-            'brand' => 'profileImage,coverImage'
-        ];
-        $user = Common::prepareRelationships($criteria, new Users());
-        $user = $user->find(Auth::id());
+        $user = Users::with([
+            'userType',
+            'profileImage',
+            'brand' => function ($query) {
+                $query->with(['profileImage', 'coverImage','region','defaultCurrency']);
+                $query->select([
+                    'id',
+                    'public_id',
+                    'profile_image',
+                    'cover_image',
+                    'fk_region_id',
+                    'def_currency_id'
+                ]);
+            }
+        ])->find(Auth::id(), [
+            'id',
+            'first_name',
+            'last_name',
+            'fk_usertype_id',
+            'fk_brand_id',
+            'profile_image',
+        ]);
         $privileges = [];
         foreach ($user->roles as $role) {
             foreach ($role->tasks as $task) {

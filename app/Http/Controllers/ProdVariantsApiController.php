@@ -2,16 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Exceptions\InvalidRequest;
 use App\Http\Requests\GetInventoryProductsRequest;
 use App\Http\Requests\GetProductByIdRequest;
-use App\Http\Requests\LocationQuantityUpdateRequest;
 use App\Http\Requests\ProdVariantUpdateRequest;
 use App\Models\Criteria;
-use App\Models\ViewResult;
 use App\Services\ProductService;
-use App\Services\Common;
-use App\Services\LocationService;
 use Illuminate\Support\Facades\DB;
 
 class ProdVariantsApiController extends Controller
@@ -20,13 +15,6 @@ class ProdVariantsApiController extends Controller
         protected ProductService $service)
     {
         # code...
-    }
-    public function index(GetInventoryProductsRequest $request)
-    {
-        $criteria = new Criteria($request);
-        $result = $this->service->getVariants($request->route('brandId'), $criteria);
-
-        return response()->json($result, $result->getHttpStatus());
     }
 
     public function getById(GetProductByIdRequest $request)

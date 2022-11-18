@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\BrandRegisterRequest;
+use App\Http\Requests\BrandSettingUpdateRequest;
 use App\Http\Requests\BrandUpdateRequest;
 use App\Http\Requests\GetBrandsRequest;
 use App\Models\Brands;
@@ -36,9 +37,6 @@ class BrandsApiController extends Controller
         return response()->json($result, $result->getHttpStatus());
     }
 
-    public function show($id)
-    {
-    }
 
     public function update(BrandUpdateRequest $request)
     {
@@ -51,8 +49,17 @@ class BrandsApiController extends Controller
         return response()->json($result, $result->getHttpStatus());
     }
 
-    public function destroy(Brands $brands)
+    public function getSettings()
     {
-        //
+        $result = $this->brandService->getSettings();
+        return response()->json($result, $result->getHttpStatus());
+    }
+
+    public function updateSettings(BrandSettingUpdateRequest $request)
+    {
+        DB::beginTransaction();
+        $result = $this->brandService->updateSetting(new Criteria($request));
+        $result->completeTransaction();
+        return response()->json($result, $result->getHttpStatus());
     }
 }

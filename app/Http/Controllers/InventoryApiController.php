@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\GetInventoryProductsRequest;
 use App\Http\Requests\ProdVariantsUpdateRequest;
 use App\Models\Criteria;
 use App\Services\ProductService;
@@ -14,6 +15,15 @@ class InventoryApiController extends Controller
     {
         # code...
     }
+
+    public function getSingleProducts(GetInventoryProductsRequest $request)
+    {
+        $criteria = new Criteria($request);
+        $result = $this->service->getSingleProducts($request->route('brandId'), $criteria);
+
+        return response()->json($result, $result->getHttpStatus());
+    }
+    
     public function updateVariants(ProdVariantsUpdateRequest $request)
     {
     

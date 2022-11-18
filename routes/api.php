@@ -16,6 +16,7 @@ use App\Http\Controllers\RegionsApiController;
 use App\Http\Controllers\RolesApiController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\UsersApiController;
+use App\Http\Controllers\UserTypesApiController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -53,8 +54,11 @@ Route::middleware('auth:sanctum')->get('categories/{id}/attributes/setup', [Cate
 Route::middleware('auth:sanctum')->get('categories/{id}/attributes', [CategoryAttributesApiController::class, 'index'])->where('id', '[0-9]+');
 /** Users */
 Route::middleware('auth:sanctum')->get('users', [UsersApiController::class, 'index']);
+Route::middleware('auth:sanctum')->get('users/{id}', [UsersApiController::class, 'show'])->where('id', '[0-9]+');
 Route::middleware('auth:sanctum')->post('users/{userid}/privileges', [UsersApiController::class, 'savePrivileges'])->where('id', '[0-9]+');
 Route::middleware('auth:sanctum')->put('users/{id}', [UsersApiController::class, 'update'])->where('id', '[0-9]+');
+Route::middleware('auth:sanctum')->get('usertypes/users', [UserTypesApiController::class, 'getUsersByUserTypes']);
+
 
 /** Regions */
 Route::middleware('auth:sanctum')->apiResource('regions', RegionsApiController::class);
@@ -65,6 +69,8 @@ Route::middleware('auth:sanctum')->apiResource('roles', RolesApiController::clas
 /** Brands */
 Route::post('brands/register', [BrandsApiController::class, 'store']);
 Route::middleware('auth:sanctum')->get('brands', [BrandsApiController::class, 'index']);
+Route::middleware('auth:sanctum')->get('brand/setting', [BrandsApiController::class, 'getSettings']);
+Route::middleware('auth:sanctum')->put('brand/setting', [BrandsApiController::class, 'updateSettings']);
 Route::middleware('auth:sanctum')->get('brands/{id}', [BrandsApiController::class, 'show'])->where('id', '[0-9]+');
 Route::middleware('auth:sanctum')->put('brands/{id}', [BrandsApiController::class, 'update'])->where('id', '[0-9]+');
 
@@ -78,6 +84,9 @@ Route::post('options/headers', [OptionsApiController::class, 'saveHeader']);
 Route::get('options/headers/{id}', [OptionsApiController::class, 'getHeaderById'])->where('id', '[0-9]+');
 Route::get('options/headers/{id}/details', [OptionsApiController::class, 'getDetails'])->where('id', '[0-9]+');
 Route::post('options/headers/{id}/details', [OptionsApiController::class, 'saveDetails'])->where('id', '[0-9]+');
+
+Route::get('options/headers/{id}/units', [OptionsApiController::class, 'getUnits'])->where('id', '[0-9]+');
+
 Route::put('options/headers/{id}', [OptionsApiController::class, 'update'])->where('id', '[0-9]+');
 Route::delete('options/headers/{id}', [OptionsApiController::class, 'destory'])->where('id', '[0-9]+');
 
@@ -96,7 +105,7 @@ Route::middleware('auth:sanctum')->delete('products/{id}/{vid}', [ProdVariantsAp
 
 
 
-Route::middleware('auth:sanctum')->get('brands/{brandId}/inventory/products', [ProdVariantsApiController::class, 'index'])
+Route::middleware('auth:sanctum')->get('brands/{brandId}/inventory/products', [InventoryApiController::class, 'getSingleProducts'])
     ->where('brandId', '[0-9]+');
 Route::middleware('auth:sanctum')->put('brands/{brandId}/inventory/variants', [InventoryApiController::class, 'updateVariants'])
     ->where('brandId', '[0-9]+');

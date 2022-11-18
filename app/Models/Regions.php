@@ -14,7 +14,9 @@ class Regions extends Model
         'updated_at' => 'datetime:d-m-Y h:i:s A',
     ];
     protected $hidden = [
-        'status'
+        'status',
+        'created_at',
+        'updated_at'
     ];
     protected $fillable = [
         'id',

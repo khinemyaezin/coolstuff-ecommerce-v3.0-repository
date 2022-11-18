@@ -27,7 +27,7 @@ class PackTypeApiController extends Controller
         ]);
         if ($validator->fails()) {
             $result = new ViewResult();
-            $result->error(new InvalidRequest(), $validator->errors());
+            //$result->error(new InvalidRequest(), $validator->errors());
         } else {
             $criteria = new Criteria();
             $criteria->relationships = $request['relationships'];
