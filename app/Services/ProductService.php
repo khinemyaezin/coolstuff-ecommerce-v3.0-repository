@@ -33,7 +33,7 @@ class ProductService
     {
         $result = new ViewResult();
         try {
-            /** Products */
+            # Products
             $product = Products::create([
                 'biz_status' => $criteria->details['biz_status'],
                 'title' =>  $criteria->details['title'],
@@ -55,45 +55,48 @@ class ProductService
                 foreach ($criteria->details['variants'] as $variant) {
 
                     $dbVariant =  ProdVariants::create([
-                        'biz_status' => $variant['biz_status'],
-                        'seller_sku' => $variant['seller_sku'],
-                        'fk_prod_id' => $product->id,
-                        'fk_varopt_1_hdr_id' => $variant['fk_varopt_1_hdr_id'] ?? null,
-                        'fk_varopt_1_dtl_id' => $variant['fk_varopt_1_dtl_id'] ?? null,
-                        'var_1_title' => $variant['var_1_title'] ?? null,
-                        'fk_varopt_2_hdr_id' => $variant['fk_varopt_2_hdr_id'] ?? null,
-                        'fk_varopt_2_dtl_id' => $variant['fk_varopt_2_dtl_id'] ?? null,
-                        'var_2_title' => $variant['var_2_title'] ?? null,
-                        'fk_varopt_3_hdr_id' => $variant['fk_varopt_3_hdr_id'] ?? null,
-                        'fk_varopt_3_dtl_id' => $variant['fk_varopt_3_dtl_id'] ?? null,
-                        'var_3_title' => $variant['var_3_title'] ?? null,
-                        'buy_price' => $variant['buy_price'],
-                        'selling_price' =>  $variant['selling_price'],
-                        'track_qty' =>  $variant['track_qty'],
-                        'qty' => $variant['qty'],
-                        'fk_condition_id' => $variant['fk_condition_id'],
-                        'condition_desc' => $variant['condition_desc'],
-                        'features' => $variant['features'],
-                        'prod_desc' => $variant['prod_desc'],
-                        "start_at" => date_create_from_format('d-m-Y h:i:s A',  $variant['start_at']),
-                        "expired_at" => date_create_from_format('d-m-Y h:i:s A', $variant['expired_at']),
-                        'media_1_image' => $variant['media_1_image'],
-                        'media_2_image' => $variant['media_2_image'],
-                        'media_3_image' => $variant['media_3_image'],
-                        'media_4_image' => $variant['media_4_image'],
-                        'media_5_image' => $variant['media_5_image'],
-                        'media_6_image' => $variant['media_6_image'],
-                        'media_7_image' => $variant['media_7_image'],
-                        'media_8_video' => $variant['media_8_video'],
-                        'media_9_video' => $variant['media_9_video'],
+                        'biz_status'                => $variant['biz_status'],
+                        'seller_sku'                => $variant['seller_sku'],
+                        'fk_prod_id'                => $product->id,
+                        'fk_varopt_1_hdr_id'        => $variant['fk_varopt_1_hdr_id'] ?? null,
+                        'fk_varopt_1_dtl_id'        => $variant['fk_varopt_1_dtl_id'] ?? null,
+                        'fk_varopt_1_unit_id'       => $variant['fk_varopt_1_unit_id'] ?? null,
+                        'var_1_title'               => $variant['var_1_title'] ?? null,
+                        'fk_varopt_2_hdr_id'        => $variant['fk_varopt_2_hdr_id'] ?? null,
+                        'fk_varopt_2_dtl_id'        => $variant['fk_varopt_2_dtl_id'] ?? null,
+                        'fk_varopt_2_unit_id'       => $variant['fk_varopt_2_unit_id'] ?? null,
+                        'var_2_title'               => $variant['var_2_title'] ?? null,
+                        'fk_varopt_3_hdr_id'        => $variant['fk_varopt_3_hdr_id'] ?? null,
+                        'fk_varopt_3_dtl_id'        => $variant['fk_varopt_3_dtl_id'] ?? null,
+                        'fk_varopt_3_unit_id'       => $variant['fk_varopt_3_unit_id'] ?? null,
+                        'var_3_title'               => $variant['var_3_title'] ?? null,
+                        'buy_price'                 => $variant['buy_price'],
+                        'selling_price'             => $variant['selling_price'],
+                        'track_qty'                 => $variant['track_qty'],
+                        'qty'                       => $variant['qty'],
+                        'fk_condition_id'           => $variant['fk_condition_id'],
+                        'condition_desc'            => $variant['condition_desc'],
+                        'features'                  => $variant['features'],
+                        'prod_desc'                 => $variant['prod_desc'],
+                        "start_at"                  => date_create_from_format('d-m-Y h:i:s A',  $variant['start_at']),
+                        "expired_at"                => date_create_from_format('d-m-Y h:i:s A', $variant['expired_at']),
+                        'media_1_image'             => $variant['media_1_image'],
+                        'media_2_image'             => $variant['media_2_image'],
+                        'media_3_image'             => $variant['media_3_image'],
+                        'media_4_image'             => $variant['media_4_image'],
+                        'media_5_image'             => $variant['media_5_image'],
+                        'media_6_image'             => $variant['media_6_image'],
+                        'media_7_image'             => $variant['media_7_image'],
+                        'media_8_video'             => $variant['media_8_video'],
+                        'media_9_video'             => $variant['media_9_video'],
                     ]);
                     if ($variant['attributes'] ?? null) {
                         $attributes = [];
                         foreach ($variant['attributes'] as $attri) {
                             $attributes[$attri['fk_varopt_hdr_id']] = [
                                 'fk_prod_id' => $product->id,
-                                'fk_varopt_dtl_id' => $attri['fk_varopt_dtl_id'],
-                                'fk_varopt_unit_id' =>  $attri['fk_varopt_unit_id'],
+                                'fk_varopt_dtl_id' => Common::arrayVal($attri, 'fk_varopt_dtl_id'),
+                                'fk_varopt_unit_id' =>  Common::arrayVal($attri, 'fk_varopt_unit_id'),
                                 'value' => $attri['value']
                             ];
                         }
@@ -278,24 +281,25 @@ class ProductService
                      */
                     $dbVariant = ProdVariants::findOrFail($variant['id']);
                     $dbVariant->biz_status                    = $variant['biz_status'];
-                    //$dbVariant->seller_sku                    = $variant['seller_sku'];
-                    $dbVariant->fk_varopt_1_hdr_id            = $variant['fk_varopt_1_hdr_id'] ?? null;
-                    $dbVariant->fk_varopt_1_dtl_id            = $variant['fk_varopt_1_dtl_id'] ?? null;
-                    $dbVariant->var_1_title                   = $variant['var_1_title'] ?? null;
-                    $dbVariant->fk_varopt_2_hdr_id            = $variant['fk_varopt_2_hdr_id'] ?? null;
-                    $dbVariant->fk_varopt_2_dtl_id            = $variant['fk_varopt_2_dtl_id'] ?? null;
-                    $dbVariant->var_2_title                   = $variant['var_2_title'] ?? null;
-                    $dbVariant->fk_varopt_3_hdr_id            = $variant['fk_varopt_3_hdr_id'] ?? null;
-                    $dbVariant->fk_varopt_3_dtl_id            = $variant['fk_varopt_3_dtl_id'] ?? null;
-                    $dbVariant->var_3_title                   = $variant['var_3_title']  ?? null;
-                    $dbVariant->buy_price                     = $variant['buy_price'];
-                    $dbVariant->selling_price                 = $variant['selling_price'];
-                    $dbVariant->track_qty                     = $variant['track_qty'];
-                    $dbVariant->qty                           = $variant['qty'];
-                    $dbVariant->fk_condition_id               = $variant['fk_condition_id'];
-                    $dbVariant->condition_desc                = $variant['condition_desc'];
-                    $dbVariant->features                      = $variant['features'];
-                    $dbVariant->prod_desc                     = $variant['prod_desc'];
+                    $dbVariant->fk_varopt_1_hdr_id            = Common::arrayVal($variant, 'fk_varopt_1_hdr_id');
+                    $dbVariant->fk_varopt_1_dtl_id            = Common::arrayVal($variant, 'fk_varopt_1_dtl_id');
+                    $dbVariant->fk_varopt_1_unit_id           = Common::arrayVal($variant, 'fk_varopt_1_unit_id');
+                    $dbVariant->var_1_title                   = Common::arrayVal($variant, 'var_1_title');
+                    $dbVariant->fk_varopt_2_hdr_id            = Common::arrayVal($variant, 'fk_varopt_2_hdr_id');
+                    $dbVariant->fk_varopt_2_dtl_id            = Common::arrayVal($variant, 'fk_varopt_2_dtl_id');
+                    $dbVariant->fk_varopt_2_unit_id           = Common::arrayVal($variant, 'fk_varopt_2_unit_id');
+                    $dbVariant->var_2_title                   = Common::arrayVal($variant, 'var_2_title');
+                    $dbVariant->fk_varopt_3_hdr_id            = Common::arrayVal($variant, 'fk_varopt_3_hdr_id');
+                    $dbVariant->fk_varopt_3_dtl_id            = Common::arrayVal($variant, 'fk_varopt_3_dtl_id');
+                    $dbVariant->fk_varopt_3_unit_id           = Common::arrayVal($variant, 'fk_varopt_3_unit_id');
+                    $dbVariant->var_3_title                   = Common::arrayVal($variant, 'var_3_title');
+                    $dbVariant->buy_price                     = Common::arrayVal($variant, 'buy_price', 0);
+                    $dbVariant->selling_price                 = Common::arrayVal($variant, 'selling_price', 0);
+                    $dbVariant->track_qty                     = Common::arrayVal($variant, 'track_qty', false);
+                    $dbVariant->fk_condition_id               = Common::arrayVal($variant, 'fk_condition_id');
+                    $dbVariant->condition_desc                = Common::arrayVal($variant, 'condition_desc');
+                    $dbVariant->features                      = Common::arrayVal($variant, 'features', []);
+                    $dbVariant->prod_desc                     = Common::arrayVal($variant, 'prod_desc');
                     $dbVariant->start_at                      = date_create_from_format('d-m-Y h:i:s A',  $variant['start_at']);
                     $dbVariant->expired_at                    = date_create_from_format('d-m-Y h:i:s A', $variant['expired_at']);
 
@@ -321,14 +325,14 @@ class ProductService
                         foreach ($variant['attributes'] as $attri) {
                             $attributes[$attri['fk_varopt_hdr_id']] = [
                                 'fk_prod_id' => $product->id,
-                                'fk_varopt_dtl_id' => $attri['fk_varopt_dtl_id'],
-                                'fk_varopt_unit_id' =>  $attri['fk_varopt_unit_id'],
+                                'fk_varopt_dtl_id' => Common::arrayVal($attri, 'fk_varopt_dtl_id'),
+                                'fk_varopt_unit_id' =>  Common::arrayVal($attri, 'fk_varopt_unit_id'),
                                 'value' => $attri['value']
                             ];
                         }
                         $dbVariant->attributes()->sync($attributes);
 
-                        // Warehouse update
+                        // <<Warehouse update>>
                         if ($variant['locations'] ?? null && $dbVariant->track_qty) {
                             $locations = [];
                             foreach ($variant['locations'] as $loc) {
@@ -347,15 +351,18 @@ class ProductService
                         'biz_status'            => $variant['biz_status'],
                         'seller_sku'            => $variant['seller_sku'],
                         'fk_prod_id'            => $product->id,
-                        'fk_varopt_1_hdr_id'    => $variant['fk_varopt_1_hdr_id'] ?? null,
-                        'fk_varopt_1_dtl_id'    => $variant['fk_varopt_1_dtl_id'] ?? null,
-                        'var_1_title'           => $variant['var_1_title'] ?? null,
-                        'fk_varopt_2_hdr_id'    => $variant['fk_varopt_2_hdr_id'] ?? null,
-                        'fk_varopt_2_dtl_id'    => $variant['fk_varopt_2_dtl_id'] ?? null,
-                        'var_2_title'           => $variant['var_2_title'] ?? null,
-                        'fk_varopt_3_hdr_id'    => $variant['fk_varopt_3_hdr_id'] ?? null,
-                        'fk_varopt_3_dtl_id'    => $variant['fk_varopt_3_dtl_id'] ?? null,
-                        'var_3_title'           => $variant['var_3_title'] ?? null,
+                        'fk_varopt_1_hdr_id'    => Common::arrayVal($variant, 'fk_varopt_1_hdr_id'),
+                        'fk_varopt_1_dtl_id'    => Common::arrayVal($variant, 'fk_varopt_1_dtl_id'),
+                        'fk_varopt_1_unit_id'   => Common::arrayVal($variant, 'fk_varopt_1_unit_id'),
+                        'var_1_title'           => Common::arrayVal($variant, 'var_1_title'),
+                        'fk_varopt_2_hdr_id'    => Common::arrayVal($variant, 'fk_varopt_2_hdr_id'),
+                        'fk_varopt_2_dtl_id'    => Common::arrayVal($variant, 'fk_varopt_2_dtl_id'),
+                        'fk_varopt_2_unit_id'   => Common::arrayVal($variant, 'fk_varopt_2_unit_id'),
+                        'var_2_title'           => Common::arrayVal($variant, 'var_2_title'),
+                        'fk_varopt_3_hdr_id'    => Common::arrayVal($variant, 'fk_varopt_3_hdr_id'),
+                        'fk_varopt_3_dtl_id'    => Common::arrayVal($variant, 'fk_varopt_3_dtl_id'),
+                        'fk_varopt_3_unit_id'   => Common::arrayVal($variant, 'fk_varopt_3_unit_id'),
+                        'var_3_title'           => Common::arrayVal($variant, 'var_3_title'),
                         'buy_price'             => $variant['buy_price'],
                         'selling_price'         => $variant['selling_price'],
                         'track_qty'             => $variant['track_qty'],
@@ -381,15 +388,15 @@ class ProductService
                         foreach ($variant['attributes'] as $attri) {
                             $attributes[$attri['fk_varopt_hdr_id']] = [
                                 'fk_prod_id' => $product->id,
-                                'fk_varopt_dtl_id' => $attri['fk_varopt_dtl_id'],
-                                'fk_varopt_unit_id' =>  $attri['fk_varopt_unit_id'],
+                                'fk_varopt_dtl_id' => Common::arrayVal($attri, 'fk_varopt_dtl_id'),
+                                'fk_varopt_unit_id' =>  Common::arrayVal($attri, 'fk_varopt_unit_id'),
                                 'value' => $attri['value']
                             ];
                         }
                         $dbVariant->attributes()->sync($attributes);
                     }
 
-                    // Warehouse update
+                    // <<Warehouse update>>
                     if ($variant['locations'] ?? null && $dbVariant->track_qty) {
                         $locations = [];
                         foreach ($variant['locations'] as $loc) {
@@ -461,15 +468,15 @@ class ProductService
             $dbVariant = ProdVariants::findOrFail($criteria->details['id']);
             $dbVariant->biz_status                    = $criteria->details['biz_status'];
             //$dbVariant->seller_sku                    = $criteria->details['seller_sku'];
-            $dbVariant->fk_varopt_1_hdr_id            = $criteria->details['fk_varopt_1_hdr_id'] ?? null;
-            $dbVariant->fk_varopt_1_dtl_id            = $criteria->details['fk_varopt_1_dtl_id'] ?? null;
-            $dbVariant->var_1_title                   = $criteria->details['var_1_title'] ?? null;
-            $dbVariant->fk_varopt_2_hdr_id            = $criteria->details['fk_varopt_2_hdr_id'] ?? null;
-            $dbVariant->fk_varopt_2_dtl_id            = $criteria->details['fk_varopt_2_dtl_id'] ?? null;
-            $dbVariant->var_2_title                   = $criteria->details['var_2_title'] ?? null;
-            $dbVariant->fk_varopt_3_hdr_id            = $criteria->details['fk_varopt_3_hdr_id'] ?? null;
-            $dbVariant->fk_varopt_3_dtl_id            = $criteria->details['fk_varopt_3_dtl_id'] ?? null;
-            $dbVariant->var_3_title                   = $criteria->details['var_3_title']  ?? null;
+            $dbVariant->fk_varopt_1_hdr_id            = Common::arrayVal($criteria->details, 'fk_varopt_1_hdr_id');
+            $dbVariant->fk_varopt_1_dtl_id            = Common::arrayVal($criteria->details, 'fk_varopt_1_dtl_id');
+            $dbVariant->var_1_title                   = Common::arrayVal($criteria->details, 'var_1_title');
+            $dbVariant->fk_varopt_2_hdr_id            = Common::arrayVal($criteria->details, 'fk_varopt_2_hdr_id');
+            $dbVariant->fk_varopt_2_dtl_id            = Common::arrayVal($criteria->details, 'fk_varopt_2_dtl_id');
+            $dbVariant->var_2_title                   = Common::arrayVal($criteria->details, 'var_2_title');
+            $dbVariant->fk_varopt_3_hdr_id            = Common::arrayVal($criteria->details, 'fk_varopt_3_hdr_id');
+            $dbVariant->fk_varopt_3_dtl_id            = Common::arrayVal($criteria->details, 'fk_varopt_3_dtl_id');
+            $dbVariant->var_3_title                   = Common::arrayVal($criteria->details, 'var_3_title');
             $dbVariant->buy_price                     = $criteria->details['buy_price'];
             $dbVariant->selling_price                 = $criteria->details['selling_price'];
             $dbVariant->track_qty                     = $criteria->details['track_qty'];
@@ -497,8 +504,8 @@ class ProductService
             foreach ($criteria->details['attributes'] as $attri) {
                 $attributes[$attri['fk_varopt_hdr_id']] = [
                     'fk_prod_id' => $dbVariant->fk_prod_id,
-                    'fk_varopt_dtl_id' => $attri['fk_varopt_dtl_id'],
-                    'fk_varopt_unit_id' =>  $attri['fk_varopt_unit_id'],
+                    'fk_varopt_dtl_id' => Common::arrayVal($attri, 'fk_varopt_dtl_id'),
+                    'fk_varopt_unit_id' =>  Common::arrayVal($attri, 'fk_varopt_unit_id'),
                     'value' => $attri['value']
                 ];
             }

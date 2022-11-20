@@ -20,12 +20,15 @@ class ProdVariants extends Model
         "fk_prod_id",
         "fk_varopt_1_hdr_id",
         "fk_varopt_1_dtl_id",
+        "fk_varopt_1_unit_id",
         "var_1_title",
         "fk_varopt_2_hdr_id",
         "fk_varopt_2_dtl_id",
+        "fk_varopt_2_unit_id",
         "var_2_title",
         "fk_varopt_3_hdr_id",
         "fk_varopt_3_dtl_id",
+        "fk_varopt_3_unit_id",
         "var_3_title",
         "buy_price",
         "fk_buy_currency_id",
@@ -71,6 +74,10 @@ class ProdVariants extends Model
     {
         return $this->hasOne(VariantOptionDtls::class, 'id', 'fk_varopt_1_dtl_id');
     }
+    public function variantOption1Unit()
+    {
+        return $this->hasOne(VariantOptionUnits::class, 'id', 'fk_varopt_1_unit_id');
+    }
     public function variantOption2Hdr()
     {
         return $this->hasOne(VariantOptionHdrs::class, 'id', 'fk_varopt_2_hdr_id');
@@ -78,6 +85,10 @@ class ProdVariants extends Model
     public function variantOption2Dtl()
     {
         return $this->hasOne(VariantOptionDtls::class, 'id', 'fk_varopt_2_dtl_id');
+    }
+    public function variantOption2Unit()
+    {
+        return $this->hasOne(VariantOptionUnits::class, 'id', 'fk_varopt_2_unit_id');
     }
     public function variantOption3Hdr()
     {
@@ -87,17 +98,19 @@ class ProdVariants extends Model
     {
         return $this->hasOne(VariantOptionDtls::class, 'id', 'fk_varopt_3_dtl_id');
     }
+    public function variantOption3Unit()
+    {
+        return $this->hasOne(VariantOptionUnits::class, 'id', 'fk_varopt_3_unit_id');
+    }
     public function attributes()
     {
         return $this->belongsToMany(VariantOptionHdrs::class, 'prod_attributes', 'fk_variant_id', 'fk_varopt_hdr_id');
-            
     }
     public function locations()
     {
         return $this->belongsToMany(Location::class, 'prod_locations', 'fk_prod_variant_id', 'fk_location_id');
-            
     }
-    
+
     public function condition()
     {
         return $this->hasOne(Conditions::class, 'id', 'fk_condition_id');

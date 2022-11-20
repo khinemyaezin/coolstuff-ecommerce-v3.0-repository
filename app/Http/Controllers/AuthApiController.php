@@ -36,14 +36,17 @@ class AuthApiController extends Controller
                 'userType',
                 'profileImage',
                 'brand' => function ($query) {
-                    $query->with(['profileImage', 'coverImage','region','defaultCurrency']);
+                    $query->with(['profileImage', 'coverImage', 'region', 'defaultCurrency']);
                     $query->select([
                         'id',
+                        'title',
                         'public_id',
                         'profile_image',
                         'cover_image',
                         'fk_region_id',
-                        'def_currency_id'
+                        'def_currency_id',
+                        'created_at',
+                        'updated_at'
                     ]);
                 }
             ])->find(Auth::id(), [
@@ -76,7 +79,7 @@ class AuthApiController extends Controller
             return response()->json($result, $result->getHttpStatus());
         }
     }
- 
+
     public function logout(Request $request)
     {
         $currentUser = (object) Auth::user();
@@ -103,14 +106,17 @@ class AuthApiController extends Controller
             'userType',
             'profileImage',
             'brand' => function ($query) {
-                $query->with(['profileImage', 'coverImage','region','defaultCurrency']);
+                $query->with(['profileImage', 'coverImage', 'region', 'defaultCurrency']);
                 $query->select([
                     'id',
+                    'title',
                     'public_id',
                     'profile_image',
                     'cover_image',
                     'fk_region_id',
-                    'def_currency_id'
+                    'def_currency_id',
+                    'created_at',
+                    'updated_at'
                 ]);
             }
         ])->find(Auth::id(), [

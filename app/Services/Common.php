@@ -98,4 +98,9 @@ class Common
             'path' => storage_path('logs/debug.log'),
         ])->info($content);
     }
+
+    static function arrayVal($array, string $key, mixed $defaultValue = null): mixed
+    {
+        return isset($array[$key]) ? $array[$key] : $defaultValue;
+    }
 }

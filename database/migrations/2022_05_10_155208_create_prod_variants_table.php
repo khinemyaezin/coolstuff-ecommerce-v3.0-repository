@@ -22,15 +22,22 @@ return new class extends Migration
             $table->smallInteger('biz_status')->default(RowStatus::NORMAL->value);
             $table->string('seller_sku', 50);
             $table->bigInteger('fk_prod_id');
+
             $table->bigInteger('fk_varopt_1_hdr_id')->nullable();
             $table->bigInteger('fk_varopt_1_dtl_id')->nullable();
+            $table->bigInteger('fk_varopt_1_unit_id')->nullable();
             $table->text('var_1_title')->nullable();
+
             $table->bigInteger('fk_varopt_2_hdr_id')->nullable();
             $table->bigInteger('fk_varopt_2_dtl_id')->nullable();
+            $table->bigInteger('fk_varopt_2_unit_id')->nullable();
             $table->text('var_2_title')->nullable();
+
             $table->bigInteger('fk_varopt_3_hdr_id')->nullable();
             $table->bigInteger('fk_varopt_3_dtl_id')->nullable();
+            $table->bigInteger('fk_varopt_3_unit_id')->nullable();
             $table->text('var_3_title')->nullable();
+
             $table->double('buy_price')->default(0.0);
             $table->double('selling_price')->default(0.0);
             $table->double('compared_price')->default(0.0);
@@ -54,15 +61,20 @@ return new class extends Migration
             $table->bigInteger('media_9_video')->nullable();
             $table->foreign('fk_varopt_1_hdr_id')->references('id')->on('variant_option_hdrs');
             $table->foreign('fk_varopt_1_dtl_id')->references('id')->on('variant_option_dtls');
+            $table->foreign('fk_varopt_1_unit_id')->references('id')->on('variant_option_units');
             $table->foreign('fk_varopt_2_hdr_id')->references('id')->on('variant_option_hdrs');
             $table->foreign('fk_varopt_2_dtl_id')->references('id')->on('variant_option_dtls');
+            $table->foreign('fk_varopt_2_unit_id')->references('id')->on('variant_option_units');
+
             $table->foreign('fk_varopt_3_hdr_id')->references('id')->on('variant_option_hdrs');
             $table->foreign('fk_varopt_3_dtl_id')->references('id')->on('variant_option_dtls');
+            $table->foreign('fk_varopt_3_unit_id')->references('id')->on('variant_option_units');
+
             $table->foreign('fk_condition_id')->references('id')->on('conditions');
             $table->foreign('fk_prod_id')->references('id')->on('products')->onDelete('cascade');
 
-            foreach ( range(1,7) as $value) {
-                $table->foreign('media_'.$value.'_image')->references('id')->on('files')->cascadeOnUpdate()->nullOnDelete();
+            foreach (range(1, 7) as $value) {
+                $table->foreign('media_' . $value . '_image')->references('id')->on('files')->cascadeOnUpdate()->nullOnDelete();
             }
 
             $table->foreign('media_8_video')->references('id')->on('files')->cascadeOnUpdate()->nullOnDelete();
@@ -71,7 +83,7 @@ return new class extends Migration
 
             $table->timestamps();
         });
-       // DB::statement('ALTER TABLE prod_variants ADD column ts_search tsvector');
+        // DB::statement('ALTER TABLE prod_variants ADD column ts_search tsvector');
 
     }
 

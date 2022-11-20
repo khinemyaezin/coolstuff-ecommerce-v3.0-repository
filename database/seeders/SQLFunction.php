@@ -112,27 +112,28 @@ class SQLFunction extends Seeder
                         BEGIN
                                 RETURN QUERY 
                                 with variant as (select * from prod_variants where prod_variants.fk_prod_id=productId) 
-                                (select distinct on (variant.fk_varopt_1_dtl_id) 
+                                (select distinct on (variant.fk_varopt_1_dtl_id,variant.var_1_title)
                                  ophdr.id fk_varopt_hdr_id,ophdr.title fk_varopt_hdr_title,opdtl.id fk_varopt_dtl_id,opdtl.title fk_varopt_dtl_title, 
-                                variant.fk_prod_id,variant.var_1_title as var_title,1 as option_type from variant 
+                                variant.fk_prod_id,variant.var_1_title as var_title,1 as option_type 
+                            	from variant 
                                 inner join variant_option_hdrs ophdr on ophdr.id=variant.fk_varopt_1_hdr_id 
-                                inner join variant_option_dtls opdtl on variant.fk_varopt_1_dtl_id = opdtl.id
+                                left join variant_option_dtls opdtl on variant.fk_varopt_1_dtl_id = opdtl.id
                                 where variant.fk_varopt_1_hdr_id = option1Id
-                                order by variant.fk_varopt_1_dtl_id,variant.fk_varopt_2_dtl_id,variant.fk_varopt_3_dtl_id) 
+                                order by variant.var_1_title,variant.fk_varopt_1_dtl_id,variant.fk_varopt_2_dtl_id,variant.fk_varopt_3_dtl_id) 
                                 union all
-                                ( select distinct on (variant.fk_varopt_2_dtl_id) 
+                                ( select distinct on (variant.fk_varopt_2_dtl_id,variant.var_2_title)
                                 ophdr.id fk_varopt_hdr_id,ophdr.title fk_varopt_hdr_title,opdtl.id fk_varopt_dtl_id,opdtl.title fk_varopt_dtl_title,
                                 variant.fk_prod_id,variant.var_2_title as var_title,2 as option_type from variant 
                                 inner join variant_option_hdrs ophdr on ophdr.id=variant.fk_varopt_2_hdr_id 
-                                inner join variant_option_dtls opdtl on variant.fk_varopt_2_dtl_id = opdtl.id
+                                left join variant_option_dtls opdtl on variant.fk_varopt_2_dtl_id = opdtl.id
                                 where variant.fk_varopt_2_hdr_id = option2Id
-                                order by variant.fk_varopt_2_dtl_id,variant.fk_varopt_3_dtl_id) 
+                                order by variant.var_2_title,variant.fk_varopt_2_dtl_id,variant.fk_varopt_3_dtl_id) 
                                 union all
-                                ( select distinct on (variant.fk_varopt_3_dtl_id) 
-                               ophdr.id fk_varopt_hdr_id,ophdr.title fk_varopt_hdr_title,opdtl.id fk_varopt_dtl_id,opdtl.title fk_varopt_dtl_title,
+                                ( select distinct on (variant.fk_varopt_3_dtl_id,variant.var_3_title)
+                                ophdr.id fk_varopt_hdr_id,ophdr.title fk_varopt_hdr_title,opdtl.id fk_varopt_dtl_id,opdtl.title fk_varopt_dtl_title,
                                 variant.fk_prod_id,variant.var_3_title as var_title,3 as option_type from variant 
                                 inner join variant_option_hdrs ophdr on ophdr.id=variant.fk_varopt_3_hdr_id 
-                                inner join variant_option_dtls opdtl on variant.fk_varopt_3_dtl_id = opdtl.id
+                                left join variant_option_dtls opdtl on variant.fk_varopt_3_dtl_id = opdtl.id
                                 where variant.fk_varopt_3_hdr_id=option3Id);
                         END;
                 $$ LANGUAGE plpgsql;";
