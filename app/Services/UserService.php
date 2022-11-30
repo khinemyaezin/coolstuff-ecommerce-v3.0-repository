@@ -4,8 +4,6 @@ namespace App\Services;
 
 use App\Enums\UserTypes;
 use App\Models\Criteria;
-use App\Models\Images;
-use App\Models\UserPrivileges;
 use App\Models\Users;
 use App\Models\UserTypes as ModelsUserTypes;
 use App\Models\ViewResult;
@@ -13,7 +11,7 @@ use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\RelationNotFoundException;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class UserService
 {
@@ -22,8 +20,7 @@ class UserService
     {
         $result = new ViewResult();
         try {
-            $users = new Users();
-            $users = Common::prepareRelationships($criteria, $users);
+            $users = Common::prepareRelationships($criteria, new Users());
 
             try {
                 if (isset($criteria->details['first_name'])) {
@@ -59,54 +56,51 @@ class UserService
         }
         return $result;
     }
-    public function register(Users $user)
+    public function saveUser(Criteria $criteria)
     {
         $result = new ViewResult();
         try {
-            $result->details =  $user->save();
-            $result->success();
-        } catch (Exception $e) {
-            $result->error($e);
-        }
-        return $result;
-    }
-    public function updateUser(Criteria $criteria, $id)
-    {
-        $result = new ViewResult();
-        try {
-
-            $user = Users::find($id);
-            if (!$user) throw new ModelNotFoundException();
-
-            $user->first_name   = $criteria->details['first_name'];
-            $user->last_name    = $criteria->details['last_name'];
-            $user->profile_image    = $criteria->details['profile_image'];
-            $user->email        = $criteria->details['email'];
-            $user->phone        = $criteria->details['phone'];
-            $user->address      = $criteria->details['address'];
-            $user->save();
-            $result->success();
-        } catch (Exception $e) {
-            $result->error($e);
-        }
-        return $result;
-    }
-    public function saveUserPrivileges($data)
-    {
-        $result = new ViewResult();
-        try {
-            if (is_array($data)) {
-                foreach ($data as $role) {
-
-                    if (!$role->save()) {
-                        throw new Exception();
-                    }
-                }
+            $userType = ModelsUserTypes::find($criteria->details['user_type_id']);
+            $user = new Users([
+                "fk_usertype_id" => $userType->id,
+                "profile_image" => $criteria->details['profile_image'],
+                "first_name" => $criteria->details['first_name'],
+                "last_name" => $criteria->details['last_name'],
+                "email" => $criteria->details['email'],
+                "phone" => $criteria->details['phone'],
+                "address" => $criteria->details['address'],
+                "password" => Hash::make($criteria->details['password']),
+            ]);
+            $currentUser = (object)Auth::user();
+            if ($userType->id == UserTypes::STAFF->value) {
+                $brand = $currentUser->brand;
+                $brand->users()->save($user);
             } else {
-                if (!$data->save()) {
-                    throw new Exception();
-                }
+                $user->save();
             }
+
+            $result->success();
+        } catch (Exception $e) {
+            $result->error($e);
+        }
+        return $result;
+    }
+
+    public function updateUser(Criteria $criteria)
+    {
+        $result = new ViewResult();
+        try {
+
+            $user = Users::findOrFail($criteria->request->route('id'));
+
+            $user->first_name       = $criteria->details['first_name'];
+            $user->last_name        = $criteria->details['last_name'];
+            $user->profile_image    = $criteria->details['profile_image'];
+            $user->email            = $criteria->details['email'];
+            $user->phone            = $criteria->details['phone'];
+            $user->address          = $criteria->details['address'];
+
+            $user->save();
             $result->success();
         } catch (Exception $e) {
             $result->error($e);
@@ -117,6 +111,7 @@ class UserService
     public function getUsersByUserTypes()
     {
         $result = new ViewResult();
+        $result->enableQueryLog();
         try {
             $currentUser = (object) Auth::user();
             $brand = $currentUser->brand;
@@ -134,8 +129,9 @@ class UserService
                     'fk_usertype_id',
                     'profile_image'
                 ]);
-            }])->where('title', '=', UserTypes::BRAND_OWNER->value)
-                ->orWhere('title', '=', UserTypes::STAFF->value)->get();
+            }])->where('id', '=', UserTypes::BRAND_OWNER)
+                ->orWhere('id', '=', UserTypes::STAFF)->get();
+            $result->generateQueryLog();
             $result->details = $records;
             $result->success();
         } catch (Exception $e) {

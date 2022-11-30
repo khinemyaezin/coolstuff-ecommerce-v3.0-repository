@@ -103,4 +103,8 @@ class Common
     {
         return isset($array[$key]) ? $array[$key] : $defaultValue;
     }
+
+    static function toCode(string $name){
+        return preg_replace('/\s+/', '_', strtoupper($name));
+    }
 }

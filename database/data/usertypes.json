@@ -1,15 +1,14 @@
 [
     {
-        "title":"server_admin"
+        "title": "server_admin"
     },
     {
-        "title":"brand_owner"
+        "title": "brand_owner"
     },
     {
-        "title":"user"
+        "title": "staff"
     },
     {
-        "title":"staff"
+        "title": "user"
     }
-   
 ]

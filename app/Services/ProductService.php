@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Daos\ProductsDao;
 use App\Enums\BizStatus;
 use App\Enums\ProductStatus;
 use App\Models\Conditions;
@@ -20,20 +19,17 @@ use Illuminate\Support\Facades\DB;
 
 class ProductService
 {
-    protected LocationService $locationService;
-    protected ProductsDao $productsDao;
 
+    protected LocationService $locationService;
     public function __construct()
     {
         $this->locationService = resolve(LocationService::class);
-        $this->productsDao = resolve(ProductsDao::class);
     }
 
     public function store(Criteria $criteria)
     {
         $result = new ViewResult();
         try {
-            # Products
             $product = Products::create([
                 'biz_status' => $criteria->details['biz_status'],
                 'title' =>  $criteria->details['title'],
@@ -73,7 +69,7 @@ class ProductService
                         'buy_price'                 => $variant['buy_price'],
                         'selling_price'             => $variant['selling_price'],
                         'track_qty'                 => $variant['track_qty'],
-                        'qty'                       => $variant['qty'],
+                        //'qty'                       => $variant['qty'],
                         'fk_condition_id'           => $variant['fk_condition_id'],
                         'condition_desc'            => $variant['condition_desc'],
                         'features'                  => $variant['features'],
@@ -102,7 +98,10 @@ class ProductService
                         }
                         $dbVariant->attributes()->sync($attributes);
                     }
-                    if ($variant['locations'] ?? null && $dbVariant->track_qty) {
+
+                    if (Common::isID($product->fk_varopt_1_hdr_id)) {
+                        $this->locationService->updateVariantDefLocationQty($dbVariant->id, $variant['qty']);
+                    } else if ($variant['locations'] ?? null && $dbVariant->track_qty) {
                         $locations = [];
                         foreach ($variant['locations'] as $loc) {
                             $locations[$loc['fk_location_id']] = [
@@ -166,9 +165,7 @@ class ProductService
             /** Retrive product warehouse locations */
             $product['variants'] = collect($product['variants'])->transform(function ($variant) {
                 $locationResult = $this->locationService->getLocationByProduct($variant['id']);
-                //dd($locationResult->details);
                 $defWarehouse = $locationResult->details->firstWhere('location.default', true);
-                //dd($defWarehouse);
                 $variant['qty'] = $defWarehouse['quantity'];
                 $variant['locations'] = $locationResult->details;
                 return $variant;
@@ -294,6 +291,7 @@ class ProductService
                     $dbVariant->fk_varopt_3_unit_id           = Common::arrayVal($variant, 'fk_varopt_3_unit_id');
                     $dbVariant->var_3_title                   = Common::arrayVal($variant, 'var_3_title');
                     $dbVariant->buy_price                     = Common::arrayVal($variant, 'buy_price', 0);
+                    $dbVariant->compared_price                = Common::arrayVal($variant, 'compared_price', 0);
                     $dbVariant->selling_price                 = Common::arrayVal($variant, 'selling_price', 0);
                     $dbVariant->track_qty                     = Common::arrayVal($variant, 'track_qty', false);
                     $dbVariant->fk_condition_id               = Common::arrayVal($variant, 'fk_condition_id');
@@ -302,7 +300,6 @@ class ProductService
                     $dbVariant->prod_desc                     = Common::arrayVal($variant, 'prod_desc');
                     $dbVariant->start_at                      = date_create_from_format('d-m-Y h:i:s A',  $variant['start_at']);
                     $dbVariant->expired_at                    = date_create_from_format('d-m-Y h:i:s A', $variant['expired_at']);
-
 
                     if (!Common::isID($product->fk_varopt_1_hdr_id)) {
                         /**
@@ -345,6 +342,7 @@ class ProductService
                         }
                     } else {
                         $dbVariant->save();
+                        $this->locationService->updateVariantDefLocationQty($dbVariant->id, $variant['qty']);
                     }
                 } else {
                     $dbVariant =  ProdVariants::create([
@@ -395,9 +393,9 @@ class ProductService
                         }
                         $dbVariant->attributes()->sync($attributes);
                     }
-
-                    // <<Warehouse update>>
-                    if ($variant['locations'] ?? null && $dbVariant->track_qty) {
+                    if (Common::isID($product->fk_varopt_1_hdr_id)) {
+                        $this->locationService->updateVariantDefLocationQty($dbVariant->id, $variant['qty']);
+                    } else if ($variant['locations'] ?? null && $dbVariant->track_qty) {
                         $locations = [];
                         foreach ($variant['locations'] as $loc) {
                             $locations[$loc['fk_location_id']] = [

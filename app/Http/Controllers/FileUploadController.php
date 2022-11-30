@@ -29,7 +29,7 @@ class FileUploadController extends Controller
         try {
             $result->details = [];
             if ($request->hasFile('images')) {
-                $allowedfileExtension = ['pdf', 'jpg', 'png', 'docx'];
+                $allowedfileExtension = ['pdf', 'jpg','jpeg', 'png', 'docx'];
                 $files = $request->file('images');
 
                 foreach ($files as $file) {
@@ -60,7 +60,7 @@ class FileUploadController extends Controller
             $result->error($e);
         }
         $result->completeTransaction();
-        return response()->json($result, $result->getHttpStatus());
+        return response()->json($result->nullCheckResp(), $result->getHttpStatus());
     }
 
     public function getMedias(FileRequest $request)
@@ -69,7 +69,7 @@ class FileUploadController extends Controller
         $criteria->pagination = $request['pagination'];
         $criteria->optional = $request->all();
         $result = $this->brandService->getMedias($criteria);
-        return response()->json($result, $result->getHttpStatus());
+        return response()->json($result->nullCheckResp(), $result->getHttpStatus());
     }
 }
 

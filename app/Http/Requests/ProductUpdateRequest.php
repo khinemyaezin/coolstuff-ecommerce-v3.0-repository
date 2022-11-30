@@ -55,6 +55,7 @@ class ProductUpdateRequest extends FormRequest
             'variants.*.fk_varopt_3_unit_id' => 'nullable|exists:variant_option_units,id',
             'variants.*.var_3_title' => 'nullable',
             'variants.*.buy_price' => array('regex:/^[0-9]+(\.[0-9][0-9]?)?$/', 'required'),
+            'variants.*.compared_price' => array('regex:/^[0-9]+(\.[0-9][0-9]?)?$/', 'required'),
             'variants.*.fk_buy_currency_id' => 'string|exists:regions,id',
             'variants.*.selling_price' =>  array('regex:/^[0-9]+(\.[0-9][0-9]?)?$/', 'required'),
             'variants.*.track_qty' => 'boolean',

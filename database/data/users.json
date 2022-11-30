@@ -1,8 +1,11 @@
-[{
-    "first_name": "Khine",
-    "last_name": "Myae",
-    "fk_usertype_id": "1",
-    "email": "admin@gmail.com",
-    "password": "123"
-}
+[
+    {
+        "id":"1",
+        "first_name": "Khine",
+        "fk_brand_id": null,
+        "last_name": "Myae",
+        "fk_usertype_id": "server_admin",
+        "email": "admin@gmail.com",
+        "password": "123"
+    }
 ]

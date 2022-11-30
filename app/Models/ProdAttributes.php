@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ProdAttributes extends Model
+class ProdAttributes extends CsModel
 {
     use HasFactory;
     protected $fillable = [ 

@@ -6,7 +6,7 @@ use App\Services\HasCompositePrimaryKey;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class FilesInBrand extends Model
+class FilesInBrand extends CsModel
 {
     use HasFactory;
     use HasCompositePrimaryKey;

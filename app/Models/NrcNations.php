@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class NrcNations extends Model
+class NrcNations extends CsModel
 {
     use HasFactory;
     protected  $casts = [

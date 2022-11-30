@@ -1,10 +1,32 @@
 [
-    { "title": "user:read" },
-    { "title": "user:create" },
-    { "title": "user:update" },
-    { "title": "user:delete" },
-    { "title": "product:read" },
-    { "title": "product:create" },
-    { "title": "product:update" },
-    { "title": "product:delete" }
+    { "code": "sessions_read" },
+    { "code": "sessions_delete" },
+    { "code": "user_pass_update" },
+
+    { "code": "categories_read" },
+    { "code": "category_create" },
+    { "code": "category_update" },
+    { "code": "category_delete" },
+
+    { "code": "category_attributes_update" },
+    { "code": "category_attributes_read" },
+    { "code": "category_attribute_read" },
+
+
+    { "code": "user_read" },
+    { "code": "user_create" },
+    { "code": "user_update" },
+    { "code": "user_delete" },
+    { "code": "user_privileges_create" },
+    { "code": "usertype_users_read" },
+
+    { "code": "products_read" },
+    { "code": "product_read" },
+    { "code": "product_create" },
+    { "code": "product_update" },
+    { "code": "product_delete" },
+    { "code": "brand_read" },
+    { "code": "brand_create" },
+    { "code": "brand_update" },
+    { "code": "brand_delete" }
 ]

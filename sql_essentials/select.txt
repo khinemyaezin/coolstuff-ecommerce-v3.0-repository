@@ -13,3 +13,4 @@ php artisan make:model Article -m
 php artisan migrate:fresh
 php artisan db:seed --class=SQLFunction
 php artisan db:seed --class=DatabaseSeeder
+php artisan db:seed --class=RolesSeeder

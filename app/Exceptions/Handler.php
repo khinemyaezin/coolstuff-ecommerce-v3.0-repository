@@ -51,6 +51,7 @@ class Handler extends ExceptionHandler
 
     protected function unauthenticated($request, $exception)
     {
+        error_log('unauthenticated -> '.get_class($exception));
         return $this->shouldReturnJson($request, $exception)
             ? response()->json([
                 'message' => $exception->getMessage(),
@@ -64,9 +65,7 @@ class Handler extends ExceptionHandler
     {
         $viewResponse = new ViewResult();
         $viewResponse->error($exception);
-
-        error_log(get_class($exception));
-        return response()->json($viewResponse,$viewResponse->getHttpStatus());
-        //return parent::render($request, $exception);
+        error_log('render -> '.get_class($exception));
+        return response()->json($viewResponse->nullCheckResp(),$viewResponse->getHttpStatus());
     }
 }

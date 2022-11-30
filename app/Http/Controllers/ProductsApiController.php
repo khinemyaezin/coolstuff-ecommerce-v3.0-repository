@@ -32,7 +32,7 @@ class ProductsApiController extends Controller
         $criteria = new Criteria($request);
         $result = $this->service->getProducts($criteria);
 
-        return response()->json($result, $result->getHttpStatus());
+        return response()->json($result->nullCheckResp(), $result->getHttpStatus());
     }
  
     public function store(ProductSaveRequest $request)
@@ -41,14 +41,14 @@ class ProductsApiController extends Controller
         $criteria = new Criteria($request);
         $result = $this->service->store($criteria);
         $result->completeTransaction();
-        return response()->json($result, $result->getHttpStatus());
+        return response()->json($result->nullCheckResp(), $result->getHttpStatus());
     }
 
     public function show(GetProductByIdRequest $request)
     {
         $criteria = new Criteria($request);
         $result = $this->service->getProduct($criteria, $request->route('id'));
-        return response()->json($result, $result->getHttpStatus());
+        return response()->json($result->nullCheckResp(), $result->getHttpStatus());
     }
 
     public function update(ProductUpdateRequest $request)
@@ -71,7 +71,7 @@ class ProductsApiController extends Controller
         $criteria = new Criteria($request);
         $result = $this->service->update($criteria, $request->route('id'));
         $result->completeTransaction();
-        return response()->json($result, $result->getHttpStatus());
+        return response()->json($result->nullCheckResp(), $result->getHttpStatus());
     }
 
     public function destroy($id)
@@ -88,7 +88,7 @@ class ProductsApiController extends Controller
             $result->error($e);
         }
         $result->completeTransaction();
-        return response()->json($result, $result->getHttpStatus());
+        return response()->json($result->nullCheckResp(), $result->getHttpStatus());
     }
 
     public function updateVariantByColumns()

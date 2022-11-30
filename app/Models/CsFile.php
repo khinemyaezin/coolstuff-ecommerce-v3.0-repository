@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
 
-class CsFile extends Model
+class CsFile extends CsModel
 {
     use HasFactory;
     public UploadedFile $file;

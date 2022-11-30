@@ -93,6 +93,20 @@ class BrandService
         }
         return $result;
     }
+    public function getBrandByID(Criteria $criteria)
+    {
+        $result = new ViewResult();
+
+        try {
+            $brand = Common::prepareRelationships($criteria, new Brands());
+            $result->details = $brand->where('id', $criteria->request->route('id'))->firstOrFail();
+
+            $result->success();
+        } catch (Exception $e) {
+            $result->error($e);
+        }
+        return $result;
+    }
 
     public function updateBrand(Criteria $criteria, $id)
     {
@@ -182,6 +196,21 @@ class BrandService
             //dd($brand );
             $brand->save();
 
+            $result->success();
+        } catch (Exception $e) {
+            $result->error($e);
+        }
+        return $result;
+    }
+
+    public function updateBio(Criteria $criteria)
+    {
+        $result = new ViewResult();
+        try {
+            $brand = Brands::findOrFail($criteria->request->route('id'));
+            $brand->description = $criteria->details['description'];
+            $brand->save();
+            $result->details = $brand;
             $result->success();
         } catch (Exception $e) {
             $result->error($e);

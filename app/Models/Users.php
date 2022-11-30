@@ -3,20 +3,16 @@
 namespace App\Models;
 
 use App\Casts\ImageUrlGenerate;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Laravel\Sanctum\NewAccessToken;
 
 class Users extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
 
     protected $fillable = [
         'id',
@@ -33,14 +29,10 @@ class Users extends Authenticatable
         'email',
         'phone',
         'address',
-        'password'
+        'password',
+        'profile_image'
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
@@ -55,17 +47,17 @@ class Users extends Authenticatable
         'email_verified_at'
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected  $casts = [
         'id' => 'string',
         'image_url' => ImageUrlGenerate::class,
         'created_at' => 'datetime:d-m-Y h:i:s A',
         'updated_at' => 'datetime:d-m-Y h:i:s A',
     ];
+
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('d-m-Y h:i:s A');
+    }
 
     public function roles()
     {
@@ -99,5 +91,19 @@ class Users extends Authenticatable
     public function nrcNation()
     {
         return $this->hasOne(NrcNations::class, 'id', 'fk_nrc_nation_id');
+    }
+
+    public function createToken(string $name, array $abilities = ['*'])
+    {
+        //dd(request()->header('User-Agent'));
+        $token = $this->tokens()->create([
+            'name' => $name,
+            'token' => hash('sha256', $plainTextToken = \Illuminate\Support\Str::random(40)),
+            'abilities' => $abilities,
+            "user_agent" => request()->header('User-Agent'),
+            "ip" => request()->ip(),
+        ]);
+
+        return new NewAccessToken($token, $token->getKey() . '|' . $plainTextToken);
     }
 }

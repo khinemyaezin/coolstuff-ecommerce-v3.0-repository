@@ -21,7 +21,7 @@ class InventoryApiController extends Controller
         $criteria = new Criteria($request);
         $result = $this->service->getSingleProducts($request->route('brandId'), $criteria);
 
-        return response()->json($result, $result->getHttpStatus());
+        return response()->json($result->nullCheckResp(), $result->getHttpStatus());
     }
     
     public function updateVariants(ProdVariantsUpdateRequest $request)
@@ -31,6 +31,6 @@ class InventoryApiController extends Controller
         $criteria = new Criteria($request);
         $result = $this->service->updateInventoryVariants($criteria);
         $result->completeTransaction();
-        return response()->json($result, $result->getHttpStatus());
+        return response()->json($result->nullCheckResp(), $result->getHttpStatus());
     }
 }

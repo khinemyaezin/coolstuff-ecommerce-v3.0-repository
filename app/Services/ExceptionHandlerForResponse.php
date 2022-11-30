@@ -9,6 +9,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\RelationNotFoundException;
 use Illuminate\Validation\ValidationException;
+use Laravel\Sanctum\Exceptions\MissingAbilityException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
@@ -17,7 +18,21 @@ trait ExceptionHandlerForResponse
 {
     protected function handleException(Throwable $exception, ViewResult $viewResponse)
     {
-        if ($exception instanceof QueryException) {
+        if ($exception instanceof AuthenticationException) {
+            /**
+             * BAD REQEUSTS
+             */
+            $viewResponse->status = 401;
+            $viewResponse->message = $exception->getMessage();
+            $viewResponse->httpStatus = 401;
+        } else if ($exception instanceof MissingAbilityException) {
+            /**
+             * BAD REQEUSTS
+             */
+            $viewResponse->status = 403;
+            $viewResponse->message = "You don't have the permission!";
+            $viewResponse->httpStatus = 403;
+        } else if ($exception instanceof QueryException) {
             switch ($exception->getCode()) {
                 case 23503:
                     $viewResponse->message =  "The action can't be completed because another process is using.";
@@ -29,9 +44,9 @@ trait ExceptionHandlerForResponse
                     $viewResponse->status = $exception->getCode();
                     break;
 
-                /**
-                 * Internal Error. Logging
-                 */
+                    /**
+                     * Internal Error. Logging
+                     */
                 default:
                     $viewResponse->status = Response::HTTP_INTERNAL_SERVER_ERROR;
 
@@ -40,13 +55,6 @@ trait ExceptionHandlerForResponse
                     $viewResponse->httpStatus = 500;
                     break;
             }
-        } else if ($exception instanceof AuthenticationException) {
-            /**
-             * BAD REQEUSTS
-             */
-            $viewResponse->status = 401;
-            $viewResponse->message = $exception->getMessage();
-            $viewResponse->httpStatus = 401;
         } else if ($exception instanceof ValidationException) {
             /**
              * BAD REQEUSTS
@@ -55,7 +63,7 @@ trait ExceptionHandlerForResponse
             $viewResponse->message = $exception->getMessage();
             $viewResponse->errors = $exception->errors();
             $viewResponse->httpStatus = 422;
-        } else if($exception instanceof NotFoundHttpException){
+        } else if ($exception instanceof NotFoundHttpException) {
             /**
              * BAD REQEUSTS
              */
@@ -63,17 +71,15 @@ trait ExceptionHandlerForResponse
             $viewResponse->message = $exception->getMessage();
             $viewResponse->errors = "Request URL not found";
             $viewResponse->httpStatus = 404;
-        }
-        else if($exception instanceof  InvalidRequestException){
-             /**
+        } else if ($exception instanceof InvalidRequestException) {
+            /**
              * BAD REQEUSTS
              */
             $viewResponse->status = $exception->getCode();
             $viewResponse->message = $exception->getMessage();
             $viewResponse->errors = "Request URL not found";
             $viewResponse->httpStatus = 422;
-        }
-        else if ($exception instanceof ModelNotFoundException) {
+        } else if ($exception instanceof ModelNotFoundException) {
 
             $viewResponse->status = 4001;
             $viewResponse->message = "Request ID " . join(' ', $exception->getIds() ?? []) . " doesn't exist";

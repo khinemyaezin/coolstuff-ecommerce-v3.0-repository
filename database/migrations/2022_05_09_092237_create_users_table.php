@@ -28,7 +28,7 @@ return new class extends Migration
             $table->foreign('fk_nrc_district_id')->references('id')->on('nrc_districts');
             $table->foreign('fk_nrc_nation_id')->references('id')->on('nrc_nations');
             $table->string('nrc_value',6)->nullable();
-            $table->bigInteger('fk_usertype_id');
+            $table->string('fk_usertype_id');
             $table->foreign('fk_usertype_id')->references('id')->on('user_types');
             $table->bigInteger('fk_brand_id')->nullable();
             $table->foreign('fk_brand_id')->references('id')->on('brands');

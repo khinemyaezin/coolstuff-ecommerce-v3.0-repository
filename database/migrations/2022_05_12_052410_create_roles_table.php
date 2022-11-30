@@ -19,8 +19,8 @@ return new class extends Migration
             $table->bigIncrements('id');
             $table->smallInteger('status')->default(BizStatus::ACTIVE->value);
             $table->smallInteger('biz_status')->default(RowStatus::NORMAL->value);
-            $table->string('code',200);
-            $table->string('title',200);
+            $table->string('code',200)->unique();
+            $table->string('title',200)->unique();
             $table->text('description')->nullable();
             $table->timestamps();
         });

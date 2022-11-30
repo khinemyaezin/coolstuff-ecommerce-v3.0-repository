@@ -23,7 +23,7 @@ class OptionsApiController extends Controller
 
         $result = $this->service->getHeaders($criteria);
 
-        return response()->json($result, $result->getHttpStatus());
+        return response()->json($result->nullCheckResp(), $result->getHttpStatus());
     }
 
     public function getHeaderById(GetOptionHeaderByIdRequest $request)
@@ -31,21 +31,21 @@ class OptionsApiController extends Controller
         $criteria = new Criteria($request);
         $result = $this->service->getHeader($criteria);
 
-        return response()->json($result, $result->getHttpStatus());
+        return response()->json($result->nullCheckResp(), $result->getHttpStatus());
     }
 
     public function getDetails(GetOptionDetailsRequest $request)
     {
         $criteria = new Criteria($request);
         $result = $this->service->getDetails($criteria, $request->route('id'));
-        return response()->json($result, $result->getHttpStatus());
+        return response()->json($result->nullCheckResp(), $result->getHttpStatus());
     }
 
     public function getUnits(GetOptionDetailsRequest $request)
     {
         $criteria = new Criteria($request);
         $result = $this->service->getUnits($criteria, $request->route('id'));
-        return response()->json($result, $result->getHttpStatus());
+        return response()->json($result->nullCheckResp(), $result->getHttpStatus());
     }
 
     public function update(OptionUpdateRequest $request)
@@ -54,7 +54,7 @@ class OptionsApiController extends Controller
         $criteria = new Criteria($request);
         $result = $this->service->updateHeader($criteria);
         $result->completeTransaction();
-        return response()->json($result, $result->getHttpStatus());
+        return response()->json($result->nullCheckResp(), $result->getHttpStatus());
     }
     public function saveHeader(OptionHeaderSaveRequest $request)
     {
@@ -62,13 +62,13 @@ class OptionsApiController extends Controller
         $criteria = new Criteria($request);
         $result = $this->service->saveHeader($criteria);
         $result->completeTransaction();
-        return response()->json($result, $result->getHttpStatus());
+        return response()->json($result->nullCheckResp(), $result->getHttpStatus());
     }
     public function destory($id)
     {
         DB::beginTransaction();
         $result = $this->service->delete($id);
         $result->completeTransaction();
-        return response()->json($result, $result->getHttpStatus());
+        return response()->json($result->nullCheckResp(), $result->getHttpStatus());
     }
 }

@@ -2,13 +2,11 @@
 
 namespace App\Models;
 
-use App\Casts\ImageUrlGenerate;
 use App\Services\Common;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\File;
 
-class ProdVariants extends Model
+class ProdVariants extends CsModel
 {
     use HasFactory;
     public $prod_attributes = [];
@@ -57,6 +55,10 @@ class ProdVariants extends Model
         'updated_at' => 'datetime:d-m-Y h:i:s A',
         'start_at' => 'datetime:d-m-Y h:i:s A',
         'expired_at' => 'datetime:d-m-Y h:i:s A',
+        "buy_price" => "integer",
+        "selling_price" =>  "integer",
+        "compared_price" =>  "integer",
+        "qty" =>  "integer",
     ];
     protected $hidden = [
         'status'

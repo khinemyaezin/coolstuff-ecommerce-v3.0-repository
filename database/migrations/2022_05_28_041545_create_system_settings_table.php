@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('system_settings', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->bigInteger('fk_def_brandreg_usertype_id');
+            $table->string('fk_def_brandreg_usertype_id');
             $table->foreign('fk_def_brandreg_usertype_id')->references('id')->on('user_types');
             $table->timestamps();
         });

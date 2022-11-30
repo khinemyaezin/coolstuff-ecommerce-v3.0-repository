@@ -2,11 +2,9 @@
 
 namespace App\Models;
 
-use App\Casts\ImageUrlGenerate;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
-class Brands extends Model
+class Brands extends CsModel
 {
     use HasFactory;
     protected $fillable = [
@@ -20,15 +18,16 @@ class Brands extends Model
         "phone",
         "sys_email",
         "cus_email",
+        'description'
     ];
     protected  $casts = [
         'id' => 'string',
-        'created_at' => 'datetime:d-m-Y h:i:s A',
-        'updated_at' => 'datetime:d-m-Y h:i:s A',
     ];
+
     protected $hidden = [
         'status'
     ];
+
 
     public function users()
     {

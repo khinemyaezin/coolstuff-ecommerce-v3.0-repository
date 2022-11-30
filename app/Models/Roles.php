@@ -5,11 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Roles extends Model
+class Roles extends CsModel
 {
     use HasFactory;
     protected $fillable = [
-        'title'
+        "id",
+        "code",
+        "title",
+        "description",
     ];
     protected  $casts = [
         'id' => 'string',
@@ -17,11 +20,10 @@ class Roles extends Model
         'updated_at' => 'datetime:d-m-Y h:i:s A',
     ];
     protected $hidden = [
-        'id',
         'status'
     ];
     public function tasks()
     {
-        return $this->belongsToMany(Tasks::class,'roles_privileges','fk_role_id','fk_task_id');
+        return $this->belongsToMany(Tasks::class, 'roles_privileges', 'fk_role_id', 'fk_task_id');
     }
 }

@@ -29,7 +29,7 @@ class UserUpdateRequest extends FormRequest
             'profile_image' => 'nullable|exists:files,id',
             'email' => 'string|email|required',
             'phone' => array('string', 'regex:/(^[0-9]+$)/u','nullable'),
-            'address' => 'string|required',
+            'address' => 'string|nullable',
         ];
     }
 }

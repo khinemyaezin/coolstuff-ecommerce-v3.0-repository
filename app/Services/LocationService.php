@@ -128,7 +128,8 @@ class LocationService
     {
         $result = new ViewResult();
         try {
-            $prevDefaultLocation = Location::where('default', true)->first();
+            $brand = ((object)Auth::user())->brand;
+            $prevDefaultLocation = $brand->locations()->where('default', true)->first();
             if ($prevDefaultLocation) {
                 $prevDefaultLocation->default = false;
                 $prevDefaultLocation->save();
@@ -215,12 +216,29 @@ class LocationService
             })
                 ->where('prod_locations.fk_prod_variant_id', '=', $variantId)
                 ->select(['prod_locations.id'])->first();
-                
-            if( !$prodLocation) throw new ModelNotFoundException();
+
+            if (!$prodLocation) throw new ModelNotFoundException();
 
             ProdLocations::findOrFail($prodLocation->id)->update([
                 'quantity' => $quantity
             ]);
+            $result->success();
+        } catch (ModelNotFoundException $e) {
+            $prodVariant = ProdVariants::findOrFail($variantId);
+            $brand = Auth::user()->brand;
+            if (!$brand) {
+                throw new ModelNotFoundException();
+            }
+            $locationList = Location::where('fk_brand_id', $brand->id)
+            ->orderBy('default', 'desc')->get();
+            $locations = [];
+            foreach ($locationList as $loc) {
+                $locations[$loc->id] = [
+                    'quantity' => $loc->default ? $quantity : 0,
+                    'fk_prod_variant_id' => $prodVariant->id,
+                ];
+            }
+            $prodVariant->locations()->sync($locations);
             $result->success();
         } catch (Exception $e) {
             $result->error($e);

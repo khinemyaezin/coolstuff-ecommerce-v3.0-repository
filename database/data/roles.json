@@ -1,12 +1,20 @@
 [
     {
-        "code":"USER_MANAG",
-        "title":"User Manager",
+        "id":"1",
+        "code":"ADMIN",
+        "title":"Admin",
         "description":""
     },
     {
-        "code":"ORD_MANAG",
-        "title":"Order Manager",
+        "id":"2",
+        "code":"STORE_OWNER",
+        "title":"Store Owner",
+        "description":""
+    },
+    {
+        "id":"3",
+        "code":"STAFF",
+        "title":"Staff",
         "description":""
     }
 ]

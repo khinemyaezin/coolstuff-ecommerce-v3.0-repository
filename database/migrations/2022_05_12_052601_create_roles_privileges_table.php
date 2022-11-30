@@ -20,7 +20,7 @@ return new class extends Migration
             $table->smallInteger('status')->default(BizStatus::ACTIVE->value);
             $table->smallInteger('biz_status')->default(RowStatus::NORMAL->value);
             $table->bigInteger('fk_role_id');
-            $table->bigInteger('fk_task_id');
+            $table->string('fk_task_id');
             $table->foreign('fk_role_id')->references('id')->on('roles');
             $table->foreign('fk_task_id')->references('id')->on('tasks');
             $table->timestamps();

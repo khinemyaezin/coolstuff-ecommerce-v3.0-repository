@@ -22,7 +22,7 @@ class ConditionsApiController extends Controller
         $criteria = new Criteria($request);
         $result = $this->service->getConditions($criteria);
 
-        return response()->json($result, $result->getHttpStatus());
+        return response()->json($result->nullCheckResp(), $result->getHttpStatus());
     }
 
     public function create()

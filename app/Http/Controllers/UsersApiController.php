@@ -4,18 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\GetUserByIdRequest;
 use App\Http\Requests\GetUsersRequest;
+use App\Http\Requests\RoleUserSaveRequest;
+use App\Http\Requests\UserSaveRequest;
 use App\Http\Requests\UserUpdateRequest;
 use App\Models\Criteria;
-use App\Models\UserPrivileges;
 use App\Models\Users;
-use App\Models\ViewResult;
+use App\Services\RoleBasedAccessControl;
 use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class UsersApiController extends Controller
 {
-    function __construct(protected UserService $userService)
+    function __construct(protected UserService $userService,protected RoleBasedAccessControl $rbac)
     {
     }
 
@@ -24,13 +25,17 @@ class UsersApiController extends Controller
     {
         $criteria = new Criteria($request);
         $result = $this->userService->getUsers($criteria);
-        return response()->json($result, $result->getHttpStatus());
+        return response()->json($result->nullCheckResp(), $result->getHttpStatus());
     }
 
 
-    public function store(Request $request)
+    public function store(UserSaveRequest $request)
     {
-        return $request;
+        DB::beginTransaction();
+        $criteria = new Criteria($request);
+        $result = $this->userService->saveUser($criteria);
+        $result->completeTransaction();
+        return response()->json($result->nullCheckResp(), $result->getHttpStatus());
     }
 
 
@@ -38,22 +43,18 @@ class UsersApiController extends Controller
     {
         $criteria = new Criteria($request);
         $result = $this->userService->getUserById($criteria, $request->route('id'));
-        return response()->json($result, $result->getHttpStatus());
+        return response()->json($result->nullCheckResp(), $result->getHttpStatus());
     }
 
 
     public function update(UserUpdateRequest $request)
     {
         DB::beginTransaction();
-        $result = null;
-        $id = $request->route('id');
-        $criteria = new Criteria();
-        $criteria->details = $request->validated();
-
-        $result = $this->userService->updateUser($criteria, $id);
+        $criteria = new Criteria($request);
+        $result = $this->userService->updateUser($criteria);
 
         $result->completeTransaction();
-        return response()->json($result, $result->getHttpStatus());
+        return response()->json($result->nullCheckResp(), $result->getHttpStatus());
     }
 
 
@@ -62,31 +63,18 @@ class UsersApiController extends Controller
         //
     }
 
-    public function savePrivileges(Request $request)
+    public function getAvaliableRoles(Request $request)
+    {
+        $result = $this->rbac->getUserRolesSetup($request->route('id'));
+        return response()->json($result->nullCheckResp(), $result->getHttpStatus());
+    }
+
+    public function saveRoleUser(RoleUserSaveRequest $request)
     {
         DB::beginTransaction();
-        $result = null;
-        $validator = validator($request->all(), [
-            'roles' => 'array|required',
-            'roles.*' => 'string|exists:roles,id',
-
-        ]);
-        if ($validator->fails()) {
-            $result = new ViewResult();
-            //$result->error(new InvalidRequest(), $validator->errors());
-        } else {
-            $userPrivileges = [];
-            foreach ($request->roles as $role) {
-                array_push($userPrivileges, new UserPrivileges([
-                    'title' => 'UserPrivileges',
-                    'fk_user_id' => $request->userid,
-                    'fk_role_id' => $role
-                ]));
-            }
-
-            $result = $this->userService->saveUserPrivileges($userPrivileges);
-        }
+        $criteria = new Criteria($request);
+        $result = $this->rbac->saveUserRoles($criteria);
         $result->completeTransaction();
-        return response()->json($result, $result->getHttpStatus());
+        return response()->json($result->nullCheckResp(), $result->getHttpStatus());
     }
 }

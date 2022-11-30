@@ -65,4 +65,10 @@ class ViewResult
     {
         return $this->httpStatus;
     }
+    public function nullCheckResp()
+    {
+        return (object) array_filter((array) $this, function ($val) {
+            return !is_null($val);
+        });
+    }
 }

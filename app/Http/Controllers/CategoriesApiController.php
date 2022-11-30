@@ -51,7 +51,7 @@ class CategoriesApiController extends Controller
         $result = $this->categoryService->create($category, $request->parent_id);
 
         $result->completeTransaction();
-        return response()->json($result, $result->getHttpStatus());
+        return response()->json($result->nullCheckResp(), $result->getHttpStatus());
     }
 
     public function update($id)
@@ -72,7 +72,7 @@ class CategoriesApiController extends Controller
         $category->title = $request['title'];
         $result = $this->categoryService->update($category);
         $result->completeTransaction();
-        return response()->json($result, $result->getHttpStatus());
+        return response()->json($result->nullCheckResp(), $result->getHttpStatus());
     }
 
     public function destroy($id)
@@ -80,7 +80,7 @@ class CategoriesApiController extends Controller
         DB::beginTransaction();
         $result = $this->categoryService->delete($id);
         $result->completeTransaction();
-        return response()->json($result, $result->getHttpStatus());
+        return response()->json($result->nullCheckResp(), $result->getHttpStatus());
     }
   
     public function searchCategories()

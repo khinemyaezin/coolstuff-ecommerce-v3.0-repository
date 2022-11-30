@@ -25,7 +25,7 @@ class CategoryAttributesApiController extends Controller
         $criteria = new Criteria($request);
         $result = $this->service->all($criteria);
 
-        return response()->json($result, $result->getHttpStatus());
+        return response()->json($result->nullCheckResp(), $result->getHttpStatus());
     }
 
     public function getSetup($id)
@@ -41,7 +41,7 @@ class CategoryAttributesApiController extends Controller
         $result = $this->service->store($request->route('id'), $criteria);
 
         $result->completeTransaction();
-        return response()->json($result, $result->getHttpStatus());
+        return response()->json($result->nullCheckResp(), $result->getHttpStatus());
     }
 
     public function test()

@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Tasks extends Model
+class Tasks extends CsModel
 {
     use HasFactory;
     protected  $casts = [
@@ -14,7 +14,6 @@ class Tasks extends Model
         'updated_at' => 'datetime:d-m-Y h:i:s A',
     ];
     protected $hidden = [
-        'id',
         'status'
     ];
 }

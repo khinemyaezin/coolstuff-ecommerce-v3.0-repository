@@ -16,10 +16,9 @@ return new class extends Migration
     public function up()
     {
         Schema::create('user_types', function (Blueprint $table) {
-            $table->bigIncrements('id');
+            $table->string('id', 200)->primary();
             $table->smallInteger('status')->default(BizStatus::ACTIVE->value);
             $table->smallInteger('biz_status')->default(RowStatus::NORMAL->value);
-            $table->string('title',200)->unique();
             $table->timestamps();
         });
     }

@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ProdGroups extends Model
+class ProdGroups extends CsModel
 {
     use HasFactory;
     protected  $casts = [

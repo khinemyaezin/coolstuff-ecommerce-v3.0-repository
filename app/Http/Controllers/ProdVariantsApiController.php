@@ -21,7 +21,7 @@ class ProdVariantsApiController extends Controller
     {
         $criteria = new Criteria($request);
         $result = $this->service->getVariantsById($criteria);
-        return response()->json($result, $result->getHttpStatus());
+        return response()->json($result->nullCheckResp(), $result->getHttpStatus());
     }
 
 
@@ -33,7 +33,7 @@ class ProdVariantsApiController extends Controller
         $criteria->details['id'] = $request->route('vid');
         $result = $this->service->updateVariant($criteria);
         $result->completeTransaction();
-        return response()->json($result, $result->getHttpStatus());
+        return response()->json($result->nullCheckResp(), $result->getHttpStatus());
     }
 
     public function delete($id)

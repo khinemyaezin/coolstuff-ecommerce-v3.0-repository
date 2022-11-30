@@ -21,7 +21,7 @@ class Criteria
         $this->request = $httpRequest;
         if ($httpRequest) {
             $this->httpParams = $httpRequest->query();
-            $this->relationships = Common::splitToArray($httpRequest['relationships']);
+            $this->relationships = Common::splitToArray(Common::arrayVal($httpRequest,'relationships',''));
             $this->details = $httpRequest->validated();
         }
     }

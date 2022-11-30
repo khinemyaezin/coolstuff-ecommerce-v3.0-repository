@@ -18,7 +18,7 @@ class UserTypesApiController extends Controller
     public function getUsersByUserTypes()
     {
         $result = $this->userService->getUsersByUserTypes();
-        return response()->json($result, $result->getHttpStatus());
+        return response()->json($result->nullCheckResp(), $result->getHttpStatus());
     }
 
 }

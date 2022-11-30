@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use App\Daos\ProductsDao;
+use App\Models\PersonalAccessToken;
 use App\Models\SystemSettings;
+use App\Services\AuthService;
 use App\Services\BrandService;
 use App\Services\CategoryAttributeService;
 use App\Services\CategoryService;
@@ -12,13 +14,13 @@ use App\Services\LocationService;
 use App\Services\PackTypeService;
 use App\Services\ProductService;
 use App\Services\RegionService;
-use App\Services\RoleService;
+use App\Services\RoleBasedAccessControl;
 use App\Services\TaskService;
 use App\Services\UserService;
 use App\Services\VariantService;
 use Illuminate\Pagination\Paginator;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Sanctum\Sanctum;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -32,8 +34,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(UserService::class, function ($app) {
             return new UserService();
         });
-        $this->app->singleton(RoleService::class, function ($app) {
-            return new RoleService();
+        $this->app->singleton(RoleBasedAccessControl::class, function ($app) {
+            return new RoleBasedAccessControl();
         });
         $this->app->singleton(RegionService::class, function ($app) {
             return new RegionService();
@@ -59,16 +61,16 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(CategoryAttributeService::class, function ($app) {
             return new CategoryAttributeService();
         });
-        $this->app->singleton(ProductService::class, function ($app) {
-            return new ProductService();
-        });
+     
         $this->app->singleton(ProductsDao::class, function ($app) {
             return new ProductsDao();
         });
         $this->app->singleton(LocationService::class, function ($app) {
             return new LocationService();
         });
-        
+        $this->app->singleton(ProductService::class, function ($app) {
+            return new ProductService();
+        });
     }
 
     /**
@@ -78,6 +80,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        Sanctum::ignoreMigrations();
+        Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
+
         config([
             'settings' => SystemSettings::first()
         ]);
