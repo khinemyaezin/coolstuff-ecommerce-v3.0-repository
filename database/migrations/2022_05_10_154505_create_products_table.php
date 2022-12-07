@@ -29,6 +29,7 @@ return new class extends Migration
             $table->bigInteger('fk_packtype_id');
             $table->bigInteger('fk_prod_group_id')->nullable();
             $table->bigInteger('fk_currency_id');
+            $table->bigInteger('fk_purchased_currency_id');
             $table->bigInteger('fk_varopt_1_hdr_id')->nullable();
             $table->bigInteger('fk_varopt_2_hdr_id')->nullable();
             $table->bigInteger('fk_varopt_3_hdr_id')->nullable();
@@ -38,6 +39,7 @@ return new class extends Migration
             $table->foreign('fk_packtype_id')->references('id')->on('pack_types');
             $table->foreign('fk_prod_group_id')->references('id')->on('prod_groups');
             $table->foreign('fk_currency_id')->references('id')->on('regions');
+            $table->foreign('fk_purchased_currency_id')->references('id')->on('regions');
             $table->foreign('fk_varopt_1_hdr_id')->references('id')->on('variant_option_hdrs');
             $table->foreign('fk_varopt_2_hdr_id')->references('id')->on('variant_option_hdrs');
             $table->foreign('fk_varopt_3_hdr_id')->references('id')->on('variant_option_hdrs');

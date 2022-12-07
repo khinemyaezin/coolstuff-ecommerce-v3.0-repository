@@ -20,7 +20,6 @@ class InventoryApiController extends Controller
     {
         $criteria = new Criteria($request);
         $result = $this->service->getSingleProducts($request->route('brandId'), $criteria);
-
         return response()->json($result->nullCheckResp(), $result->getHttpStatus());
     }
     

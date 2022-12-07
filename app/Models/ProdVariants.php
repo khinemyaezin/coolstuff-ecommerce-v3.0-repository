@@ -55,9 +55,9 @@ class ProdVariants extends CsModel
         'updated_at' => 'datetime:d-m-Y h:i:s A',
         'start_at' => 'datetime:d-m-Y h:i:s A',
         'expired_at' => 'datetime:d-m-Y h:i:s A',
-        "buy_price" => "integer",
-        "selling_price" =>  "integer",
-        "compared_price" =>  "integer",
+        "buy_price" => "float",
+        "selling_price" =>  "float",
+        "compared_price" =>  "float",
         "qty" =>  "integer",
     ];
     protected $hidden = [

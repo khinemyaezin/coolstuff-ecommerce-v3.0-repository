@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\BizStatus;
-use App\Enums\UserTypes;
 use App\Http\Requests\ChangeUserPasswordRequest;
 use App\Models\Users;
 use App\Models\ViewResult;

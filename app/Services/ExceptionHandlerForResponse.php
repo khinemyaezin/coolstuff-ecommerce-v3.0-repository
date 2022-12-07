@@ -77,7 +77,7 @@ trait ExceptionHandlerForResponse
              */
             $viewResponse->status = $exception->getCode();
             $viewResponse->message = $exception->getMessage();
-            $viewResponse->errors = "Request URL not found";
+            //$viewResponse->errors = "Request URL not found";
             $viewResponse->httpStatus = 422;
         } else if ($exception instanceof ModelNotFoundException) {
 

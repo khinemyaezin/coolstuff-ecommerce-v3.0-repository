@@ -477,6 +477,8 @@ class ProductService
             $dbVariant->var_3_title                   = Common::arrayVal($criteria->details, 'var_3_title');
             $dbVariant->buy_price                     = $criteria->details['buy_price'];
             $dbVariant->selling_price                 = $criteria->details['selling_price'];
+            $dbVariant->compared_price                = $criteria->details['compared_price'];
+
             $dbVariant->track_qty                     = $criteria->details['track_qty'];
             $dbVariant->qty                           = $criteria->details['qty'];
             $dbVariant->fk_condition_id               = $criteria->details['fk_condition_id'];
@@ -658,9 +660,8 @@ class ProductService
             } else {
                 $records = $map($records);
             }
-
             $result->details = $records;
-            $result->generateQueryLog();
+           // $result->generateQueryLog();
             $result->success();
         } catch (Exception $e) {
             $result->error($e);

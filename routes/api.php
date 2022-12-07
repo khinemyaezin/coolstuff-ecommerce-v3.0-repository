@@ -6,6 +6,7 @@ use App\Http\Controllers\CategoriesApiController;
 use App\Http\Controllers\CategoryAttributesApiController;
 use App\Http\Controllers\ConditionsApiController;
 use App\Http\Controllers\FileUploadController;
+use App\Http\Controllers\FormulaController;
 use App\Http\Controllers\InventoryApiController;
 use App\Http\Controllers\LocationApiController;
 use App\Http\Controllers\OptionsApiController;
@@ -153,9 +154,7 @@ Route::middleware('auth:sanctum')->put('locations/{id}/products/{prodId}', [Loca
 
 
 /**
- * Test
+ * Formulas
  */
-Route::get('test', [TestController::class, 'get']);
-Route::post('test', [TestController::class, 'post']);
-Route::put('test', [TestController::class, 'put']);
-Route::delete('test', [TestController::class, 'delete']);
+Route::middleware('auth:sanctum')->post('formulas/profit-margin', [FormulaController::class, 'getProfitMargin']);
+
