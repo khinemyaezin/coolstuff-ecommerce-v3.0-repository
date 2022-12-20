@@ -5,13 +5,12 @@ namespace App\Http\Controllers;
 use App\Http\Requests\GetInventoryProductsRequest;
 use App\Http\Requests\ProdVariantsUpdateRequest;
 use App\Models\Criteria;
-use App\Services\ProductService;
-use Illuminate\Http\Request;
+use App\Services\InventoryService;
 use Illuminate\Support\Facades\DB;
 
 class InventoryApiController extends Controller
 {
-    public function __construct(protected ProductService $service)
+    public function __construct(protected InventoryService $service)
     {
         # code...
     }
@@ -19,7 +18,7 @@ class InventoryApiController extends Controller
     public function getSingleProducts(GetInventoryProductsRequest $request)
     {
         $criteria = new Criteria($request);
-        $result = $this->service->getSingleProducts($request->route('brandId'), $criteria);
+        $result = $this->service->getProductVariants($request->route('brandId'), $criteria);
         return response()->json($result->nullCheckResp(), $result->getHttpStatus());
     }
     
@@ -28,7 +27,7 @@ class InventoryApiController extends Controller
     
         DB::beginTransaction();
         $criteria = new Criteria($request);
-        $result = $this->service->updateInventoryVariants($criteria);
+        $result = $this->service->updateProductVariants($criteria);
         $result->completeTransaction();
         return response()->json($result->nullCheckResp(), $result->getHttpStatus());
     }

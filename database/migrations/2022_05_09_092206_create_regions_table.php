@@ -17,11 +17,12 @@ return new class extends Migration
     {
         Schema::create('regions', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->smallInteger('status')->default(BizStatus::ACTIVE->value);
-            $table->smallInteger('biz_status')->default(RowStatus::NORMAL->value);
+            $table->smallInteger('status')->default(RowStatus::NORMAL->value);
+            $table->smallInteger('biz_status')->default(BizStatus::ACTIVE->value);
             $table->string('country_name',100)->unique();
             $table->string('country_code',100)->unique();
             $table->string('currency_code',3);
+            $table->string('dial_code',10);
             $table->timestamps();
         });
     }

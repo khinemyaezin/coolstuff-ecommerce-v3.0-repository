@@ -8,7 +8,6 @@ use App\Http\Requests\BrandSettingUpdateRequest;
 use App\Http\Requests\BrandUpdateRequest;
 use App\Http\Requests\GetBrandByIDRequest;
 use App\Http\Requests\GetBrandsRequest;
-use App\Models\Brands;
 use App\Models\Criteria;
 
 use App\Services\BrandService;

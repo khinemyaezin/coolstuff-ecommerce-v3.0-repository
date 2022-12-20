@@ -20,8 +20,8 @@ return new class extends Migration
             $table->string('public_id',10);
             $table->string('title',200);
             $table->string('description',300)->nullable();
-            $table->smallInteger('status')->default(BizStatus::ACTIVE->value);
-            $table->smallInteger('biz_status')->default(RowStatus::NORMAL->value);
+            $table->smallInteger('status')->default(RowStatus::NORMAL->value);
+            $table->smallInteger('biz_status')->default(BizStatus::ACTIVE->value);
             $table->bigInteger('profile_image')->nullable();
             $table->bigInteger('cover_image')->nullable();
             $table->bigInteger('fk_region_id');

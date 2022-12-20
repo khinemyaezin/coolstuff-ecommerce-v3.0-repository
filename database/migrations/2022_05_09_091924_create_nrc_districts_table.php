@@ -17,8 +17,8 @@ return new class extends Migration
     {
         Schema::create('nrc_districts', function (Blueprint $table) {
             $table->string('id',100)->primary();
-            $table->smallInteger('status')->default(BizStatus::ACTIVE->value);
-            $table->smallInteger('biz_status')->default(RowStatus::NORMAL->value);
+            $table->smallInteger('status')->default(RowStatus::NORMAL->value);
+            $table->smallInteger('biz_status')->default(BizStatus::ACTIVE->value);
             $table->string('fk_nrc_state_id',100);
             $table->foreign('fk_nrc_state_id')->references('id')->on('nrc_states');
             $table->timestamps();

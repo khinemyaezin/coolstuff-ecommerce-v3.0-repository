@@ -10,7 +10,6 @@ use App\Models\Criteria;
 use App\Models\Products;
 use App\Models\ViewResult;
 use App\Enums\BizStatus;
-use App\Http\Requests\GetInventoryProductsRequest;
 use App\Services\ProductService;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -30,7 +29,7 @@ class ProductsApiController extends Controller
     public function index(GetProductsRequest $request)
     {
         $criteria = new Criteria($request);
-        $result = $this->service->getProducts($criteria);
+        $result = $this->service->getAll($criteria);
 
         return response()->json($result->nullCheckResp(), $result->getHttpStatus());
     }
@@ -47,7 +46,7 @@ class ProductsApiController extends Controller
     public function show(GetProductByIdRequest $request)
     {
         $criteria = new Criteria($request);
-        $result = $this->service->getProduct($criteria, $request->route('id'));
+        $result = $this->service->getByID($criteria);
         return response()->json($result->nullCheckResp(), $result->getHttpStatus());
     }
 
@@ -69,7 +68,7 @@ class ProductsApiController extends Controller
 
         DB::beginTransaction();
         $criteria = new Criteria($request);
-        $result = $this->service->update($criteria, $request->route('id'));
+        $result = $this->service->update($criteria);
         $result->completeTransaction();
         return response()->json($result->nullCheckResp(), $result->getHttpStatus());
     }
@@ -89,10 +88,5 @@ class ProductsApiController extends Controller
         }
         $result->completeTransaction();
         return response()->json($result->nullCheckResp(), $result->getHttpStatus());
-    }
-
-    public function updateVariantByColumns()
-    {
-        # code...
     }
 }

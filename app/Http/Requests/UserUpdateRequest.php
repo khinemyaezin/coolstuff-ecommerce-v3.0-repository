@@ -28,7 +28,7 @@ class UserUpdateRequest extends FormRequest
             'last_name' => 'string|required|max:100',
             'profile_image' => 'nullable|exists:files,id',
             'email' => 'string|email|required',
-            'phone' => array('string', 'regex:/(^[0-9]+$)/u','nullable'),
+            'phone' => 'string|required',
             'address' => 'string|nullable',
         ];
     }

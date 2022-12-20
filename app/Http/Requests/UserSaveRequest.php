@@ -29,7 +29,7 @@ class UserSaveRequest extends FormRequest
             'last_name' => 'string|required|max:100',
             'profile_image' => 'string|nullable|exists:files,id',
             'email' => 'string|email|required',
-            'phone' => array('string', 'regex:/(^[0-9]+$)/u', 'nullable'),
+            'phone' => array('string', 'nullable'),
             'address' => 'string|nullable',
             'password' => "string"
         ];

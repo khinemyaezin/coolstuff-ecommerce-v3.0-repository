@@ -11,9 +11,11 @@ use App\Services\CategoryAttributeService;
 use App\Services\CategoryService;
 use App\Services\ConditionsService;
 use App\Services\Formula;
+use App\Services\InventoryService;
 use App\Services\LocationService;
 use App\Services\PackTypeService;
 use App\Services\ProductService;
+use App\Services\ProductVariantService;
 use App\Services\RegionService;
 use App\Services\RoleBasedAccessControl;
 use App\Services\TaskService;
@@ -74,6 +76,12 @@ class AppServiceProvider extends ServiceProvider
         });
         $this->app->singleton(Formula::class, function ($app) {
             return new Formula();
+        });
+        $this->app->singleton(InventoryService::class, function ($app) {
+            return new InventoryService();
+        });
+        $this->app->singleton(ProductVariantService::class, function ($app) {
+            return new ProductVariantService();
         });
     }
 

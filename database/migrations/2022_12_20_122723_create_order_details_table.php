@@ -15,11 +15,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('pack_types', function (Blueprint $table) {
+        Schema::create('order_details', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->smallInteger('status')->default(RowStatus::NORMAL->value);
             $table->smallInteger('biz_status')->default(BizStatus::ACTIVE->value);
-            $table->text('title');
             $table->timestamps();
         });
     }
@@ -31,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('pack_types');
+        Schema::dropIfExists('order_details');
     }
 };

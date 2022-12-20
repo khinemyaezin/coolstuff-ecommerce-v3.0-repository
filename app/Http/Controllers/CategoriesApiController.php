@@ -58,15 +58,6 @@ class CategoriesApiController extends Controller
     {
         DB::beginTransaction();
         $request = request();
-        // $result = null;
-        // $validator = validator($request->all(), [
-        //     'title' => 'string|required|max:100'
-        // ]);
-        // if ($validator->fails()) {
-        //     $result = new ViewResult();
-        //     $result->error(new InvalidRequest(), $validator->errors());
-        // } else {
-        // }
         $category = new Categories();
         $category->id =  $id;
         $category->title = $request['title'];

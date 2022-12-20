@@ -17,8 +17,8 @@ return new class extends Migration
     {
         Schema::create('prod_groups', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->smallInteger('status')->default(BizStatus::ACTIVE->value);
-            $table->smallInteger('biz_status')->default(RowStatus::NORMAL->value);
+            $table->smallInteger('status')->default(RowStatus::NORMAL->value);
+            $table->smallInteger('biz_status')->default(BizStatus::ACTIVE->value);
             $table->text('title');
             $table->bigInteger('fk_brand_id');
             $table->foreign('fk_brand_id')->references('id')->on('brands');

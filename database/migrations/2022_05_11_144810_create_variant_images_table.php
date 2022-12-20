@@ -17,8 +17,8 @@ return new class extends Migration
     {
         Schema::create('variant_images', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->smallInteger('status')->default(BizStatus::ACTIVE->value);
-            $table->smallInteger('biz_status')->default(RowStatus::NORMAL->value);
+            $table->smallInteger('status')->default(RowStatus::NORMAL->value);
+            $table->smallInteger('biz_status')->default(BizStatus::ACTIVE->value);
             $table->text('image_url');
             $table->bigInteger('fk_variant_id');
             $table->foreign('fk_variant_id')->references('id')->on('prod_variants');

@@ -15,8 +15,6 @@ use App\Http\Controllers\ProductsApiController;
 use App\Http\Controllers\ProdVariantsApiController;
 use App\Http\Controllers\RegionsApiController;
 use App\Http\Controllers\RoleBasedAccessController;
-use App\Http\Controllers\RolesApiController;
-use App\Http\Controllers\TestController;
 use App\Http\Controllers\UsersApiController;
 use App\Http\Controllers\UserTypesApiController;
 use Illuminate\Support\Facades\Route;
@@ -129,7 +127,10 @@ Route::middleware(['auth:sanctum', 'abilities:products_read'])->get('products', 
 Route::middleware(['auth:sanctum', 'abilities:product_read'])->get('products/{id}', [ProductsApiController::class, 'show'])->where('id', '[0-9]+');
 Route::middleware(['auth:sanctum', 'abilities:product_update'])->put('products/{id}', [ProductsApiController::class, 'update'])->where('id', '[0-9]+');
 Route::middleware(['auth:sanctum', 'abilities:product_delete'])->delete('products/{id}', [ProductsApiController::class, 'destroy'])->where('id', '[0-9]+');
-Route::middleware(['auth:sanctum'])->get('products/{id}/{vid}', [ProdVariantsApiController::class, 'getById'])->where('id', '[0-9]+')->where('vid', '[0-9]+');
+/**
+ * Product variants
+ */
+Route::middleware(['auth:sanctum'])->get('products/{id}/{vid}', [ProdVariantsApiController::class, 'show'])->where('id', '[0-9]+')->where('vid', '[0-9]+');
 Route::middleware(['auth:sanctum'])->put('products/{id}/{vid}', [ProdVariantsApiController::class, 'update'])->where('id', '[0-9]+')->where('vid', '[0-9]+');
 Route::middleware(['auth:sanctum'])->delete('products/{id}/{vid}', [ProdVariantsApiController::class, 'delete'])->where('id', '[0-9]+')->where('vid', '[0-9]+');
 

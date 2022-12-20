@@ -18,8 +18,8 @@ return new class extends Migration
     {
         Schema::create('prod_variants', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->smallInteger('status')->default(BizStatus::ACTIVE->value);
-            $table->smallInteger('biz_status')->default(RowStatus::NORMAL->value);
+            $table->smallInteger('status')->default(RowStatus::NORMAL->value);
+            $table->smallInteger('biz_status')->default(BizStatus::ACTIVE->value);
             $table->string('seller_sku', 50);
             $table->bigInteger('fk_prod_id');
 
@@ -39,6 +39,7 @@ return new class extends Migration
             $table->text('var_3_title')->nullable();
 
             $table->double('buy_price')->default(0.0);
+            $table->double('purchased_price')->default(0.0);
             $table->double('selling_price')->default(0.0);
             $table->double('compared_price')->default(0.0);
             $table->integer('qty')->default(0);

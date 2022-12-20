@@ -37,6 +37,7 @@ class DatabaseSeeder extends Seeder
                         "country_name" => $value->countryName,
                         "country_code" => $value->countryCode,
                         "currency_code" => $value->currencyCode,
+                        "dial_code" => $value->dial_code
                     ]);
                 }
             }

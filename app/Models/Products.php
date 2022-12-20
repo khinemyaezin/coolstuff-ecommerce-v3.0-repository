@@ -29,6 +29,7 @@ class Products extends CsModel
         "fk_packtype_id",
         "fk_group_id",
         "fk_currency_id",
+        "fk_purchased_currency_id",
         'fk_varopt_1_hdr_id',
         'fk_varopt_2_hdr_id',
         'fk_varopt_3_hdr_id',
@@ -52,6 +53,10 @@ class Products extends CsModel
     public function currency()
     {
         return $this->hasOne(Regions::class,  'id','fk_currency_id');
+    }
+    public function purchasedCurrency()
+    {
+        return $this->hasOne(Regions::class,  'id','fk_purchased_currency_id');
     }
     public function variants($relations = [])
     {

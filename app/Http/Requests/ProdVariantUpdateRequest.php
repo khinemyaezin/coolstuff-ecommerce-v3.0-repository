@@ -38,10 +38,9 @@ class ProdVariantUpdateRequest extends FormRequest
             'fk_varopt_3_dtl_id' => 'nullable|exists:variant_option_dtls,id',
             'var_3_title' => 'nullable',
             'buy_price' => array('regex:/^[0-9]+(\.[0-9][0-9]?)?$/', ''),
-            'fk_buy_currency_id' => 'string|exists:regions,id',
+            'purchased_price' => array('regex:/^[0-9]+(\.[0-9][0-9]?)?$/', ''),
             'selling_price' =>  array('regex:/^[0-9]+(\.[0-9][0-9]?)?$/', ''),
             'compared_price' => array('regex:/^[0-9]+(\.[0-9][0-9]?)?$/', 'required'),
-
             'track_qty' => 'boolean',
             'qty' => 'integer',
             'fk_condition_id' => 'exists:conditions,id',

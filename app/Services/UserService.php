@@ -8,7 +8,6 @@ use App\Models\Users;
 use App\Models\UserTypes as ModelsUserTypes;
 use App\Models\ViewResult;
 use Exception;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\RelationNotFoundException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;

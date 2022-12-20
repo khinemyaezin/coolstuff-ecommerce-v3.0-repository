@@ -17,8 +17,8 @@ return new class extends Migration
     {
         Schema::create('roles_privileges', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->smallInteger('status')->default(BizStatus::ACTIVE->value);
-            $table->smallInteger('biz_status')->default(RowStatus::NORMAL->value);
+            $table->smallInteger('status')->default(RowStatus::NORMAL->value);
+            $table->smallInteger('biz_status')->default(BizStatus::ACTIVE->value);
             $table->bigInteger('fk_role_id');
             $table->string('fk_task_id');
             $table->foreign('fk_role_id')->references('id')->on('roles');

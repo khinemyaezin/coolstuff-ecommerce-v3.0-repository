@@ -24,6 +24,7 @@ class Regions extends CsModel
         'biz_status',
         'country_name',
         'country_code',
-        'currency_code'
+        'currency_code',
+        'dial_code'
     ];
 }

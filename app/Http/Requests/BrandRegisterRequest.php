@@ -31,7 +31,7 @@ class BrandRegisterRequest extends FormRequest
             'user.first_name' => 'string|required',
             'user.last_name' => 'string|required',
             'user.email' => 'required|email|unique:users,email',
-            'user.phone' => array('string', 'regex:/(^[0-9]+$)/u', 'nullable'),
+            'user.phone' => 'required|string',
             'user.address' => 'string|nullable',
             'user.password' => 'string|required',
         ];
@@ -39,7 +39,7 @@ class BrandRegisterRequest extends FormRequest
     public function attributes()
     {
         return [
-         
+
             'brand.title' => 'brand name',
             'brand.region_id' => 'brand location',
             'user.first_name' => 'seller first name',

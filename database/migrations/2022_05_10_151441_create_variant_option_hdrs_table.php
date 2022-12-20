@@ -17,8 +17,8 @@ return new class extends Migration
     {
         Schema::create('variant_option_hdrs', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->smallInteger('status')->default(BizStatus::ACTIVE->value);
-            $table->smallInteger('biz_status')->default(RowStatus::NORMAL->value);
+            $table->smallInteger('status')->default(RowStatus::NORMAL->value);
+            $table->smallInteger('biz_status')->default(BizStatus::ACTIVE->value);
             $table->text('title');
             $table->boolean('allow_dtls_custom_name')->default(false);
             $table->boolean('need_dtls_mapping')->default(false);

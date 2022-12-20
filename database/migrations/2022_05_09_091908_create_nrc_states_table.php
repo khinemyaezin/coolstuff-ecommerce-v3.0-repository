@@ -17,8 +17,8 @@ return new class extends Migration
     {
         Schema::create('nrc_states', function (Blueprint $table) {
             $table->string('id',100)->primary();
-            $table->smallInteger('status')->default(BizStatus::ACTIVE->value);
-            $table->smallInteger('biz_status')->default(RowStatus::NORMAL->value);
+            $table->smallInteger('status')->default(RowStatus::NORMAL->value);
+            $table->smallInteger('biz_status')->default(BizStatus::ACTIVE->value);
             $table->timestamps();
         });
     }

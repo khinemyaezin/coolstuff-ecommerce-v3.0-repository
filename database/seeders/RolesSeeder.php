@@ -28,26 +28,26 @@ class RolesSeeder extends Seeder
             }
         });
 
-        $this->prepare("database/data/brands.json", function ($array) {
-            foreach ($array as $key => $brand) {
-                $mybrand = Brands::create([
-                    "title" => $brand->title,
-                    "public_id" => $brand->public_id,
-                    "fk_region_id" => $brand->fk_region_id,
-                ]);
-                foreach ($brand->users as $key => $user) {
-                    $mybrand->users()->save(
-                        new Users([
-                            "first_name" => $user->first_name,
-                            "last_name" => $user->last_name,
-                            "fk_usertype_id" => "brand_owner",
-                            "email" => $user->email,
-                            "password" => Hash::make($user->password)
-                        ])
-                    );
-                }
-            }
-        });
+        // $this->prepare("database/data/brands.json", function ($array) {
+        //     foreach ($array as $key => $brand) {
+        //         $mybrand = Brands::create([
+        //             "title" => $brand->title,
+        //             "public_id" => $brand->public_id,
+        //             "fk_region_id" => $brand->fk_region_id,
+        //         ]);
+        //         foreach ($brand->users as $key => $user) {
+        //             $mybrand->users()->save(
+        //                 new Users([
+        //                     "first_name" => $user->first_name,
+        //                     "last_name" => $user->last_name,
+        //                     "fk_usertype_id" => "brand_owner",
+        //                     "email" => $user->email,
+        //                     "password" => Hash::make($user->password)
+        //                 ])
+        //             );
+        //         }
+        //     }
+        // });
         
         //  UserPrivileges::truncate();
         // $this->prepare("database/data/user_role.json", function ($array) {
