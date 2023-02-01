@@ -4,8 +4,8 @@ namespace App\Providers;
 
 use App\Daos\ProductsDao;
 use App\Models\PersonalAccessToken;
-use App\Models\SystemSettings;
 use App\Services\AuthService;
+use App\Services\AuthServiceImpl;
 use App\Services\BrandService;
 use App\Services\CategoryAttributeService;
 use App\Services\CategoryService;
@@ -83,6 +83,9 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(ProductVariantService::class, function ($app) {
             return new ProductVariantService();
         });
+        $this->app->singleton(AuthService::class, function ($app) {
+            return new AuthServiceImpl(new RoleBasedAccessControl());
+        });
     }
 
     /**
@@ -95,9 +98,9 @@ class AppServiceProvider extends ServiceProvider
         Sanctum::ignoreMigrations();
         Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
 
-        config([
-            'settings' => SystemSettings::first()
-        ]);
+        // config([
+        //     'settings' => SystemSettings::first()
+        // ]);
         Paginator::useBootstrap();
     }
 }

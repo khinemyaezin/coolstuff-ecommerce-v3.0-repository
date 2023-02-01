@@ -37,7 +37,7 @@ class AuthApiController extends Controller
                 $resp->error(throw new AuthenticationException());
                 return response(new ViewResult(), Response::HTTP_UNAUTHORIZED);
             }
-            $info = $this->authService->getUserInfoAfterLogin();
+            $info = $this->authService->getUserInfoAfterLogin(); 
             $cookie = $this->authService->mergeOrCreateToken($info['user'],$info['roles']);
 
             $result = new ViewResult();
