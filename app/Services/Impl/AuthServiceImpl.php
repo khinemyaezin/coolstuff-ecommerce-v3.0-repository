@@ -1,18 +1,18 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Impl;
 
 use App\Enums\BizStatus;
 use App\Enums\UserTypes;
 use App\Models\Users;
+use App\Services\RolebasedAccessControl;
 use App\Services\AuthService;
-use App\Services\RoleBasedAccessControl;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 
 class AuthServiceImpl implements AuthService
 {
-    public function __construct(protected RoleBasedAccessControl $accessControl)
+    public function __construct(protected RolebasedAccessControl $accessControl)
     {
     }
     public function getUserInfoAfterLogin()

@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Facades\DB;
 use App\Services\ExceptionHandlerForResponse;
+use Illuminate\Support\Facades\DB;
 use Throwable;
 
 class ViewResult
@@ -53,12 +53,12 @@ class ViewResult
 
     public function enableQueryLog()
     {
-        $this->enableQueryLog = true;
+        //$this->enableQueryLog = true;
         DB::enableQueryLog();
     }
     public function generateQueryLog()
     {
-        $this->queryLog = DB::getQueryLog();
+        //$this->queryLog = DB::getQueryLog();
     }
 
     public function getHttpStatus()

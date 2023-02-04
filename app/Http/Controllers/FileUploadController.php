@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Exceptions\FailToSave;
 use App\Http\Requests\FileRequest;
 use App\Http\Requests\FileUploadRequest;
 use App\Models\Criteria;
@@ -12,7 +11,6 @@ use App\Models\ViewResult;
 use App\Services\BrandService;
 use App\Services\Common;
 use Exception;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 

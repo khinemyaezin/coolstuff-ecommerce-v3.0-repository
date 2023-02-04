@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Services\Common;
-use Illuminate\Http\Request;
 
 class Criteria
 {

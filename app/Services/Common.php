@@ -6,14 +6,11 @@ use App\Models\Criteria;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 
-
-
-
-class Common
+final class Common
 {
     public const DEFAULT_VALIDATION_RULES = [
         'relationships' => 'string|nullable',
-        'pagination' => 'number|nullable'
+        'pagination' => 'integer|nullable'
     ];
 
     static function getPaginate($count)

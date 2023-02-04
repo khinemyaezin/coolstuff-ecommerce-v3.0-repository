@@ -1,15 +1,17 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Impl;
 
 use App\Models\Categories;
 use App\Models\Criteria;
 use App\Models\ViewResult;
+use App\Services\CategoryAttributesService;
+use App\Services\Common;
 use Exception;
 use Illuminate\Database\Eloquent\RelationNotFoundException;
 use Illuminate\Support\Facades\DB;
 
-class CategoryAttributeService
+class CategoryAttributeServiceImpl implements CategoryAttributesService
 {
     public function getSetup(Criteria $criteria, $categoryId)
     {

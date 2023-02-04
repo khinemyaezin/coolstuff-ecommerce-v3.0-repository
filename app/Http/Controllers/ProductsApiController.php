@@ -17,7 +17,7 @@ use Illuminate\Validation\ValidationException;
 
 class ProductsApiController extends Controller
 {
-    public function __construct(protected ProductService $service)
+    public function __construct(private ProductService $service)
     {
         # code...
     }
@@ -30,7 +30,6 @@ class ProductsApiController extends Controller
     {
         $criteria = new Criteria($request);
         $result = $this->service->getAll($criteria);
-
         return response()->json($result->nullCheckResp(), $result->getHttpStatus());
     }
  

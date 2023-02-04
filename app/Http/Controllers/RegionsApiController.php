@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Exceptions\InvalidRequest;
+use App\Http\Requests\GetRegionByIdRequest;
+use App\Http\Requests\GetRegionsRequest;
 use App\Models\Criteria;
-use App\Models\Regions;
-use App\Models\ViewResult;
 use App\Services\RegionService;
-use App\Services\Common;
 use Illuminate\Http\Request;
 
 class RegionsApiController extends Controller
@@ -20,31 +18,11 @@ class RegionsApiController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(GetRegionsRequest $request)
     {
-        $result = null;
-        $request = request();
-        $criteria = new Criteria();
-        $validator = validator($request->all(), [
-            'relationships' => 'array',
-            'pagination' => 'nullable|int',
-            "country_name" => 'nullable|string',
-            "country_code" => 'nullable|string',
-            "currency_code" => 'nullable|string',
-        ]);
-        if ($validator->fails()) {
-            $result = new ViewResult();
-            //$result->error(new InvalidRequest());
-        } else {
-            $criteria->relationships = $request['relationships'];
-            $criteria->details = [
-                "country_name" =>  $request['country_name'],
-                "country_code" =>  $request['country_code'],
-                "currency_code" =>  $request['currency_code'],
-            ];
-            $criteria->pagination = $request->pagination;
-            $result = $this->regionService->getRegions($criteria);
-        }
+        
+        $criteria = new Criteria($request);
+        $result = $this->regionService->getAll($criteria);
         return response()->json($result->nullCheckResp(), $result->getHttpStatus());
     }
     public function store(Request $request)
@@ -53,21 +31,10 @@ class RegionsApiController extends Controller
     }
 
 
-    public function show($id)
+    public function show(GetRegionByIdRequest $request)
     {
-        $result = null;
-        $request = request();
-        $criteria = new Criteria();
-        $validator = validator($request->all(), [
-            'relationships' => 'array|nullable',
-        ]);
-        if ($validator->fails()) {
-            $result = new ViewResult();
-           // $result->error(new InvalidRequest());
-        } else {
-            $criteria->relationships = $request['relationships'];
-            $result = $this->regionService->getRegion($criteria, $id);
-        }
+        $criteria = new Criteria($request);
+        $result = $this->regionService->getByID($criteria);
         return response()->json($result->nullCheckResp(), $result->getHttpStatus());
     }
 

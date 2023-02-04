@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ChangeUserPasswordRequest;
 use App\Models\Users;
 use App\Models\ViewResult;
+use App\Services\RolebasedAccessControl;
 use App\Services\AuthService;
-use App\Services\RoleBasedAccessControl;
 use App\Services\UserService;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
@@ -20,8 +20,8 @@ use Symfony\Component\HttpFoundation\Response;
 class AuthApiController extends Controller
 {
     function __construct(
-        protected UserService $userService,
-        private RoleBasedAccessControl $acessControl,
+        private UserService $userService,
+        private RolebasedAccessControl $acessControl,
         private AuthService $authService
     ) {
     }
