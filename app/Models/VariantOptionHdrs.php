@@ -5,9 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class VariantOptionHdrs extends CsModel
+class VariantOptionHdrs extends Model
 {
-    use HasFactory;
+    use HasFactory,CsModel;
     protected $fillable = [
         'id',
         'status',

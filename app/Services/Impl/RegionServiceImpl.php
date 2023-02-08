@@ -2,11 +2,11 @@
 
 namespace App\Services\Impl;
 
-use App\Interfaces\CRUDInterface;
 use App\Models\Criteria;
 use App\Models\Regions;
 use App\Models\ViewResult;
 use App\Services\Common;
+use App\Services\CRUDInterface;
 use App\Services\RegionService;
 use Exception;
 use Illuminate\Database\Eloquent\RelationNotFoundException;

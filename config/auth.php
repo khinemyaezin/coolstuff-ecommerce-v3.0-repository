@@ -40,6 +40,10 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        'brand_owners' => [
+            'driver' => 'session',
+            'provider' => 'brand_owners',
+        ],
     ],
 
     /*
@@ -64,6 +68,10 @@ return [
             'driver' => 'eloquent',
             'model' => App\Models\Users::class,
         ],
+        'brand_owners' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\BrandOwners::class,
+        ],
     ],
 
     /*
@@ -84,6 +92,12 @@ return [
     'passwords' => [
         'users' => [
             'provider' => 'users',
+            'table' => 'password_resets',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+        'brand_owners' => [
+            'provider' => 'brand_owners',
             'table' => 'password_resets',
             'expire' => 60,
             'throttle' => 60,

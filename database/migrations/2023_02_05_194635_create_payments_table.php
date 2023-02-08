@@ -1,7 +1,5 @@
 <?php
 
-use App\Enums\BizStatus;
-use App\Enums\RowStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -15,10 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('order_details', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->smallInteger('status')->default(RowStatus::NORMAL->value);
-            $table->smallInteger('biz_status')->default(BizStatus::ACTIVE->value);
+        Schema::create('payments', function (Blueprint $table) {
+            $table->id();
             $table->timestamps();
         });
     }
@@ -30,6 +26,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('order_details');
+        Schema::dropIfExists('payments');
     }
 };

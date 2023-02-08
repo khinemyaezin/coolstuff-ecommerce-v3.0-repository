@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Casts\ImageUrlGenerate;
-use DateTimeInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -12,7 +11,7 @@ use Laravel\Sanctum\NewAccessToken;
 
 class Users extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, CsModel;
 
     protected $fillable = [
         'id',
@@ -24,28 +23,16 @@ class Users extends Authenticatable
         'fk_nrc_nation_id',
         'nrc_value',
         'fk_usertype_id',
-        'fk_brand_id',
         'image_url',
         'email',
         'phone',
         'address',
         'password',
-        'profile_image'
+        'profile_image',
+        'userable_type',
+        'userable_id'
     ];
 
-    protected $hidden = [
-        'password',
-        'remember_token',
-        'fk_nrc_state_id',
-        'fk_nrc_district_id',
-        'fk_nrc_nation_id',
-        'fk_nrc_state_id',
-        'fk_nrc_district_id',
-        'fk_nrc_nation_id',
-        'fk_usertype_id',
-        'fk_brand_id',
-        'email_verified_at'
-    ];
 
     protected  $casts = [
         'id' => 'string',
@@ -53,11 +40,6 @@ class Users extends Authenticatable
         'created_at' => 'datetime:d-m-Y h:i:s A',
         'updated_at' => 'datetime:d-m-Y h:i:s A',
     ];
-
-    protected function serializeDate(DateTimeInterface $date)
-    {
-        return $date->format('d-m-Y h:i:s A');
-    }
 
     public function roles()
     {
@@ -74,11 +56,6 @@ class Users extends Authenticatable
         return $this->hasOne(CsFile::class, 'id', 'profile_image');
     }
 
-    public function brand()
-    {
-        return $this->hasOne(Brands::class, 'id', 'fk_brand_id');
-    }
-
     public function nrcState()
     {
         return $this->hasOne(NrcStates::class, 'id', 'fk_nrc_state_id');
@@ -88,6 +65,7 @@ class Users extends Authenticatable
     {
         return $this->hasOne(NrcDistricts::class, 'id', 'fk_nrc_district_id');
     }
+
     public function nrcNation()
     {
         return $this->hasOne(NrcNations::class, 'id', 'fk_nrc_nation_id');
@@ -106,4 +84,11 @@ class Users extends Authenticatable
 
         return new NewAccessToken($token, $token->getKey() . '|' . $plainTextToken);
     }
+
+    public function userable()
+    {
+        return $this->morphTo();
+    }
+
+    
 }

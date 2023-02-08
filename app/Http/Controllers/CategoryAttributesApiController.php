@@ -2,20 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Exceptions\InvalidRequest;
 use App\Http\Requests\CategoryAttributesSaveRequest;
 use App\Http\Requests\GetCategoryAttributesRequest;
 use App\Models\Criteria;
-use App\Models\Products;
-use App\Models\ViewResult;
-use App\Services\CategoryAttributeService;
-use App\Services\Common;
-use Illuminate\Http\Request;
+use App\Services\CategoryAttributesService;
 use Illuminate\Support\Facades\DB;
 
 class CategoryAttributesApiController extends Controller
 {
-    public function __construct(protected CategoryAttributeService $service)
+    public function __construct(protected CategoryAttributesService $service)
     {
         # code...
     }

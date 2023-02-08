@@ -5,6 +5,14 @@ namespace App\Enums;
 enum UserTypes: string
 {
     use EnumFunctions;
+
+    public const CLASS_MAP = [
+        'server_admin' => User::class,
+        'brand_owner' => Seller::class,
+        'staff' => Seller::class,
+        'user' => Customers::class
+    ];
+
     case SERVER_ADMIN = 'server_admin';
     case BRAND_OWNER = 'brand_owner';
     case USER = 'user';

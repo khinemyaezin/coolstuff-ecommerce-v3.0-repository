@@ -6,13 +6,13 @@ use App\Http\Requests\GetRolesRequest;
 use App\Http\Requests\RoleSaveRequest;
 use App\Http\Requests\RoleUpdateRequest;
 use App\Models\Criteria;
-use App\Services\RoleBasedAccessControl;
+use App\Services\RolebasedAccessControlService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class RoleBasedAccessController extends Controller
 {
-    function __construct(protected RoleBasedAccessControl $service)
+    function __construct(protected RolebasedAccessControlService $service)
     {
     }
 
@@ -23,7 +23,7 @@ class RoleBasedAccessController extends Controller
         return response()->json($result->nullCheckResp(), $result->getHttpStatus());
     }
 
-  
+
     public function saveRole(RoleSaveRequest $request)
     {
         DB::beginTransaction();
@@ -31,16 +31,15 @@ class RoleBasedAccessController extends Controller
         $result = $this->service->storeRole($criteria);
         $result->completeTransaction();
         return response()->json($result->nullCheckResp(), $result->getHttpStatus());
-
     }
 
-    public function updateRole(RoleUpdateRequest $request){
+    public function updateRole(RoleUpdateRequest $request)
+    {
         DB::beginTransaction();
         $criteria = new Criteria($request);
         $result = $this->service->updateRole($criteria);
         $result->completeTransaction();
         return response()->json($result->nullCheckResp(), $result->getHttpStatus());
-
     }
 
     public function getTaskByRoleID(Request $request)
@@ -54,5 +53,4 @@ class RoleBasedAccessController extends Controller
         $result = $this->service->getTasks();
         return response()->json($result->nullCheckResp(), $result->getHttpStatus());
     }
-   
 }

@@ -3,10 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
-class Categories extends CsModel
+class Categories extends Model
 {
-    use HasFactory;
+    use HasFactory,CsModel;
     protected $fillable = [
         'id',
         'title'

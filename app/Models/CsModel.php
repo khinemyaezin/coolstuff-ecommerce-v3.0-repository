@@ -3,9 +3,8 @@
 namespace App\Models;
 
 use DateTimeInterface;
-use Illuminate\Database\Eloquent\Model;
 
-class CsModel extends Model
+trait CsModel
 {
     protected function serializeDate(DateTimeInterface $date)
     {

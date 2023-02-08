@@ -5,35 +5,25 @@ namespace App\Services\Impl;
 use App\Enums\BizStatus;
 use App\Enums\UserTypes;
 use App\Models\Users;
-use App\Services\RolebasedAccessControl;
 use App\Services\AuthService;
+use App\Services\RolebasedAccessControlService;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 
 class AuthServiceImpl implements AuthService
 {
-    public function __construct(protected RolebasedAccessControl $accessControl)
+    public function __construct(protected RolebasedAccessControlService $accessControlService)
     {
     }
-    public function getUserInfoAfterLogin()
+    /**
+     * @return Users
+     */
+    public function getUserInfo()
     {
-        $user = Users::with([
+
+        return Users::with([
             'userType',
             'profileImage',
-            'brand' => function ($query) {
-                $query->with(['profileImage', 'coverImage', 'region', 'defaultCurrency']);
-                $query->select([
-                    'id',
-                    'title',
-                    'public_id',
-                    'profile_image',
-                    'cover_image',
-                    'fk_region_id',
-                    'def_currency_id',
-                    'created_at',
-                    'updated_at'
-                ]);
-            }
         ])->find(
             Auth::id(),
             [
@@ -41,13 +31,43 @@ class AuthServiceImpl implements AuthService
                 'first_name',
                 'last_name',
                 'fk_usertype_id',
-                'fk_brand_id',
                 'profile_image',
+                'userable_type',
+                'userable_id'
             ]
         );
+    }
+    public function getUserInfoByUserType(Users $user)
+    {
+        switch ($user->userType->id) {
+            case UserTypes::BRAND_OWNER->value || UserTypes::STAFF->value: {
+                    return $user->userable()->with([
+                        'brand' => function ($query) {
+                            $query->with(['profileImage', 'coverImage', 'region', 'defaultCurrency']);
+                            $query->select([
+                                'id',
+                                'title',
+                                'public_id',
+                                'profile_image',
+                                'cover_image',
+                                'fk_region_id',
+                                'def_currency_id',
+                                'created_at',
+                                'updated_at'
+                            ]);
+                        }
+                    ])->first(['fk_brand_id']);
+                };
+                break;
+        }
+        return null;
+    }
+
+    public function getRoles(Users $user)
+    {
         $privileges = [];
         if ($user->userType->id == UserTypes::SERVER_ADMIN->value || true) {
-            $taskResult = $this->accessControl->getTasks();
+            $taskResult = $this->accessControlService->getTasks();
             if (!$taskResult->success) throw new Exception();
             foreach ($taskResult->details as $key => $task) {
                 array_push($privileges, $task->id);
@@ -59,11 +79,9 @@ class AuthServiceImpl implements AuthService
                 }
             }
         }
-        return [
-            "roles" => $privileges,
-            "user" => $user
-        ];
+        return $privileges;
     }
+
     public function mergeOrCreateToken($user, $roles)
     {
         $ip = request()->ip();

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Criteria;
+use App\Models\Customers;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 
@@ -11,6 +12,13 @@ final class Common
     public const DEFAULT_VALIDATION_RULES = [
         'relationships' => 'string|nullable',
         'pagination' => 'integer|nullable'
+    ];
+
+    public const USER_IDENTIFICATION = [
+        'server_admin' => User::class,
+        'brand_owner' => Seller::class,
+        'staff' => Seller::class,
+        'user' => Customers::class
     ];
 
     static function getPaginate($count)

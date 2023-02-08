@@ -160,8 +160,8 @@ class BrandServiceImpl implements BrandService
     {
         $result = new ViewResult();
         try {
-            $user = Auth::user();
-            $result->details = Brands::with(['defaultCurrency', 'industry'])->findOrFail($user->brand->id, [
+            $brandId = Auth::user()->userable->fk_brand_id;
+            $result->details = Brands::with(['defaultCurrency', 'industry'])->findOrFail($brandId, [
                 'id',
                 'def_currency_id',
                 'industry_id',
@@ -181,8 +181,7 @@ class BrandServiceImpl implements BrandService
     {
         $result = new ViewResult();
         try {
-            $currentUser = (object) Auth::user();
-
+            $currentUser = (object) Auth::user()->userable;
             $brand = Brands::find($currentUser->brand->id, [
                 'id',
                 'def_currency_id',

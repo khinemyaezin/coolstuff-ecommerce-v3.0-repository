@@ -114,7 +114,7 @@ class UserServiceImpl implements UserService
         $result = new ViewResult();
         $result->enableQueryLog();
         try {
-            $currentUser = (object) Auth::user();
+            $currentUser = (object) Auth::user()->userable;
             $brand = $currentUser->brand;
 
             $records = ModelsUserTypes::with(['users' => function ($query) use ($brand) {
@@ -132,7 +132,7 @@ class UserServiceImpl implements UserService
                 ]);
             }])->where('id', '=', UserTypes::BRAND_OWNER)
                 ->orWhere('id', '=', UserTypes::STAFF)->get();
-            $result->generateQueryLog();
+            
             $result->details = $records;
             $result->success();
         } catch (Exception $e) {

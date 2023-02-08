@@ -3,12 +3,12 @@
 namespace App\Services\Impl;
 
 use App\Enums\BizStatus;
-use App\Interfaces\CRUDInterface;
 use App\Models\Criteria;
 use App\Models\Products;
 use App\Models\ProdVariants;
 use App\Models\ViewResult;
 use App\Services\Common;
+use App\Services\CRUDInterface;
 use App\Services\LocationService;
 use App\Services\ProductService;
 use Exception;

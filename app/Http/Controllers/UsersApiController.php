@@ -9,15 +9,18 @@ use App\Http\Requests\UserSaveRequest;
 use App\Http\Requests\UserUpdateRequest;
 use App\Models\Criteria;
 use App\Models\Users;
-use App\Services\RoleBasedAccessControl;
+use App\Services\RolebasedAccessControlService;
 use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class UsersApiController extends Controller
 {
-    function __construct(protected UserService $userService,protected RoleBasedAccessControl $rbac)
-    {
+
+    function __construct(
+        protected UserService $userService,
+        protected RolebasedAccessControlService $rbac
+    ) {
     }
 
 

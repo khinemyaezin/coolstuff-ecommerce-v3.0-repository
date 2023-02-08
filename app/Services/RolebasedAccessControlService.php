@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Models\Criteria;
 
-interface RolebasedAccessControl{
+interface RolebasedAccessControlService{
     public function storeRole(Criteria $criteria);
     public function updateRole(Criteria $criteria);
     public function getRoles(Criteria $criteria);

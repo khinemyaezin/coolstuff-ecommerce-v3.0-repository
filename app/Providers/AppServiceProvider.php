@@ -22,6 +22,7 @@ use App\Services\Impl\ProductServiceImpl;
 use App\Services\Impl\ProductVariantServiceImpl;
 use App\Services\Impl\RegionServiceImpl;
 use App\Services\Impl\RoleBasedAccessControlImpl;
+use App\Services\Impl\RoleBasedAccessControlServiceImpl;
 use App\Services\Impl\TaskServiceImpl;
 use App\Services\Impl\UserServiceImpl;
 use App\Services\Impl\VariantServiceImpl;
@@ -31,7 +32,7 @@ use App\Services\PackTypeService;
 use App\Services\ProductService;
 use App\Services\ProductVariantService;
 use App\Services\RegionService;
-use App\Services\RolebasedAccessControl;
+use App\Services\RolebasedAccessControlService;
 use App\Services\TaskService;
 use App\Services\UserService;
 use App\Services\VariantService;
@@ -49,22 +50,22 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        $this->app->singleton(Formula::class);
         $this->app->singleton(UserService::class, UserServiceImpl::class);
-        $this->app->singleton(RolebasedAccessControl::class, RoleBasedAccessControlImpl::class);
-        $this->app->singleton(RegionService::class,RegionServiceImpl::class);
+        $this->app->singleton(AuthService::class, AuthServiceImpl::class);
         $this->app->singleton(TaskService::class, TaskServiceImpl::class);
         $this->app->singleton(BrandService::class, BrandServiceImpl::class);
-        $this->app->singleton(CategoryService::class,CategoryServiceImpl::class);
-        $this->app->singleton(ConditionsService::class, ConditionsServiceImpl::class);
-        $this->app->singleton(PackTypeService::class, PackTypeServiceImpl::class);
-        $this->app->singleton(VariantService::class, VariantServiceImpl::class);
-        $this->app->singleton(CategoryAttributesService::class,CategoryAttributeServiceImpl::class);
-        $this->app->singleton(LocationService::class,LocationServiceImpl::class);
+        $this->app->singleton(RegionService::class, RegionServiceImpl::class);
         $this->app->singleton(ProductService::class, ProductServiceImpl::class);
-        $this->app->singleton(Formula::class);
+        $this->app->singleton(VariantService::class, VariantServiceImpl::class);
+        $this->app->singleton(CategoryService::class, CategoryServiceImpl::class);
+        $this->app->singleton(LocationService::class, LocationServiceImpl::class);
+        $this->app->singleton(PackTypeService::class, PackTypeServiceImpl::class);
         $this->app->singleton(InventoryService::class, InventoryServiceImpl::class);
+        $this->app->singleton(ConditionsService::class, ConditionsServiceImpl::class);
         $this->app->singleton(ProductVariantService::class, ProductVariantServiceImpl::class);
-        $this->app->singleton(AuthService::class, AuthServiceImpl::class);
+        $this->app->singleton(RolebasedAccessControlService::class, RoleBasedAccessControlServiceImpl::class);
+        $this->app->singleton(CategoryAttributesService::class, CategoryAttributeServiceImpl::class);
     }
 
     /**
@@ -77,9 +78,9 @@ class AppServiceProvider extends ServiceProvider
         Sanctum::ignoreMigrations();
         Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
 
-        config([
-            'settings' => SystemSettings::first()
-        ]);
+        // config([
+        //     'settings' => SystemSettings::first()
+        // ]);
         Paginator::useBootstrap();
     }
 }

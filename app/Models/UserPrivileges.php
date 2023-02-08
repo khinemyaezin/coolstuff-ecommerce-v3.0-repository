@@ -5,9 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class UserPrivileges extends CsModel
+class UserPrivileges extends Model
 {
-    use HasFactory;
+    use HasFactory,CsModel;
     protected $fillable = [
         'title',
         'fk_user_id',

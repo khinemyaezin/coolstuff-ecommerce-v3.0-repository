@@ -5,9 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ProdAttributes extends CsModel
+class ProdAttributes extends Model
 {
-    use HasFactory;
+    use HasFactory,CsModel;
     protected $fillable = [ 
         'id',
         'fk_varopt_hdr_id',

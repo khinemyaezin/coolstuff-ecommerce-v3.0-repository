@@ -9,11 +9,11 @@ use App\Models\Tasks;
 use App\Models\Users;
 use App\Models\ViewResult;
 use App\Services\Common;
-use App\Services\RolebasedAccessControl;
+use App\Services\RolebasedAccessControlService;
 use Exception;
 use Illuminate\Support\Facades\DB;
 
-class RoleBasedAccessControlImpl implements RolebasedAccessControl
+class RoleBasedAccessControlServiceImpl implements RolebasedAccessControlService
 {
 
     public function storeRole(Criteria $criteria)

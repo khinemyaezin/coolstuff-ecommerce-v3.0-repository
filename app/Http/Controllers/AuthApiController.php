@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Dtos\UserData;
 use App\Http\Requests\ChangeUserPasswordRequest;
 use App\Models\Users;
 use App\Models\ViewResult;
-use App\Services\RolebasedAccessControl;
 use App\Services\AuthService;
 use App\Services\UserService;
 use Exception;
@@ -21,13 +21,14 @@ class AuthApiController extends Controller
 {
     function __construct(
         private UserService $userService,
-        private RolebasedAccessControl $acessControl,
         private AuthService $authService
     ) {
     }
 
     public function login(Request $request)
     {
+        $dto = UserData::from(Users::first());
+        dd($dto);
         $result = null;
         try {
             //$accessToken->created_at->gt(now()->subMinutes($this->expiration)))
@@ -37,13 +38,17 @@ class AuthApiController extends Controller
                 $resp->error(throw new AuthenticationException());
                 return response(new ViewResult(), Response::HTTP_UNAUTHORIZED);
             }
-            $info = $this->authService->getUserInfoAfterLogin(); 
-            $cookie = $this->authService->mergeOrCreateToken($info['user'],$info['roles']);
+            $loginUser = $this->authService->getUserInfo();
+            $loginUserRoles = $this->authService->getRoles($loginUser);
+            $loginUserTypeDetails = $this->authService->getUserInfoByUserType($loginUser);
+            $cookie = $this->authService->mergeOrCreateToken($loginUser, $loginUserRoles);
 
             $result = new ViewResult();
             $result->success();
-            $result->details = $info;
-
+            $result->details = [
+                "roles" => $loginUserRoles,
+                "user" => array_merge($loginUser->toarray(), $loginUserTypeDetails->toarray())
+            ];
             return response()->json($result->nullCheckResp())->withCookie($cookie);
         } catch (Exception $e) {
             $result = new ViewResult();
@@ -85,8 +90,13 @@ class AuthApiController extends Controller
     public function getCurrentUserFromCookie()
     {
         $result = new ViewResult();
-        $info = $this->authService->getUserInfoAfterLogin();
-        $result->details = $info;
+        $loginUser = $this->authService->getUserInfo();
+        $loginUserRoles = $this->authService->getRoles($loginUser);
+        $loginUserTypeDetails = $this->authService->getUserInfoByUserType($loginUser);
+        $result->details = [
+            "roles" => $loginUserRoles,
+            "user" => array_merge($loginUser->toarray(), $loginUserTypeDetails->toarray())
+        ];
         $result->success();
         return response()->json($result->nullCheckResp(), $result->getHttpStatus());
     }

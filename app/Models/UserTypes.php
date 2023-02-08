@@ -5,9 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class UserTypes extends CsModel
+class UserTypes extends Model
 {
-    use HasFactory;
+    use HasFactory,CsModel;
     protected $keyType = "string";
     protected  $casts = [
         'id' => 'string',

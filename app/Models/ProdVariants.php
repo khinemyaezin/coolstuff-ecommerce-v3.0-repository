@@ -4,11 +4,12 @@ namespace App\Models;
 
 use App\Services\Common;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\File;
 
-class ProdVariants extends CsModel
+class ProdVariants extends Model
 {
-    use HasFactory;
+    use HasFactory,CsModel;
     public $prod_attributes = [];
 
     protected $fillable = [

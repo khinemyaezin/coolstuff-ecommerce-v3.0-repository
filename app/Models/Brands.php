@@ -3,10 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
-class Brands extends CsModel
+class Brands extends Model
 {
-    use HasFactory;
+    use HasFactory,CsModel;
+    
     protected $fillable = [
         'title',
         'public_id',
@@ -31,7 +33,7 @@ class Brands extends CsModel
 
     public function users()
     {
-        return $this->hasMany(Users::class, 'fk_brand_id', 'id');
+        return $this->hasMany(BrandOwners::class, 'fk_brand_id', 'id');
     }
     public function region()
     {

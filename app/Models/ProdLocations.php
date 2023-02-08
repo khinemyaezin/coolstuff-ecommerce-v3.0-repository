@@ -5,9 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ProdLocations extends CsModel
+class ProdLocations extends Model
 {
-    use HasFactory;
+    use HasFactory,CsModel;
     protected $table='prod_locations';
     protected $fillable = [
         'id',

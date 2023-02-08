@@ -2,11 +2,11 @@
 
 namespace App\Services\Impl;
 
-use App\Interfaces\CRUDInterface;
 use App\Models\Criteria;
 use App\Models\ProdVariants;
 use App\Models\ViewResult;
 use App\Services\Common;
+use App\Services\CRUDInterface;
 use App\Services\ProductVariantService;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
